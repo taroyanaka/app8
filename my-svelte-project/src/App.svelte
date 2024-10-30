@@ -62,19 +62,25 @@ function set_desc_data(id){
 }
 
 let all_tags = [];
-let auth_uid = "user1";
-let auth_user_id = 1;
 
-let desc_id = 1;
-let created_at = "2024-09-01T00:00:00";
-let updated_at = "2024-09-01T00:00:00";
-let title = "foo";
-let description = "bar";
-let tags = [
-	{ desc_id: 1, id: 1, name: "tag1", created_at: "2024-09-01T00:00:00", updated_at: "2024-09-01T00:00:00" },
-	{ desc_id: 1, id: 2, name: "tag2", created_at: "2024-09-01T00:00:00", updated_at: "2024-09-01T00:00:00" },
-	{ desc_id: 1, id: 3, name: "tag3", created_at: "2024-09-01T00:00:00", updated_at: "2024-09-01T00:00:00" }
-];
+// let desc_id = 1;
+// let created_at = "2024-09-01T00:00:00";
+// let updated_at = "2024-09-01T00:00:00";
+// let title = "foo";
+// let description = "bar";
+// let tags = [
+// 	{ desc_id: 1, id: 1, name: "tag1", created_at: "2024-09-01T00:00:00", updated_at: "2024-09-01T00:00:00" },
+// 	{ desc_id: 1, id: 2, name: "tag2", created_at: "2024-09-01T00:00:00", updated_at: "2024-09-01T00:00:00" },
+// 	{ desc_id: 1, id: 3, name: "tag3", created_at: "2024-09-01T00:00:00", updated_at: "2024-09-01T00:00:00" }
+// ];
+
+let desc_id = null;
+// 現在時刻
+let created_at = new Date().toISOString();
+let updated_at = new Date().toISOString();
+let title = "";
+let description = "";
+let tags = [];
 
 // 3つのテストデータを作成
 const test_sample_data = [
@@ -385,70 +391,74 @@ let web_endpoint = 'http://localhost:8000';
 let web_data = [];
 
 
-// const test_sampleUIDs = [
-//     'user1a34efgh5678ijkl9012mnop',
-//     'user2a34uvwx5678yzab9012cdef',
-//     'user3a34klmn5678opqr9012stuv'
-// ];
-// const auth_firebase_config = {
-//     apiKey: "AIzaSyBcOlIDP2KWbJuKM0WeMHNp-WvjTVfLt9Y",
-//     authDomain: "p2auth-ea50a.firebaseapp.com",
-//     projectId: "p2auth-ea50a",
-//     storageBucket: "p2auth-ea50a.appspot.com",
-//     messagingSenderId: "796225429484",
-//     appId: "1:796225429484:web:ece56ef2fc0be28cd6eac9"
-// };
-// firebase.initializeApp(auth_firebase_config);
-// const auth_google_provider = new firebase.auth.GoogleAuthProvider();
-// async function auth_check_login() {
-// 	try {
-// 		const current_user = await new Promise((resolve, reject) => {
-// 			firebase.auth().onAuthStateChanged(resolve, reject);
-// 		});
-// 		// console.log('Current user:', current_user);
+const test_sampleUIDs = [
+    'user1a34efgh5678ijkl9012mnop',
+    'user2a34uvwx5678yzab9012cdef',
+    'user3a34klmn5678opqr9012stuv'
+];
+
+let auth_uid = test_sampleUIDs[0];
+let auth_user_id = 1;
+const auth_firebase_config = {
+    apiKey: "AIzaSyBcOlIDP2KWbJuKM0WeMHNp-WvjTVfLt9Y",
+    authDomain: "p2auth-ea50a.firebaseapp.com",
+    projectId: "p2auth-ea50a",
+    storageBucket: "p2auth-ea50a.appspot.com",
+    messagingSenderId: "796225429484",
+    appId: "1:796225429484:web:ece56ef2fc0be28cd6eac9"
+};
+
+firebase.initializeApp(auth_firebase_config);
+const auth_google_provider = new firebase.auth.GoogleAuthProvider();
+async function auth_check_login() {
+	try {
+		const current_user = await new Promise((resolve, reject) => {
+			firebase.auth().onAuthStateChanged(resolve, reject);
+		});
+		// console.log('Current user:', current_user);
 	
-// 		const auth_user = current_user;
-// 		if (auth_user) {
-// 			auth_login_result = 'Logged in';
-// 		} else {
-// 			auth_login_result = 'Not logged in';
-// 			if(test_mode){
-// 				auth_login_result = 'Logged in';
-// 			}
-// 		}
-// 	} catch (error) {
-// 		console.error('Error during authentication:', error);
-// 		auth_login_result = 'Authentication failed';
-// 		auth_uid = "";
-// 	}
-// }
-// async function auth_google_login() {
-// 	try {
-// 		const result = await firebase.auth().signInWithPopup(auth_google_provider);
-// 		const auth_user = result.user;
-// 		auth_login_result = `Logged in as: ${auth_user.displayName}`;
-// 	} catch (error) {
-// 		console.error('Error during Google login:', error);
-// 		alert('Google login failed. ' + error.message);
-// 	}
-// }
-// async function auth_sign_out() {
-// 	try {
-// 		await firebase.auth().signOut();
-// 		auth_login_result = 'Not logged in';
-// 	} catch (error) {
-// 		console.error('Error during sign-out:', error);
-// 		alert('Sign out failed. ' + error.message);
-// 	}
-// }
-// async function fetch_data() {
-// 	try {
-// 		const response = await fetch(web_endpoint + '/', {method: 'GET'});
-// 		web_data = await response.json();
-// 	} catch (error) {
-// 		console.error("Error fetching data:", error);
-// 	}
-// }
+		const auth_user = current_user;
+		if (auth_user) {
+			auth_login_result = 'Logged in';
+		} else {
+			auth_login_result = 'Not logged in';
+			if(test_mode){
+				auth_login_result = 'Logged in';
+			}
+		}
+	} catch (error) {
+		console.error('Error during authentication:', error);
+		auth_login_result = 'Authentication failed';
+		auth_uid = "";
+	}
+}
+async function auth_google_login() {
+	try {
+		const result = await firebase.auth().signInWithPopup(auth_google_provider);
+		const auth_user = result.user;
+		auth_login_result = `Logged in as: ${auth_user.displayName}`;
+	} catch (error) {
+		console.error('Error during Google login:', error);
+		alert('Google login failed. ' + error.message);
+	}
+}
+async function auth_sign_out() {
+	try {
+		await firebase.auth().signOut();
+		auth_login_result = 'Not logged in';
+	} catch (error) {
+		console.error('Error during sign-out:', error);
+		alert('Sign out failed. ' + error.message);
+	}
+}
+async function fetch_data() {
+	try {
+		const response = await fetch(web_endpoint + '/', {method: 'GET'});
+		web_data = await response.json();
+	} catch (error) {
+		console.error("Error fetching data:", error);
+	}
+}
 
 
 
@@ -461,6 +471,7 @@ $: (async () => {
 
 onMount(async () => {
 	await fetch_get_all_descs_and_tags();
+	await auth_check_login();
 
 });
 
@@ -480,6 +491,8 @@ onMount(async () => {
 
 
 <div>
+<div>auth_login_result: <span>{auth_login_result}</span></div>
+<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
 	<!-- fetch_init_db() {
 		fetch_get_all_descs_and_tags() {
 		init_and_sample_insert -->
