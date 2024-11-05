@@ -559,7 +559,6 @@ description: <input type="text" value={description} /><p>{description}</p>
 	{#if web_data.allDescs}
     {#each web_data.allDescs as desc}
         <div>
-
             <p>id: {desc.id}</p>
 			<!-- このidを現在のデータにセットする -->
 			<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
