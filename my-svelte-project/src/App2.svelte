@@ -25,7 +25,8 @@ let description = "";
 let tags = [];
 
 let errors = [];
-const test_mode = true;
+// const test_mode = true;
+const test_mode = false;
 let auth_login_result = 'Not logged in';
 let web_endpoint = 'http://localhost:8000';
 let web_data = [];
@@ -35,8 +36,7 @@ const test_sampleUIDs = [
 	'user2a34uvwx5678yzab9012cdef',
 	'user3a34klmn5678opqr9012stuv'
 ];
-let auth_uid = test_sampleUIDs[0];
-
+let auth_uid = '';
 
 // input type="datetime-local"の値をと、
 // sqlite3のcreate_at(TEXT型)とupdate_at(TEXT型)に保存する際はISO8601形式で保存するため、
@@ -407,17 +407,24 @@ firebase.initializeApp(auth_firebase_config);
 const auth_google_provider = new firebase.auth.GoogleAuthProvider();
 async function auth_check_login() {
 	try {
+		console.log('auth_check_login');
 		const current_user = await new Promise((resolve, reject) => {
 			firebase.auth().onAuthStateChanged(resolve, reject);
 		});
-		// console.log('Current user:', current_user);
+		console.log('Current user:', current_user);
 	
 		const auth_user = current_user;
 		if (auth_user) {
+			auth_uid = auth_user.uid;
+			console.log(1);
 			auth_login_result = 'Logged in';
 		} else {
+			console.log(2);
 			auth_login_result = 'Not logged in';
+			auth_uid = '';
 			if(test_mode){
+				console.log(3);
+				console.log('test_mode');
 				auth_login_result = 'Logged in';
 			}
 		}
@@ -429,8 +436,10 @@ async function auth_check_login() {
 }
 async function auth_google_login() {
 	try {
+		console.log('auth_google_login');
 		const result = await firebase.auth().signInWithPopup(auth_google_provider);
 		const auth_user = result.user;
+		console.log(4);
 		auth_login_result = `Logged in as: ${auth_user.displayName}`;
 	} catch (error) {
 		console.error('Error during Google login:', error);
@@ -439,8 +448,10 @@ async function auth_google_login() {
 }
 async function auth_sign_out() {
 	try {
+		console.log(5);
 		await firebase.auth().signOut();
 		auth_login_result = 'Not logged in';
+		await fetch_data();
 	} catch (error) {
 		console.error('Error during sign-out:', error);
 		alert('Sign out failed. ' + error.message);
@@ -518,9 +529,16 @@ onMount(async () => {
 
 <div class="header">
 	<div>
+		<div class="version">v1.0.0</div>
 		<div>auth_uid: {auth_uid}</div>
 		<div>auth_login_result: <span>{auth_login_result}</span></div>
+
+		{#if auth_uid === ''}
 		<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
+		{/if}
+		{#if auth_uid !== ''}
+		<div>auth_sign_out: <button on:click={auth_sign_out}>auth_sign_out</button></div>
+		{/if}
 	</div>
 
 	<button on:click={init_and_sample_insert}>init_and_sample_insert</button>
