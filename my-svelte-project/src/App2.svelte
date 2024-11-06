@@ -1,5 +1,4 @@
 <script>
-// authをgoogle認証にする
 // e2eのテストコード作る
 
 // app4形式のUIにする
@@ -306,7 +305,9 @@ async function fetch_get_all_descs_and_tags() {
         const data = await response.json();
         web_data = data;
         all_tags = data.allTags;
-		if(data.any_user_new_allDescs_with_tags > 0){
+		console.log(1);
+		if(web_data.any_user_new_allDescs_with_tags.length > 0){
+			console.log(2);
 			console.log('any_user_new_allDescs_with_tags');
 			console.log(data.any_user_new_allDescs_with_tags);
 			any_user_new_allDescs_with_tags = data.any_user_new_allDescs_with_tags;
@@ -474,8 +475,8 @@ $: (async () => {
 
 import { onMount } from "svelte";
 onMount(async () => {
-	await fetch_get_all_descs_and_tags();
 	await auth_check_login();
+	await fetch_get_all_descs_and_tags();
 
 });
 
@@ -529,7 +530,7 @@ onMount(async () => {
 
 <div class="header">
 	<div>
-		<div class="version">v1.0.0</div>
+		<div class="version">v1.0.1</div>
 		<div>auth_uid: {auth_uid}</div>
 		<div>auth_login_result: <span>{auth_login_result}</span></div>
 
@@ -563,7 +564,7 @@ onMount(async () => {
 		<div class="list">
 			<h1>Your Web Data Descs</h1>
 			<!-- any_user_new_allDescs_with_tagsが存在するならeachする -->
-			{#if any_user_new_allDescs_with_tags}
+			{#if any_user_new_allDescs_with_tags.length > 0}
 			{#each any_user_new_allDescs_with_tags as desc}
 				<div>
 					<p>id: {desc.id}</p>
@@ -636,10 +637,17 @@ onMount(async () => {
 	</div>
 
 	<div class="right-column">
+		{#if errors.length > 0}
+		<h2>errors</h2>
+		{#each errors as error}
+			<p>{error}</p>
+		{/each}
+		{/if}
+
 		<h1>Web Data Edit</h1>
 		<!-- fetch_update_desc -->
 
-{#if auth_uid === ''}
+{#if auth_uid !== ''}
 		<button on:click={fetch_update_desc}>update_desc</button>
 		<!-- auth_user_id: <input type="number" value={auth_user_id} /><p>{auth_user_id}</p> -->
 		<!-- auth_user_id: <p>{auth_user_id}</p> -->
