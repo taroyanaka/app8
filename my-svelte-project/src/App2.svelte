@@ -638,6 +638,8 @@ onMount(async () => {
 	<div class="right-column">
 		<h1>Web Data Edit</h1>
 		<!-- fetch_update_desc -->
+
+{#if auth_uid === ''}
 		<button on:click={fetch_update_desc}>update_desc</button>
 		<!-- auth_user_id: <input type="number" value={auth_user_id} /><p>{auth_user_id}</p> -->
 		<!-- auth_user_id: <p>{auth_user_id}</p> -->
@@ -671,6 +673,8 @@ onMount(async () => {
 		<button on:click={() => add_tag_to_desc(desc_id, new_tag)}>add_tag_to_desc</button>
 		<!-- fetch_insert_desc -->
 		<button on:click={fetch_insert_desc} class="fetch_insert_desc_button">insert_desc</button>
+{/if}
+
 	</div>
 </div>
 
