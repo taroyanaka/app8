@@ -1,8 +1,6 @@
 <script>
-// e2eのテストコード作る
-
-// app4形式のUIにする
-// authの部分をtest_modeがfalseの時にfirebaseに変更
+// 自分が投稿したdescに対してだけtagの追加、削除ができるように変更する
+// e2eテストをinsert_desボタン押して確認できるようにする
 
 // 命名規則(prefix)
 // auth => authentication関係の変数と関数
@@ -339,6 +337,32 @@ async function fetch_delete_desc_tag(tag_id, desc_id) {
 		console.error('Error:', error);
 	}
 }
+async function fetch_insert_desc_tag(desc_id, name) {
+	try {
+		console.log(desc_id, name, 1);
+		if(!validators.validateTagName(name)) {
+			throw new Error('Validation failed');
+		}
+		console.log(desc_id, name, 2);
+
+		const response = await fetch(web_endpoint + '/insert_desc_tag', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				desc_id: desc_id,
+				name: name
+			})
+		});
+		console.log(desc_id, name, 3);
+		const data = await response.json();
+		console.log(data);
+		await fetch_get_all_descs_and_tags();
+	} catch (error) {
+		console.error('Error:', error);
+	}
+}
 
 const test_all_validation_fn = {
 	validateUser: (uid) => {
@@ -669,15 +693,22 @@ onMount(async () => {
 					<p>auth_uid: {desc.auth_uid.slice(0, 10)}...</p>
 					<p>title: {desc.title}</p>
 					<p>description: {desc.description}</p>
-					<div>tags:</div>
+					<div>tags:
+						<button on:click={() => fetch_insert_desc_tag(desc.id, new_tag)}>add_tag_to_desc</button>
+					</div>
+
+						<!-- add_tag_to_desc -->
+
+			<input list="all_tags" id="my_all_tags" name="my_all_tags" bind:value={new_tag} minlength="1" maxlength="10" required placeholder="1_10"/>
+					<datalist id="all_tags">
+						{#each all_tags as tag}
+							<option value={tag.name} />
+						{/each}
+					</datalist>
+					delete_tag
 					{#each desc.tags as tag}
 						<div class="desc_tag">
-							<p>id: {tag.id}</p>
-							<p>desc_id: {tag.desc_id}</p>
-							<p>tag.name: {tag.name}</p>
-							<!-- fetch_delete_desc_tag -->
-							<button on:click={() => fetch_delete_desc_tag(tag.id, tag.desc_id)}>delete_desc_tag</button>
-		
+							<button on:click={() => fetch_delete_desc_tag(tag.id, tag.desc_id)}>{tag.name}</button>
 						</div>
 					{/each}
 				</div>
@@ -745,14 +776,10 @@ onMount(async () => {
 	</div>
 
 				<!-- datalist要素でall_tags配列から取得 -->
-				<!-- tagをdescに追加 -->
-				<!-- <label for="my_all_tags">all_tags</label> -->
 				<label for="my_all_tags">tag</label>
-				<!-- <input list="all_tags" id="my_all_tags" name="my_all_tags" /> -->
 		<input list="all_tags" id="my_all_tags" name="my_all_tags" bind:value={new_tag} minlength="1" maxlength="10" required placeholder="1_10"/>
 				<datalist id="all_tags">
 					{#each all_tags as tag}
-					<!-- add_tag_to_desc -->
 						<option value={tag.name} />
 					{/each}
 				</datalist>
