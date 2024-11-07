@@ -59,6 +59,8 @@ function add_tag_to_desc(desc_id, tag_name) {
 			if (!tag_already_exists) {
 				tags = [...tags, tag];
 			}
+			// tagのinputを空にする
+			new_tag = "";
 		} else {
 			// If the tag does not exist, create a new tag and add it to the tags array
 			const newTag = {
@@ -96,46 +98,7 @@ function set_desc_data(id){
 }
 
 
-// 3つのテストデータを作成
-const test_sample_data = [
-	{
-		"auth_uid": "user1",
-		"desc_id": 1,
-		"created_at": "2024-09-01T00:00:00",
-		"updated_at": "2024-09-01T00:00:00",
-		"title": "foo1",
-		"description": "bar1",
-		"tags": [
-			{ "desc_id": 1, "id": 1, "name": "tag1", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
-			{ "desc_id": 1, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
-			{ "desc_id": 1, "id": 3, "name": "tag3", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
-		]
-	},
-	{
-		"auth_uid": "user1",
-		"desc_id": 2,
-		"created_at": "2024-09-01T00:00:00",
-		"updated_at": "2024-09-01T00:00:00",
-		"title": "foo2",
-		"description": "bar2",
-		"tags": [
-			{ "desc_id": 2, "id": 1, "name": "tag1", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
-			{ "desc_id": 2, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
-			]
-		},
-		{
-			"auth_uid": "user2",
-			"desc_id": 3,
-			"created_at": "2024-09-01T00:00:00",
-			"updated_at": "2024-09-01T00:00:00",
-			"title": "foo3",
-			"description": "bar3",
-			"tags": [
-				{ "desc_id": 3, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
-				{ "desc_id": 3, "id": 3, "name": "tag3", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
-			]
-		}
-	];
+
 async function init_and_sample_insert(){
 try {
 	// await fetch_init_db();
@@ -201,54 +164,47 @@ const validators = {
 	},
 };
 function valid_all(){
-	console.log(
-		"auth_uid", auth_uid,
-		"desc_id", desc_id,
-		"created_at", created_at,
-		"updated_at", updated_at,
-		"title", title,
-		"description", description,
-		"tags", tags,
-	)
-		// validatorsでバリデーションを行う
-		const valid_data = {
-		"auth_uid": auth_uid,
-		"desc_id": desc_id,
-		"created_at": created_at,
-		"updated_at": updated_at,
-		"title": title,
-		"description": description,
-		"tags": tags,
-	};
-	errors = [];
-	// 全部のバリデーションを行い結果をerrorsに追加
-	for(const [key, value] of Object.entries(validators.validateData(valid_data))) {
-		if(!value) {
-			errors.push(key);
-		}
-		if(key === "tags"){
-			for(const [index, tag] of value.entries()) {
-				for(const [key, value] of Object.entries(validators.validateData(tag))) {
-					if(!value) {
-						errors.push(`tags[${index}].${key}`);
-					}
-				}
-			}
-		}else{
-			key === "auth_uid" ? validators.validateAuthUid(auth_uid) : null;
-			key === "desc_id" ? validators.validateDescId(desc_id) : null;
-			key === "created_at" ? validators.validateISODate(created_at) : null;
-			key === "updated_at" ? validators.validateISODate(updated_at) : null;
-			key === "title" ? validators.validateTitle(title) : null;
-			key === "description" ? validators.validateDescription(description) : null;
-		}
-	}
-	// errorsが空でない場合はエラーを表示
-	if(errors.length > 0) {
-		console.log(errors);
-		return false;
-	}
-	return true;
+    console.log(
+        "auth_uid", auth_uid,
+        "desc_id", desc_id,
+        "title", title,
+        "description", description,
+        "tags", tags,
+    )
+    const valid_data = {
+        "auth_uid": auth_uid,
+        "desc_id": desc_id,
+        "title": title,
+        "description": description,
+        "tags": tags,
+    };
+    errors = [];
+    // 全部のバリデーションを行い結果をerrorsに追加
+    for(const [key, value] of Object.entries(validators.validateData(valid_data))) {
+        if(!value) {
+            errors.push(key);
+        }
+        if(key === "tags"){
+            for(const [index, tag] of value.entries()) {
+                for(const [key, value] of Object.entries(validators.validateData(tag))) {
+                    if(!value) {
+                        errors.push(`tags[${index}].${key}`);
+                    }
+                }
+            }
+        }else{
+            key === "auth_uid" ? validators.validateAuthUid(auth_uid) : null;
+            key === "desc_id" ? validators.validateDescId(desc_id) : null;
+            key === "title" ? validators.validateTitle(title) : null;
+            key === "description" ? validators.validateDescription(description) : null;
+        }
+    }
+    // errorsが空でない場合はエラーを表示
+    if(errors.length > 0) {
+        console.log(errors);
+        return false;
+    }
+    return true;
 }
 async function fetch_insert_desc() {
 	try {
@@ -263,8 +219,8 @@ async function fetch_insert_desc() {
 		},
 		body: JSON.stringify({
 			auth_uid: auth_uid,
-			created_at: created_at,
-			updated_at: updated_at,
+			// created_at: created_at,
+			// updated_at: updated_at,
 			title: title,
 			description: description,
 			tags: tags
@@ -467,6 +423,96 @@ async function fetch_data() {
 	}
 }
 
+
+
+
+
+// 3つのテストデータを作成
+const test_sample_data = [
+	{
+		"auth_uid": "user1",
+		"desc_id": 1,
+		"created_at": "2024-09-01T00:00:00",
+		"updated_at": "2024-09-01T00:00:00",
+		"title": "foo1",
+		"description": "bar1",
+		"tags": [
+			{ "desc_id": 1, "id": 1, "name": "tag1", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
+			{ "desc_id": 1, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
+			{ "desc_id": 1, "id": 3, "name": "tag3", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
+		]
+	},
+	{
+		"auth_uid": "user1",
+		"desc_id": 2,
+		"created_at": "2024-09-01T00:00:00",
+		"updated_at": "2024-09-01T00:00:00",
+		"title": "foo2",
+		"description": "bar2",
+		"tags": [
+			{ "desc_id": 2, "id": 1, "name": "tag1", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
+			{ "desc_id": 2, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
+			]
+		},
+		{
+			"auth_uid": "user2",
+			"desc_id": 3,
+			"created_at": "2024-09-01T00:00:00",
+			"updated_at": "2024-09-01T00:00:00",
+			"title": "foo3",
+			"description": "bar3",
+			"tags": [
+				{ "desc_id": 3, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
+				{ "desc_id": 3, "id": 3, "name": "tag3", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
+			]
+		}
+	];
+
+// 境界値テストデータ
+const boundary_test_data = [
+	{
+		"auth_uid": "user1",
+		"desc_id": 4,
+		"created_at": "2024-09-01T00:00:00",
+		"updated_at": "2024-09-01T00:00:00",
+		"title": "a".repeat(100), // 最大長
+		"description": "b".repeat(1000), // 最大長
+		"tags": [
+			{ "desc_id": 4, "id": 4, "name": "tag4", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
+		]
+	},
+	{
+		"auth_uid": "user1",
+		"desc_id": 5,
+		"created_at": "2024-09-01T00:00:00",
+		"updated_at": "2024-09-01T00:00:00",
+		"title": "", // 最小長
+		"description": "", // 最小長
+		"tags": [
+			{ "desc_id": 5, "id": 5, "name": "t".repeat(10), "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" } // 最大長
+		]
+	}
+];
+
+    // 境界値テストを実行
+    function runBoundaryTests() {
+        boundary_test_data.forEach(data => {
+            // console.log(`Testing desc_id: ${data.desc_id}`);
+            // console.log(`Title length: ${data.title.length}`);
+            // console.log(`Description length: ${data.description.length}`);
+            // console.log(`Tag name length: ${data.tags[0].name.length}`);
+			// console.log(validators.validateData(data));
+			// 期待した結果が返ってくるか確認
+			console.log(validators.validateData(data).isTitleValid === data.title.length >= 1 && data.title.length <= 100);
+			console.log(validators.validateData(data).isDescriptionValid === data.description.length >= 1 && data.description.length <= 1000);
+			console.log(validators.validateData(data).areTagsValid === data.tags.every(tag => tag.name.length >= 1 && tag.name.length <= 10));
+
+        });
+    }
+
+
+
+
 $: (async () => {
 	// inputタグにバインドされたデータは、inputタグの値が変更されるたびに更新される
 
@@ -485,6 +531,17 @@ onMount(async () => {
 
 
 <style>
+
+/* valid */
+.title:invalid,
+.description:invalid {
+  background-color: lightgray;
+}
+.title:valid,
+.description:valid {
+  /* background-color: palegreen; */
+}
+
 	.container {
 		display: flex;
 		flex-direction: column;
@@ -504,10 +561,6 @@ onMount(async () => {
 		flex: 1;
 		padding: 10px;
 	}
-	textarea {
-		width: 100%;
-		height: 50vh;
-	}
 		/* desc_tag */
 /* 右寄せで文字を0.8remに */
 .desc_tag {
@@ -524,6 +577,14 @@ onMount(async () => {
 	display: inline-block;
 	font-size: 16px;
 }
+.title {
+	width: 100%;
+	height: 2rem;
+}
+.description {
+		width: 100%;
+		height: 17rem;
+	}
 </style>
 		
 <div class="container">
@@ -542,9 +603,13 @@ onMount(async () => {
 		{/if}
 	</div>
 
+<!-- runBoundaryTests -->
+<button on:click={runBoundaryTests}>runBoundaryTests</button>
+
 	<button on:click={init_and_sample_insert}>init_and_sample_insert</button>
 	<button on:click={fetch_init_db}>init_db</button>
 	<button on:click={fetch_get_all_descs_and_tags}>get_all_descs_and_tags</button>
+
 </div>
 
 <div class="content">
@@ -658,26 +723,39 @@ onMount(async () => {
 		<!-- <input type="text" value={desc_id} /> -->
 		<!-- created_at: <input type="datetime-local" bind:value={toDatetimeLocalFromISOString(created_at)} /><p>{created_at}</p> -->
 		<!-- updated_at: <input type="datetime-local" bind:value={toDatetimeLocalFromISOString(updated_at)} /><p>{updated_at}</p> -->
-		title: <input type="text" bind:value={title} /><p>{title}</p>
-		description: <input type="text" bind:value={description} /><p>{description}</p>
-		<div>tags:</div>
-			{#each tags as tag}
-			id: {tag.id}
-			desc_id: {tag.desc_id}
-			tag.name: <input type="text" value={tag.name} /><p>{tag.name}</p>
-			{/each}				
+
+		<div>title: </div>
+		<!-- <input type="text" class="title" bind:value={title} minlength="1" maxlength="100" required placeholder="1_100" /> -->
+		<textarea class="title" bind:value={title} minlength="1" maxlength="100" required placeholder="1_100"></textarea>
+		<!-- <p>{title}</p> -->
+
+		<div>description: </div>
+		<!-- <textarea class="textarea" bind:value={description} minlength="1" maxlength="1000" required placeholder="1_1000"></textarea> -->
+		<textarea class="description" bind:value={description} minlength="1" maxlength="1000" required placeholder="1_1000"></textarea>
+		<!-- <p>{description}</p> -->
+
+	<div>
+		<!-- <input type="text" class="tag" value={tag.name} minlength="1" maxlength="10" /><p>{tag.name}</p> -->
+		<!-- <p>{tag.name}</p> -->
+		<!-- タグをdescから削除 -->
+		<!-- <button on:click={() => tags = tags.filter(t => t.id !== tag.id)}>delete_tag</button> -->
+		{#each tags as tag}
+		<button on:click={() => tags = tags.filter(t => t.id !== tag.id)}>{tag.name}</button>
+		{/each}
+	</div>
+
 				<!-- datalist要素でall_tags配列から取得 -->
-				tagをdescに追加
-				<label for="my_all_tags">all_tags</label>
+				<!-- tagをdescに追加 -->
+				<!-- <label for="my_all_tags">all_tags</label> -->
+				<label for="my_all_tags">tag</label>
 				<!-- <input list="all_tags" id="my_all_tags" name="my_all_tags" /> -->
-		<input list="all_tags" id="my_all_tags" name="my_all_tags" bind:value={new_tag} />
+		<input list="all_tags" id="my_all_tags" name="my_all_tags" bind:value={new_tag} minlength="1" maxlength="10" required placeholder="1_10"/>
 				<datalist id="all_tags">
 					{#each all_tags as tag}
 					<!-- add_tag_to_desc -->
 						<option value={tag.name} />
 					{/each}
 				</datalist>
-				<!-- add_tag_to_desc(desc_id, tag.id, tag.name) -->
 		<button on:click={() => add_tag_to_desc(desc_id, new_tag)}>add_tag_to_desc</button>
 		<!-- fetch_insert_desc -->
 		<button on:click={fetch_insert_desc} class="fetch_insert_desc_button">insert_desc</button>
