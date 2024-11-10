@@ -1,4 +1,29 @@
 <script>
+// filter_tag_id_aryに含まれたIDのallDescsをフィルタされたallDescsを表示する
+let filter_tag_id_ary = [];
+let filtered_allDescs = [];
+function filtering_by_tag(tag_id){
+	filtered_allDescs = [];
+	// filter_tag_id_aryに指定したtag_idを存在しなければ追加
+	const tag_id_exists = filter_tag_id_ary.some(id => id === tag_id);
+	if(!tag_id_exists){
+		filter_tag_id_ary = [...filter_tag_id_ary, tag_id];
+	}
+	filtered_allDescs = web_data.allDescs.filter(desc => {
+		// descのtagsにfilter_tag_id_aryに含まれるtag_idが存在するかどうか
+		const tag_id_exists = desc.tags.some(tag => filter_tag_id_ary.some(id => id === tag.id));
+		return tag_id_exists;
+	});
+	// web_dataにオブジェクトをアサインする
+	web_data = {
+		...web_data,
+		filtered_allDescs: filtered_allDescs
+	};
+}
+function clear_filtered_allDescs(){
+	filtered_allDescs = [];
+}
+
 // 自分が投稿したdescに対してだけtagの追加、削除ができるように変更する
 	//  =>一旦コンサバティブな方針で実装。今後必要であればdesc保持者以外用のtag追加を実装する
 
@@ -674,46 +699,79 @@ onMount(async () => {
 							<p>id: {tag.id}</p>
 							<p>desc_id: {tag.desc_id}</p>
 							<p>tag.name: {tag.name}</p>
-							<!-- fetch_delete_desc_tag -->
 							<button on:click={() => fetch_delete_desc_tag(tag.id, tag.desc_id)}>delete_desc_tag</button>
-		
 						</div>
 					{/each}
 				</div>
 			{/each}
 			{/if}
 
+<h1>Filter Web Data Descs</h1>
+<!-- clear_filtered_allDescs -->
+<button on:click={clear_filtered_allDescs}>clear_filtered_allDescs</button>
+{#if filtered_allDescs.length > 0}
+{#each filtered_allDescs as desc}
+<div>
+	<p>id: {desc.id}</p>
+	<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
+	<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
+	<p>auth_uid: {desc.auth_uid.slice(0, 10)}...</p>
+	<p>title: {desc.title}</p>
+	<p>description: {desc.description}</p>
+</div>
+{/each}
+{/if}
+				
+
 			<h1>Web Data Descs</h1>
 			{#if web_data.allDescs}
 			{#each web_data.allDescs as desc}
 				<div>
 					<p>id: {desc.id}</p>
-					<!-- このidを現在のデータにセットする -->
 					<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
-					<!-- idを指定して削除 -->
 					<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
-						
 					<p>auth_uid: {desc.auth_uid.slice(0, 10)}...</p>
 					<p>title: {desc.title}</p>
 					<p>description: {desc.description}</p>
-					<div>tags:
-						<button on:click={() => fetch_insert_desc_tag(desc.id, new_tag)}>add_tag_to_desc</button>
-					</div>
+{#each desc.tags as tag}
+<!-- filtering button -->
+<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+	<!-- {tag.name} -->
 
-						<!-- add_tag_to_desc -->
+	<!-- <div class="desc_tag"> -->
+		<!-- <p>id: {tag.id}</p> -->
+		<!-- <p>desc_id: {tag.desc_id}</p> -->
+		<!-- <p>tag.name: {tag.name}</p> -->
+		<!-- <button on:click={() => fetch_delete_desc_tag(tag.id, tag.desc_id)}>delete_desc_tag</button> -->
+	<!-- </div> -->
+{/each}
 
-			<input list="all_tags" id="my_all_tags" name="my_all_tags" bind:value={new_tag} minlength="1" maxlength="10" required placeholder="1_10"/>
-					<datalist id="all_tags">
-						{#each all_tags as tag}
-							<option value={tag.name} />
-						{/each}
-					</datalist>
-					delete_tag
-					{#each desc.tags as tag}
-						<div class="desc_tag">
-							<button on:click={() => fetch_delete_desc_tag(tag.id, tag.desc_id)}>{tag.name}</button>
-						</div>
-					{/each}
+
+
+<!--
+<div>
+tags:
+<button on:click={() => fetch_insert_desc_tag(desc.id, new_tag)}>add_tag_to_desc</button>
+</div>
+-->
+
+<!--
+<input list="all_tags" id="my_all_tags" name="my_all_tags" bind:value={new_tag} minlength="1" maxlength="10" required placeholder="1_10"/>
+<datalist id="all_tags">
+	{#each all_tags as tag}
+		<option value={tag.name} />
+	{/each}p
+</datalist>
+delete_tag
+{#each desc.tags as tag}
+	<div class="desc_tag">
+		<button on:click={() => fetch_delete_desc_tag(tag.id, tag.desc_id)}>{tag.name}</button>
+	</div>
+{/each}
+-->
+
+
+
 				</div>
 			{/each}
 			{/if}
@@ -748,31 +806,13 @@ onMount(async () => {
 
 {#if auth_uid !== ''}
 		<button on:click={fetch_update_desc}>update_desc</button>
-		<!-- auth_user_id: <input type="number" value={auth_user_id} /><p>{auth_user_id}</p> -->
-		<!-- auth_user_id: <p>{auth_user_id}</p> -->
-		<!-- auth_uid: <input type="text" value={auth_uid} /><p>{auth_uid}</p> -->
-		 <!-- auth_uidは文字数が10文字で折り返す -->
 		auth_uid: <p>{auth_uid.slice(0, 10)}...</p>
 		<p>id: {desc_id}</p>
-		<!-- <input type="text" value={desc_id} /> -->
-		<!-- created_at: <input type="datetime-local" bind:value={toDatetimeLocalFromISOString(created_at)} /><p>{created_at}</p> -->
-		<!-- updated_at: <input type="datetime-local" bind:value={toDatetimeLocalFromISOString(updated_at)} /><p>{updated_at}</p> -->
-
 		<div>title: </div>
-		<!-- <input type="text" class="title" bind:value={title} minlength="1" maxlength="100" required placeholder="1_100" /> -->
 		<textarea class="title" bind:value={title} minlength="1" maxlength="100" required placeholder="1_100"></textarea>
-		<!-- <p>{title}</p> -->
-
 		<div>description: </div>
-		<!-- <textarea class="textarea" bind:value={description} minlength="1" maxlength="1000" required placeholder="1_1000"></textarea> -->
 		<textarea class="description" bind:value={description} minlength="1" maxlength="1000" required placeholder="1_1000"></textarea>
-		<!-- <p>{description}</p> -->
-
 	<div>
-		<!-- <input type="text" class="tag" value={tag.name} minlength="1" maxlength="10" /><p>{tag.name}</p> -->
-		<!-- <p>{tag.name}</p> -->
-		<!-- タグをdescから削除 -->
-		<!-- <button on:click={() => tags = tags.filter(t => t.id !== tag.id)}>delete_tag</button> -->
 		{#each tags as tag}
 		<button on:click={() => tags = tags.filter(t => t.id !== tag.id)}>{tag.name}</button>
 		{/each}
