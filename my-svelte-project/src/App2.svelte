@@ -1,35 +1,4 @@
 <script>
-// filter_tag_id_aryに含まれたIDのallDescsをフィルタされたallDescsを表示する
-let filter_tag_id_ary = [];
-let filtered_allDescs = [];
-function filtering_by_tag(tag_id){
-	filtered_allDescs = [];
-	// filter_tag_id_aryに指定したtag_idを存在しなければ追加
-	const tag_id_exists = filter_tag_id_ary.some(id => id === tag_id);
-	if(!tag_id_exists){
-		filter_tag_id_ary = [...filter_tag_id_ary, tag_id];
-	}
-	filtered_allDescs = web_data.allDescs.filter(desc => {
-		// descのtagsにfilter_tag_id_aryに含まれるtag_idが存在するかどうか
-		const tag_id_exists = desc.tags.some(tag => filter_tag_id_ary.some(id => id === tag.id));
-		return tag_id_exists;
-	});
-	// web_dataにオブジェクトをアサインする
-	web_data = {
-		...web_data,
-		filtered_allDescs: filtered_allDescs
-	};
-}
-function clear_filtered_allDescs(){
-	filtered_allDescs = [];
-}
-
-// 自分が投稿したdescに対してだけtagの追加、削除ができるように変更する
-	//  =>一旦コンサバティブな方針で実装。今後必要であればdesc保持者以外用のtag追加を実装する
-
-
-// e2eテストをinsert_desボタン押して確認できるようにする
-
 // 命名規則(prefix)
 // auth => authentication関係の変数と関数
 // test => テスト用の変数と関数
@@ -43,11 +12,11 @@ let new_tag = "";
 let all_tags = [];
 
 let desc_id = null;
-let created_at = new Date().toISOString();
-let updated_at = new Date().toISOString();
 let title = "";
 let description = "";
 let tags = [];
+let filter_tag_id_ary = [];
+let filtered_allDescs = [];
 
 let errors = [];
 // const test_mode = true;
@@ -110,8 +79,6 @@ function set_desc_data(id){
 	if (desc) {
 		auth_uid = desc.auth_uid;
 		desc_id = desc.id;
-		created_at = desc.created_at;
-		updated_at = desc.updated_at;
 		title = desc.title;
 		description = desc.description;
 		tags = desc.tags;
@@ -122,17 +89,33 @@ function set_desc_data(id){
 		console.error('Error:', error);	
 	}
 }
-
-
-
+function filtering_by_tag(tag_id){
+	filtered_allDescs = [];
+	// filter_tag_id_aryに指定したtag_idを存在しなければ追加
+	const tag_id_exists = filter_tag_id_ary.some(id => id === tag_id);
+	if(!tag_id_exists){
+		filter_tag_id_ary = [...filter_tag_id_ary, tag_id];
+	}
+	filtered_allDescs = web_data.allDescs.filter(desc => {
+		// descのtagsにfilter_tag_id_aryに含まれるtag_idが存在するかどうか
+		const tag_id_exists = desc.tags.some(tag => filter_tag_id_ary.some(id => id === tag.id));
+		return tag_id_exists;
+	});
+	// web_dataにオブジェクトをアサインする
+	web_data = {
+		...web_data,
+		filtered_allDescs: filtered_allDescs
+	};
+}
+function clear_filtered_allDescs(){
+	filtered_allDescs = [];
+}
 async function init_and_sample_insert(){
 try {
 	// await fetch_init_db();
 	for(const data of test_sample_data) {
 		auth_uid = data.auth_uid;
 		desc_id = data.desc_id;
-		created_at = data.created_at;
-		updated_at = data.updated_at;
 		title = data.title;
 		description = data.description;
 		tags = data.tags;
@@ -245,8 +228,6 @@ async function fetch_insert_desc() {
 		},
 		body: JSON.stringify({
 			auth_uid: auth_uid,
-			// created_at: created_at,
-			// updated_at: updated_at,
 			title: title,
 			description: description,
 			tags: tags
@@ -302,7 +283,7 @@ async function fetch_get_all_descs_and_tags() {
 async function fetch_update_desc() {
 	try {
 		console.log('fetch_update_desc');
-		console.log(auth_uid, desc_id, created_at, updated_at, title, description, tags);
+		console.log(auth_uid, desc_id, title, description, tags);
 		if(!valid_all()) {
 			throw new Error('Validation failed');
 		}
@@ -548,19 +529,13 @@ const boundary_test_data = [
 
     // 境界値テストを実行
     function runBoundaryTests() {
-        boundary_test_data.forEach(data => {
-            // console.log(`Testing desc_id: ${data.desc_id}`);
-            // console.log(`Title length: ${data.title.length}`);
-            // console.log(`Description length: ${data.description.length}`);
-            // console.log(`Tag name length: ${data.tags[0].name.length}`);
-			// console.log(validators.validateData(data));
-			// 期待した結果が返ってくるか確認
-			console.log(validators.validateData(data).isTitleValid === data.title.length >= 1 && data.title.length <= 100);
-			console.log(validators.validateData(data).isDescriptionValid === data.description.length >= 1 && data.description.length <= 1000);
-			console.log(validators.validateData(data).areTagsValid === data.tags.every(tag => tag.name.length >= 1 && tag.name.length <= 10));
-
-        });
-    }
+		const index = 1;
+        title = boundary_test_data[index].title;
+		description = boundary_test_data[index].description;
+		tags = boundary_test_data[index].tags;
+		fetch_insert_desc();
+	};
+		
 
 
 
