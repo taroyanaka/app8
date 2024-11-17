@@ -19,12 +19,13 @@ let filter_tag_id_ary = [];
 let filtered_allDescs = [];
 
 let errors = [];
-// const test_mode = true;
-const test_mode = false;
+const test_mode = true;
+// const test_mode = false;
 let auth_login_result = 'Not logged in';
 let web_endpoint = 'http://localhost:8000';
 let web_data = [];
 let any_user_new_allDescs_with_tags = [];
+let web_data_with_title = [];
 const test_sampleUIDs = [
 	'user1a34efgh5678ijkl9012mnop',
 	'user2a34uvwx5678yzab9012cdef',
@@ -32,16 +33,6 @@ const test_sampleUIDs = [
 ];
 let auth_uid = '';
 
-// input type="datetime-local"の値をと、
-// sqlite3のcreate_at(TEXT型)とupdate_at(TEXT型)に保存する際はISO8601形式で保存するため、
-// それぞれの関数を作成create_project, create_packの2つの関数で使用
-function toISOStringFromDatetimeLocal(datetimeLocalValue) {
-	const date = new Date(datetimeLocalValue);
-	return date.toISOString();
-}
-function toDatetimeLocalFromISOString(isoString) {
-	return isoString.slice(0, 16); // 'YYYY-MM-DDTHH:MM' 形式を抽出
-}
 
 function add_tag_to_desc(desc_id, tag_name) {
 	try {
@@ -73,46 +64,46 @@ function add_tag_to_desc(desc_id, tag_name) {
 	}
 }
 function set_desc_data(id){
-	try {
-	const desc = web_data.allDescs.find(desc => desc.id === id);
-		console.log(desc.tags);
-	if (desc) {
-		auth_uid = desc.auth_uid;
-		desc_id = desc.id;
-		title = desc.title;
-		description = desc.description;
-		tags = desc.tags;
-	} else {
-		console.error(`No description found with id: ${id}`);
-	}		
-	} catch (error) {
-		console.error('Error:', error);	
-	}
+try {
+const desc = web_data.allDescs.find(desc => desc.id === id);
+if (desc) {
+	auth_uid = desc.auth_uid;
+	desc_id = desc.id;
+	title = desc.title;
+	description = desc.description;
+	tags = desc.tags;
+} else {
+	console.error(`No description found with id: ${id}`);
+}		
+} catch (error) {
+	console.error('Error:', error);	
 }
-function filtering_by_tag(tag_id){
-	filtered_allDescs = [];
-	// filter_tag_id_aryに指定したtag_idを存在しなければ追加
+}
+function filtering_by_tag(tag_id) {
 	const tag_id_exists = filter_tag_id_ary.some(id => id === tag_id);
-	if(!tag_id_exists){
+	if (!tag_id_exists) {
 		filter_tag_id_ary = [...filter_tag_id_ary, tag_id];
 	}
-	filtered_allDescs = web_data.allDescs.filter(desc => {
-		// descのtagsにfilter_tag_id_aryに含まれるtag_idが存在するかどうか
+	const filtered_allDescs = web_data.allDescs.filter(desc => {
 		const tag_id_exists = desc.tags.some(tag => filter_tag_id_ary.some(id => id === tag.id));
 		return tag_id_exists;
 	});
-	// web_dataにオブジェクトをアサインする
-	web_data = {
-		...web_data,
-		filtered_allDescs: filtered_allDescs
-	};
+	const new_web_data_with_title = web_data_with_title.find(section => section.title === "Filter Web Data Descs").descs;
+	web_data_with_title = [
+		...web_data_with_title.filter(section => section.title !== "Filter Web Data Descs"),
+		{ title: "Filter Web Data Descs", descs: filtered_allDescs }
+	];
+
+
 }
-function clear_filtered_allDescs(){
+async function clear_filtered_allDescs(){
 	filtered_allDescs = [];
+	filter_tag_id_ary = [];
+	web_data_with_title = [];
+	await fetch_get_all_descs_and_tags();
 }
 async function init_and_sample_insert(){
 try {
-	// await fetch_init_db();
 	for(const data of test_sample_data) {
 		auth_uid = data.auth_uid;
 		desc_id = data.desc_id;
@@ -121,7 +112,6 @@ try {
 		tags = data.tags;
 		await fetch_insert_desc();
 	}
-
 } catch (error) {
 	console.error('Error:', error);
 }
@@ -216,8 +206,7 @@ function valid_all(){
     return true;
 }
 async function fetch_insert_desc() {
-	try {
-	// バリデーションを行いエラーがある場合エラースロー
+try {
 	if(!valid_all()) {
 		throw new Error('Validation failed');
 	}
@@ -235,10 +224,8 @@ async function fetch_insert_desc() {
 	});
 	const data = await res.json();
 	console.log(data);
-	} catch (error) {
-		
-	}
-
+} catch (error) {
+}
 }
 async function fetch_init_db() {
 	try {
@@ -255,122 +242,96 @@ async function fetch_init_db() {
 	}
 }
 async function fetch_get_all_descs_and_tags() {
-    try {
-        const response = await fetch(web_endpoint + '/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-				auth_uid: auth_uid
-			}) // 必要なデータをここに追加
-        });
-        const data = await response.json();
-        web_data = data;
-        all_tags = data.allTags;
-		console.log(1);
-		if(web_data.any_user_new_allDescs_with_tags.length > 0){
-			console.log(2);
-			console.log('any_user_new_allDescs_with_tags');
-			console.log(data.any_user_new_allDescs_with_tags);
-			any_user_new_allDescs_with_tags = data.any_user_new_allDescs_with_tags;
-		}
-        console.log(data);
-    } catch (error) {
-        console.error('Error:', error);
-    }
+try {
+	const response = await fetch(web_endpoint + '/', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			auth_uid: auth_uid
+		}) // 必要なデータをここに追加
+	});
+	const data = await response.json();
+	web_data = data;
+	all_tags = data.allTags;
+	if(web_data.any_user_new_allDescs_with_tags.length > 0){
+		any_user_new_allDescs_with_tags = data.any_user_new_allDescs_with_tags;
+	}
+	web_data_with_title = [
+		{ title: "Your Web Data Descs", descs: any_user_new_allDescs_with_tags },
+		{ title: "Filter Web Data Descs", descs: filtered_allDescs },
+		{ title: "Web Data Descs", descs: data.allDescs }
+	];
+} catch (error) {
+	console.error('Error:', error);
+}
 }
 async function fetch_update_desc() {
-	try {
-		console.log('fetch_update_desc');
-		console.log(auth_uid, desc_id, title, description, tags);
-		if(!valid_all()) {
-			throw new Error('Validation failed');
-		}
-
-		const response = await fetch(web_endpoint + '/update_desc', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				auth_uid: auth_uid,
-				desc_id: desc_id,
-				title: title,
-				description: description,
-				tags: tags
-			})
-		});
-		const data = await response.json();
-		console.log(data);
-	} catch (error) {
-		console.error('Error:', error);
+try {
+	if(!valid_all()) {
+		throw new Error('Validation failed');
 	}
+	const response = await fetch(web_endpoint + '/update_desc', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			auth_uid: auth_uid,
+			desc_id: desc_id,
+			title: title,
+			description: description,
+			tags: tags
+		})
+	});
+	const data = await response.json();
+} catch (error) {
+	console.error('Error:', error);
+}
 }
 async function fetch_delete_desc(id) {
-	try {
-		const response = await fetch(web_endpoint + '/delete_desc', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				id: id,
-				auth_uid: auth_uid
-			})
-		});
-		const data = await response.json();
-		console.log(data);
-	} catch (error) {
-		console.error('Error:', error);
-	}
+try {
+	const response = await fetch(web_endpoint + '/delete_desc', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			id: id,
+			auth_uid: auth_uid
+		})
+	});
+	const data = await response.json();
+} catch (error) {
+	console.error('Error:', error);
 }
-async function fetch_delete_desc_tag(tag_id, desc_id) {
-	try {
-		console.log(tag_id, desc_id, auth_uid);
-		const response = await fetch(web_endpoint + '/delete_desc_tag', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ 
-				id: tag_id,
-				desc_id: desc_id,
-				auth_uid: auth_uid
-			})
-
-		});
-		const data = await response.json();
-		console.log(data);
-	} catch (error) {
-		console.error('Error:', error);
-	}
 }
 async function fetch_insert_desc_tag(desc_id, name) {
-	try {
-		console.log(desc_id, name, 1);
-		if(!validators.validateTagName(name)) {
-			throw new Error('Validation failed');
-		}
-		console.log(desc_id, name, 2);
-
-		const response = await fetch(web_endpoint + '/insert_desc_tag', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				desc_id: desc_id,
-				name: name
-			})
-		});
-		console.log(desc_id, name, 3);
-		const data = await response.json();
-		console.log(data);
-		await fetch_get_all_descs_and_tags();
-	} catch (error) {
-		console.error('Error:', error);
+try {
+	console.log(desc_id, name, 1);
+	if(!validators.validateTagName(name)) {
+		throw new Error('Validation failed');
 	}
+	console.log(desc_id, name, 2);
+
+	const response = await fetch(web_endpoint + '/insert_desc_tag', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			desc_id: desc_id,
+			name: name
+		})
+	});
+	console.log(desc_id, name, 3);
+	const data = await response.json();
+	console.log(data);
+	await fetch_get_all_descs_and_tags();
+} catch (error) {
+	console.error('Error:', error);
+}
 }
 
 const test_all_validation_fn = {
@@ -527,69 +488,78 @@ const boundary_test_data = [
 	}
 ];
 
-    // 境界値テストを実行
-    function runBoundaryTests() {
-		const index = 1;
-        title = boundary_test_data[index].title;
-		description = boundary_test_data[index].description;
-		tags = boundary_test_data[index].tags;
-		fetch_insert_desc();
-	};
-		
-
-
-
+// 境界値テストを実行
+function runBoundaryTests() {
+	const index = 1;
+	title = boundary_test_data[index].title;
+	description = boundary_test_data[index].description;
+	tags = boundary_test_data[index].tags;
+	fetch_insert_desc();
+};
 
 $: (async () => {
-	// inputタグにバインドされたデータは、inputタグの値が変更されるたびに更新される
-
-
+	// web_data_with_titleの順番をYour Web Data Descs, Filter Web Data Descs, Web Data Descsに変更
+	let new_web_data_with_title = [];
+		if(web_data_with_title.length > 0){
+		new_web_data_with_title = 
+			[
+				{ title: "Your Web Data Descs", descs: web_data_with_title.find(section => section.title === "Your Web Data Descs").descs },
+				{ title: "Filter Web Data Descs", descs: web_data_with_title.find(section => section.title === "Filter Web Data Descs").descs },
+				{ title: "Web Data Descs", descs: web_data_with_title.find(section => section.title === "Web Data Descs").descs }
+			];
+		}
+	web_data_with_title = [...new_web_data_with_title];
 })();
 
 import { onMount } from "svelte";
 onMount(async () => {
 	await auth_check_login();
 	await fetch_get_all_descs_and_tags();
-
 });
 
 </script>
 
 
 
-<style>
 
-/* valid */
+<style>
+.break_word {
+	background-color: lightgray;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	width: 50vw;
+}
 .title:invalid,
 .description:invalid {
-  background-color: lightgray;
+	background-color: lightgray;
 }
 .title:valid,
 .description:valid {
   /* background-color: palegreen; */
 }
-
-	.container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: 20px;
-	}
-	.header {
-		display: flex;
-		justify-content: space-between;
-		width: 100%;
-	}
-	.content {
-		display: flex;
-		width: 100%;
-	}
-	.left-column, .right-column {
-		flex: 1;
-		padding: 10px;
-	}
-		/* desc_tag */
-/* 右寄せで文字を0.8remに */
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 20px;
+}
+.header {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+}
+.content {
+	display: flex;
+	width: 100%;
+}
+.left-column, .right-column {
+	flex: 1;
+	padding: 10px;
+}
+.list {
+	display: flex;
+	flex-direction: column;
+}
 .desc_tag {
 /* text-align: right; */
 /* font-size: 0.8rem; */
@@ -611,160 +581,81 @@ onMount(async () => {
 .description {
 		width: 100%;
 		height: 17rem;
-	}
+}
 </style>
-		
+
+
+
 <div class="container">
 
 <div class="header">
-	<div>
-		<div class="version">v1.0.1</div>
-		<div>auth_uid: {auth_uid}</div>
-		<div>auth_login_result: <span>{auth_login_result}</span></div>
+	<div class="version">v1.0.2</div>
+	<div>auth_login_result: <span>{auth_login_result}</span></div>
+	{#if auth_uid === ''}
+	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
+	{/if}
+	{#if auth_uid !== ''}
+	<div>auth_sign_out: <button on:click={auth_sign_out}>auth_sign_out</button></div>
+	{/if}
 
-		{#if auth_uid === ''}
-		<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
-		{/if}
-		{#if auth_uid !== ''}
-		<div>auth_sign_out: <button on:click={auth_sign_out}>auth_sign_out</button></div>
-		{/if}
-	</div>
-
-<!-- runBoundaryTests -->
-<button on:click={runBoundaryTests}>runBoundaryTests</button>
-
+	{#if test_mode}
+	<div>auth_uid: {auth_uid}</div>
+	<button on:click={runBoundaryTests}>runBoundaryTests</button>
 	<button on:click={init_and_sample_insert}>init_and_sample_insert</button>
 	<button on:click={fetch_init_db}>init_db</button>
 	<button on:click={fetch_get_all_descs_and_tags}>get_all_descs_and_tags</button>
+	{/if}
 
 </div>
 
 <div class="content">
 	<div class="left-column server_side">
 		<div class="console">
-			{#if errors > 0}
-			<!-- <button id="errors" on:click={() => errors = ''} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') errors = ''; }} style="background: none; border: none; padding: 0; margin: 0; color: inherit; font: inherit; cursor: pointer;">
-				{errors}
-			</button> -->
-				<p>Errors:</p>
-				{#each errors as error}
-					<div>{error}</div>
-				{/each}
-			{/if}
-			<!-- <p>auth_uid: {auth_uid.slice(0, 10)}...</p> -->
+		{#if errors > 0}
+		<p>Errors:</p>
+		{#each errors as error}
+			<div>{error}</div>
+		{/each}
+		{/if}
 		</div>
+
 		<div class="list">
-			<h1>Your Web Data Descs</h1>
-			<!-- any_user_new_allDescs_with_tagsが存在するならeachする -->
-			{#if any_user_new_allDescs_with_tags.length > 0}
-			{#each any_user_new_allDescs_with_tags as desc}
-				<div>
-					<p>id: {desc.id}</p>
-					<!-- このidを現在のデータにセットする -->
-					<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
-					<!-- idを指定して削除 -->
-					<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
-						
-					<p>auth_uid: {desc.auth_uid.slice(0, 10)}...</p>
-					<p>title: {desc.title}</p>
-					<p>description: {desc.description}</p>
-					<div>tags:</div>
-					{#each desc.tags as tag}
-						<div class="desc_tag">
-							<p>id: {tag.id}</p>
-							<p>desc_id: {tag.desc_id}</p>
-							<p>tag.name: {tag.name}</p>
-							<button on:click={() => fetch_delete_desc_tag(tag.id, tag.desc_id)}>delete_desc_tag</button>
-						</div>
-					{/each}
-				</div>
+		{#each web_data_with_title as section}
+			<h1>{section.title}</h1>
+			{#if section.title === "Filter Web Data Descs"}
+				<button on:click={clear_filtered_allDescs}>clear_filtered_allDescs</button>
+			{/if}
+			{#if section.descs}
+			{#each section.descs as desc}
+			<div>
+				<p>id: {desc.id}</p>
+				<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
+				<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
+				<p>auth_uid: {desc.auth_uid.slice(0, 10)}...</p>
+				<p class="break_word">title: {desc.title}</p>
+				<p class="break_word">description: {desc.description}</p>
+				<div>tags:</div>
+				{#each desc.tags as tag}
+				<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+				{/each}
+			</div>
 			{/each}
 			{/if}
-
-<h1>Filter Web Data Descs</h1>
-<!-- clear_filtered_allDescs -->
-<button on:click={clear_filtered_allDescs}>clear_filtered_allDescs</button>
-{#if filtered_allDescs.length > 0}
-{#each filtered_allDescs as desc}
-<div>
-	<p>id: {desc.id}</p>
-	<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
-	<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
-	<p>auth_uid: {desc.auth_uid.slice(0, 10)}...</p>
-	<p>title: {desc.title}</p>
-	<p>description: {desc.description}</p>
-</div>
-{/each}
-{/if}
-				
-
-			<h1>Web Data Descs</h1>
-			{#if web_data.allDescs}
-			{#each web_data.allDescs as desc}
-				<div>
-					<p>id: {desc.id}</p>
-					<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
-					<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
-					<p>auth_uid: {desc.auth_uid.slice(0, 10)}...</p>
-					<p>title: {desc.title}</p>
-					<p>description: {desc.description}</p>
-{#each desc.tags as tag}
-<!-- filtering button -->
-<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
-	<!-- {tag.name} -->
-
-	<!-- <div class="desc_tag"> -->
-		<!-- <p>id: {tag.id}</p> -->
-		<!-- <p>desc_id: {tag.desc_id}</p> -->
-		<!-- <p>tag.name: {tag.name}</p> -->
-		<!-- <button on:click={() => fetch_delete_desc_tag(tag.id, tag.desc_id)}>delete_desc_tag</button> -->
-	<!-- </div> -->
-{/each}
-
-
-
-<!--
-<div>
-tags:
-<button on:click={() => fetch_insert_desc_tag(desc.id, new_tag)}>add_tag_to_desc</button>
-</div>
--->
-
-<!--
-<input list="all_tags" id="my_all_tags" name="my_all_tags" bind:value={new_tag} minlength="1" maxlength="10" required placeholder="1_10"/>
-<datalist id="all_tags">
-	{#each all_tags as tag}
-		<option value={tag.name} />
-	{/each}p
-</datalist>
-delete_tag
-{#each desc.tags as tag}
-	<div class="desc_tag">
-		<button on:click={() => fetch_delete_desc_tag(tag.id, tag.desc_id)}>{tag.name}</button>
-	</div>
-{/each}
--->
-
-
-
-				</div>
-			{/each}
-			{/if}
+		{/each}
 		</div>
 
 		<div class="list2">
-			<h1>Web Data Tags</h1>
-			<!-- allTags -->
-			{#if web_data.allTags}
-				{#each web_data.allTags as tag}
-					<div>
-						<p>id: {tag.id}</p>
-						<p>tag.name: {tag.name}</p>
-						<!-- <p>created_at: {tag.created_at}</p> -->
-						<!-- <p>updated_at: {tag.updated_at}</p> -->
-					</div>
-				{/each}
-			{/if}
+		<h1>Web Data Tags</h1>
+		{#if web_data.allTags}
+		{#each web_data.allTags as tag}
+		<!-- <div> -->
+			<!-- <p>id: {tag.id}</p> -->
+			<!-- <p>tag.name: {tag.name}</p> -->
+			<!-- filtering_by_tag -->
+			<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+		<!-- </div> -->
+		{/each}
+		{/if}
 		</div>
 	</div>
 
@@ -777,9 +668,7 @@ delete_tag
 		{/if}
 
 		<h1>Web Data Edit</h1>
-		<!-- fetch_update_desc -->
-
-{#if auth_uid !== ''}
+		{#if auth_uid !== ''}
 		<button on:click={fetch_update_desc}>update_desc</button>
 		auth_uid: <p>{auth_uid.slice(0, 10)}...</p>
 		<p>id: {desc_id}</p>
@@ -787,25 +676,22 @@ delete_tag
 		<textarea class="title" bind:value={title} minlength="1" maxlength="100" required placeholder="1_100"></textarea>
 		<div>description: </div>
 		<textarea class="description" bind:value={description} minlength="1" maxlength="1000" required placeholder="1_1000"></textarea>
-	<div>
+		<div>
 		{#each tags as tag}
-		<button on:click={() => tags = tags.filter(t => t.id !== tag.id)}>{tag.name}</button>
+			<button on:click={() => tags = tags.filter(t => t.id !== tag.id)}>{tag.name}</button>
 		{/each}
-	</div>
+		</div>
 
-				<!-- datalist要素でall_tags配列から取得 -->
-				<label for="my_all_tags">tag</label>
+		<label for="my_all_tags">tag</label>
 		<input list="all_tags" id="my_all_tags" name="my_all_tags" bind:value={new_tag} minlength="1" maxlength="10" required placeholder="1_10"/>
-				<datalist id="all_tags">
-					{#each all_tags as tag}
-						<option value={tag.name} />
-					{/each}
-				</datalist>
+		<datalist id="all_tags">
+		{#each all_tags as tag}
+			<option value={tag.name} />
+		{/each}
+		</datalist>
 		<button on:click={() => add_tag_to_desc(desc_id, new_tag)}>add_tag_to_desc</button>
-		<!-- fetch_insert_desc -->
 		<button on:click={fetch_insert_desc} class="fetch_insert_desc_button">insert_desc</button>
-{/if}
-
+		{/if}
 	</div>
 </div>
 
