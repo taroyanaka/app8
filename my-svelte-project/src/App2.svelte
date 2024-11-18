@@ -26,7 +26,8 @@ let web_endpoint = 'http://localhost:8000';
 let web_data = 	{
 		"allDescs": [],
 		"allTags": [],
-		"any_user_new_allDescs_with_tags": []
+		"any_user_new_allDescs_with_tags": [],
+		"filtered_allDescs": [],
 	};
 let any_user_new_allDescs_with_tags = [];
 let web_data_with_title = [];
@@ -92,11 +93,8 @@ function filtering_by_tag(tag_id) {
 		const tag_id_exists = desc.tags.some(tag => filter_tag_id_ary.some(id => id === tag.id));
 		return tag_id_exists;
 	});
-	const new_web_data_with_title = web_data_with_title.find(section => section.title === "Filter Web Data Descs").descs;
-	web_data_with_title = [
-		...web_data_with_title.filter(section => section.title !== "Filter Web Data Descs"),
-		{ title: "Filter Web Data Descs", descs: filtered_allDescs }
-	];
+	web_data['filtered_allDescs'] = filtered_allDescs;
+
 }
 async function clear_filtered_allDescs(){
 	filtered_allDescs = [];
@@ -258,14 +256,6 @@ try {
 	console.log(data);
 	web_data = data;
 	all_tags = data.allTags;
-	if(web_data.any_user_new_allDescs_with_tags.length > 0){
-		any_user_new_allDescs_with_tags = data.any_user_new_allDescs_with_tags;
-	}
-	web_data_with_title = [
-		{ title: "Your Web Data Descs", descs: any_user_new_allDescs_with_tags },
-		{ title: "Filter Web Data Descs", descs: filtered_allDescs },
-		{ title: "Web Data Descs", descs: data.allDescs }
-	];
 } catch (error) {
 	console.error('Error:', error);
 }
@@ -495,6 +485,7 @@ $: (async () => {
 })();
 
 import { onMount } from "svelte";
+    import { bubble } from "svelte/internal";
 onMount(async () => {
 	await auth_check_login();
 	await fetch_get_all_descs_and_tags();
@@ -587,7 +578,7 @@ h1{
 <div class="container">
 
 <div class="header">
-	<div class="version">v1.0.3</div>
+	<div class="version">v1.0.4</div>
 	<div>auth_login_result: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
@@ -619,8 +610,12 @@ h1{
 
 		<div class="list">
 			{#each Object.entries(web_data) as [key, value]}
+			{#if key !== "allTags"}
 				<div class={key}>
 					<h1>{key}</h1>
+					{#if key === "filtered_allDescs"}
+						<button on:click={clear_filtered_allDescs}>clear_filtered_allDescs</button>
+					{/if}
 						{#each value as desc}
 							<div>
 								<p>id: {desc.id}</p>
@@ -638,6 +633,7 @@ h1{
 							</div>
 						{/each}
 				</div>
+			{/if}
 			{/each}
 				<div class="web_data_tags">
 					<h1>Web Data Tags</h1>
@@ -648,16 +644,6 @@ h1{
 					{/if}
 				</div>
 		</div>
-
-		<!-- <div class="list2">
-		<h1>Web Data Tags</h1>
-		{#if web_data.allTags}
-		{#each web_data.allTags as tag}
-			<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
-		{/each}
-		{/if}
-		</div> -->
-
 	</div>
 
 	<div class="right-column">
@@ -671,7 +657,6 @@ h1{
 		<h1>Web Data Edit</h1>
 		{#if auth_uid !== ''}
 		<button on:click={fetch_update_desc}>update_desc</button>
-		auth_uid: <p>{auth_uid.slice(0, 10)}...</p>
 		<p>id: {desc_id}</p>
 		<div>title: </div>
 		<textarea class="title" bind:value={title} minlength="1" maxlength="100" required placeholder="1_100"></textarea>
