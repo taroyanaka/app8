@@ -23,7 +23,11 @@ const test_mode = true;
 // const test_mode = false;
 let auth_login_result = 'Not logged in';
 let web_endpoint = 'http://localhost:8000';
-let web_data = [];
+let web_data = 	{
+		"allDescs": [],
+		"allTags": [],
+		"any_user_new_allDescs_with_tags": []
+	};
 let any_user_new_allDescs_with_tags = [];
 let web_data_with_title = [];
 const test_sampleUIDs = [
@@ -93,8 +97,6 @@ function filtering_by_tag(tag_id) {
 		...web_data_with_title.filter(section => section.title !== "Filter Web Data Descs"),
 		{ title: "Filter Web Data Descs", descs: filtered_allDescs }
 	];
-
-
 }
 async function clear_filtered_allDescs(){
 	filtered_allDescs = [];
@@ -253,6 +255,7 @@ try {
 		}) // 必要なデータをここに追加
 	});
 	const data = await response.json();
+	console.log(data);
 	web_data = data;
 	all_tags = data.allTags;
 	if(web_data.any_user_new_allDescs_with_tags.length > 0){
@@ -333,7 +336,6 @@ try {
 	console.error('Error:', error);
 }
 }
-
 const test_all_validation_fn = {
 	validateUser: (uid) => {
 		const errors = [];
@@ -343,8 +345,7 @@ const test_all_validation_fn = {
 		}
 		return errors;
 	},
-};
-
+}
 const auth_firebase_config = {
 	apiKey: "AIzaSyBcOlIDP2KWbJuKM0WeMHNp-WvjTVfLt9Y",
 	authDomain: "p2auth-ea50a.firebaseapp.com",
@@ -352,8 +353,7 @@ const auth_firebase_config = {
 	storageBucket: "p2auth-ea50a.appspot.com",
 	messagingSenderId: "796225429484",
 	appId: "1:796225429484:web:ece56ef2fc0be28cd6eac9"
-};
-
+}
 firebase.initializeApp(auth_firebase_config);
 const auth_google_provider = new firebase.auth.GoogleAuthProvider();
 async function auth_check_login() {
@@ -416,11 +416,6 @@ async function fetch_data() {
 		console.error("Error fetching data:", error);
 	}
 }
-
-
-
-
-
 // 3つのテストデータを作成
 const test_sample_data = [
 	{
@@ -460,8 +455,7 @@ const test_sample_data = [
 				{ "desc_id": 3, "id": 3, "name": "tag3", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
 			]
 		}
-	];
-
+];
 // 境界値テストデータ
 const boundary_test_data = [
 	{
@@ -487,7 +481,6 @@ const boundary_test_data = [
 		]
 	}
 ];
-
 // 境界値テストを実行
 function runBoundaryTests() {
 	const index = 1;
@@ -498,17 +491,7 @@ function runBoundaryTests() {
 };
 
 $: (async () => {
-	// web_data_with_titleの順番をYour Web Data Descs, Filter Web Data Descs, Web Data Descsに変更
-	let new_web_data_with_title = [];
-		if(web_data_with_title.length > 0){
-		new_web_data_with_title = 
-			[
-				{ title: "Your Web Data Descs", descs: web_data_with_title.find(section => section.title === "Your Web Data Descs").descs },
-				{ title: "Filter Web Data Descs", descs: web_data_with_title.find(section => section.title === "Filter Web Data Descs").descs },
-				{ title: "Web Data Descs", descs: web_data_with_title.find(section => section.title === "Web Data Descs").descs }
-			];
-		}
-	web_data_with_title = [...new_web_data_with_title];
+
 })();
 
 import { onMount } from "svelte";
@@ -516,13 +499,13 @@ onMount(async () => {
 	await auth_check_login();
 	await fetch_get_all_descs_and_tags();
 });
-
 </script>
 
 
-
-
 <style>
+h1{
+	width: 50vw;
+}
 .break_word {
 	background-color: lightgray;
 	word-wrap: break-word;
@@ -582,6 +565,24 @@ onMount(async () => {
 		width: 100%;
 		height: 17rem;
 }
+
+.list {
+	display: flex;
+	flex-direction: column;
+}
+/* 順序を変更するためのクラス */
+.allDescs {
+	order: 4;
+}
+.allTags {
+	order: 2;
+}
+.any_user_new_allDescs_with_tags {
+	order: 3;
+}
+.web_data_tags {
+	order: 1;
+}
 </style>
 
 
@@ -589,7 +590,7 @@ onMount(async () => {
 <div class="container">
 
 <div class="header">
-	<div class="version">v1.0.2</div>
+	<div class="version">v1.0.3</div>
 	<div>auth_login_result: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
@@ -620,43 +621,46 @@ onMount(async () => {
 		</div>
 
 		<div class="list">
-		{#each web_data_with_title as section}
-			<h1>{section.title}</h1>
-			{#if section.title === "Filter Web Data Descs"}
-				<button on:click={clear_filtered_allDescs}>clear_filtered_allDescs</button>
-			{/if}
-			{#if section.descs}
-			{#each section.descs as desc}
-			<div>
-				<p>id: {desc.id}</p>
-				<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
-				<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
-				<p>auth_uid: {desc.auth_uid.slice(0, 10)}...</p>
-				<p class="break_word">title: {desc.title}</p>
-				<p class="break_word">description: {desc.description}</p>
-				<div>tags:</div>
-				{#each desc.tags as tag}
-				<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
-				{/each}
-			</div>
+			{#each Object.entries(web_data) as [key, value]}
+				<div class={key}>
+					<h1>{key}</h1>
+						{#each value as desc}
+							<div>
+								<p>id: {desc.id}</p>
+								<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
+								<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
+								<!-- <p>auth_uid: {desc.auth_uid.slice(0, 10)}...</p> -->
+								<p class="break_word">title: {desc.title}</p>
+								<p class="break_word">description: {desc.description}</p>
+								<div>tags:</div>
+								{#if desc.tags}
+								{#each desc.tags as tag}
+									<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+								{/each}
+								{/if}
+							</div>
+						{/each}
+				</div>
 			{/each}
-			{/if}
-		{/each}
+				<div class="web_data_tags">
+					<h1>Web Data Tags</h1>
+					{#if web_data.allTags}
+					{#each web_data.allTags as tag}
+						<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+					{/each}
+					{/if}
+				</div>
 		</div>
 
-		<div class="list2">
+		<!-- <div class="list2">
 		<h1>Web Data Tags</h1>
 		{#if web_data.allTags}
 		{#each web_data.allTags as tag}
-		<!-- <div> -->
-			<!-- <p>id: {tag.id}</p> -->
-			<!-- <p>tag.name: {tag.name}</p> -->
-			<!-- filtering_by_tag -->
 			<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
-		<!-- </div> -->
 		{/each}
 		{/if}
-		</div>
+		</div> -->
+
 	</div>
 
 	<div class="right-column">
