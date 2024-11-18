@@ -256,6 +256,10 @@ try {
 	console.log(data);
 	web_data = data;
 	all_tags = data.allTags;
+	if(data.any_user_new_allDescs_with_tags){
+		any_user_new_allDescs_with_tags = data.any_user_new_allDescs_with_tags;
+	}
+
 } catch (error) {
 	console.error('Error:', error);
 }
@@ -485,9 +489,10 @@ $: (async () => {
 })();
 
 import { onMount } from "svelte";
-    import { bubble } from "svelte/internal";
+
 onMount(async () => {
 	await auth_check_login();
+	console.log(auth_uid);
 	await fetch_get_all_descs_and_tags();
 });
 </script>
