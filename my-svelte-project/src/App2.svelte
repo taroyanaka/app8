@@ -539,10 +539,7 @@ h1{
 	flex: 1;
 	padding: 10px;
 }
-.list {
-	display: flex;
-	flex-direction: column;
-}
+
 .desc_tag {
 /* text-align: right; */
 /* font-size: 0.8rem; */
