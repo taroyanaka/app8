@@ -38,6 +38,11 @@ const test_sampleUIDs = [
 ];
 let auth_uid = '';
 
+let design_showFullDescription = false;
+function design_toggleDescription() {
+	design_showFullDescription = !design_showFullDescription;
+}
+
 
 function add_tag_to_desc(desc_id, tag_name) {
 	try {
@@ -483,6 +488,20 @@ function runBoundaryTests() {
 	tags = boundary_test_data[index].tags;
 	fetch_insert_desc();
 };
+function design_scrollToId() {
+	// URLに#Nのようなidが存在する場合指定したid(#id)の要素にスクロールする
+	if (location.hash) {
+		const id = location.hash.slice(1);
+		const element = document.getElementById(id);
+		if (element) {
+			element.scrollIntoView({ behavior: 'smooth' });
+		}
+	}
+}
+function copy_link(id) {
+	navigator.clipboard.writeText(`${window.location.href.split('#')[0]}#${id}`);
+	alert('Link copied to clipboard');
+}
 
 $: (async () => {
 
@@ -494,11 +513,21 @@ onMount(async () => {
 	await auth_check_login();
 	console.log(auth_uid);
 	await fetch_get_all_descs_and_tags();
+	design_scrollToId();
+
 });
 </script>
 
 
 <style>
+.button_reset {
+	background: none;
+	border: none;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+}
 h1{
 	width: 50vw;
 }
@@ -583,7 +612,7 @@ h1{
 <div class="container">
 
 <div class="header">
-	<div class="version">v1.0.5</div>
+	<div class="version">v1.0.6</div>
 	<div>auth_login_result: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
@@ -599,7 +628,6 @@ h1{
 	<button on:click={fetch_init_db}>init_db</button>
 	<button on:click={fetch_get_all_descs_and_tags}>get_all_descs_and_tags</button>
 	{/if}
-
 </div>
 
 <div class="content">
@@ -623,14 +651,20 @@ h1{
 					{/if}
 						{#each value as desc}
 							<div>
-								<p>id: {desc.id}
+								<p id={desc.id}>
+								<button class="button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
 								{#if key === "any_user_new_allDescs_with_tags"}
 								<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
 								<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
 								{/if}
 								</p>
-								<p class="break_word">title: {desc.title}</p>
-								<p class="break_word">description: {desc.description}</p>
+								<!-- title:  -->
+								<p class="break_word">{desc.title}</p>
+								<!-- description:  -->
+								<p class="break_word">
+									{design_showFullDescription ? desc.description : `${desc.description.slice(0, 10)}...`}
+									<button class="button_reset" on:click={design_toggleDescription}>{design_showFullDescription ? '▲' : '▼'}</button>
+								</p>
 								{#if desc.tags}
 								{#each desc.tags as tag}
 									<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
