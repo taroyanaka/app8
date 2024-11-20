@@ -1,4 +1,6 @@
 <script>
+// fetch周りの修正のテストとresのmessage用のUIの追加
+
 // 命名規則(prefix)
 // auth => authentication関係の変数と関数
 // test => テスト用の変数と関数
@@ -77,7 +79,6 @@ function set_desc_data(id){
 try {
 const desc = web_data.allDescs.find(desc => desc.id === id);
 if (desc) {
-	auth_uid = desc.auth_uid;
 	desc_id = desc.id;
 	title = desc.title;
 	description = desc.description;
@@ -212,6 +213,12 @@ function valid_all(){
 }
 async function fetch_insert_desc() {
 try {
+	console.log(
+		auth_uid,
+		title,
+		description,
+		tags,
+	)
 	if(!valid_all()) {
 		throw new Error('Validation failed');
 	}
@@ -246,25 +253,32 @@ async function fetch_init_db() {
 		console.error('Error:', error);
 	}
 }
+async function fetch_get_all_sequnce(Response) {
+	try {
+		const data = await Response.json();
+		console.log(data);
+		web_data = data;
+		all_tags = data.allTags;
+		if(data.any_user_new_allDescs_with_tags){
+			any_user_new_allDescs_with_tags = data.any_user_new_allDescs_with_tags;
+		}
+	} catch (error) {
+		console.error('Error:', error);
+	}
+	
+}
 async function fetch_get_all_descs_and_tags() {
 try {
 	const response = await fetch(web_endpoint + '/', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			auth_uid: auth_uid
-		}) // 必要なデータをここに追加
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				auth_uid: auth_uid
+			}) // 必要なデータをここに追加
 	});
-	const data = await response.json();
-	console.log(data);
-	web_data = data;
-	all_tags = data.allTags;
-	if(data.any_user_new_allDescs_with_tags){
-		any_user_new_allDescs_with_tags = data.any_user_new_allDescs_with_tags;
-	}
-
+	await fetch_get_all_sequnce(response);
 } catch (error) {
 	console.error('Error:', error);
 }
@@ -287,7 +301,8 @@ try {
 			tags: tags
 		})
 	});
-	const data = await response.json();
+	// const data = await response.json();
+	await fetch_get_all_sequnce(response);
 } catch (error) {
 	console.error('Error:', error);
 }
@@ -304,37 +319,35 @@ try {
 			auth_uid: auth_uid
 		})
 	});
-	const data = await response.json();
+	// const data = await response.json();
+	await fetch_get_all_sequnce(response);
 } catch (error) {
 	console.error('Error:', error);
 }
 }
-async function fetch_insert_desc_tag(desc_id, name) {
-try {
-	console.log(desc_id, name, 1);
-	if(!validators.validateTagName(name)) {
-		throw new Error('Validation failed');
-	}
-	console.log(desc_id, name, 2);
+// async function fetch_insert_desc_tag(desc_id, name) {
+// try {
+// 	console.log(desc_id, name, 1);
+// 	if(!validators.validateTagName(name)) {
+// 		throw new Error('Validation failed');
+// 	}
+// 	console.log(desc_id, name, 2);
 
-	const response = await fetch(web_endpoint + '/insert_desc_tag', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			desc_id: desc_id,
-			name: name
-		})
-	});
-	console.log(desc_id, name, 3);
-	const data = await response.json();
-	console.log(data);
-	await fetch_get_all_descs_and_tags();
-} catch (error) {
-	console.error('Error:', error);
-}
-}
+// 	const response = await fetch(web_endpoint + '/insert_desc_tag', {
+// 		method: 'POST',
+// 		headers: {
+// 			'Content-Type': 'application/json'
+// 		},
+// 		body: JSON.stringify({
+// 			desc_id: desc_id,
+// 			name: name
+// 		})
+// 	});
+// 	await fetch_get_all_sequnce(response);
+// } catch (error) {
+// 	console.error('Error:', error);
+// }
+// }
 const test_all_validation_fn = {
 	validateUser: (uid) => {
 		const errors = [];
@@ -401,18 +414,9 @@ async function auth_sign_out() {
 		console.log(5);
 		await firebase.auth().signOut();
 		auth_login_result = 'Not logged in';
-		await fetch_data();
 	} catch (error) {
 		console.error('Error during sign-out:', error);
 		alert('Sign out failed. ' + error.message);
-	}
-}
-async function fetch_data() {
-	try {
-		const response = await fetch(web_endpoint + '/', {method: 'GET'});
-		web_data = await response.json();
-	} catch (error) {
-		console.error("Error fetching data:", error);
 	}
 }
 // 3つのテストデータを作成
@@ -612,7 +616,7 @@ h1{
 <div class="container">
 
 <div class="header">
-	<div class="version">v1.0.6</div>
+	<div class="version">v1.0.7</div>
 	<div>auth_login_result: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
@@ -653,7 +657,7 @@ h1{
 							<div>
 								<p id={desc.id}>
 								<button class="button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
-								{#if key === "any_user_new_allDescs_with_tags"}
+								{#if key === "any_user_new_allDescs_with_tags" && auth_uid}
 								<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
 								<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
 								{/if}
