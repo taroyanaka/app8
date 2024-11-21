@@ -614,7 +614,7 @@ h1{
 <div class="container">
 
 <div class="header">
-	<div class="version">v1.0.7</div>
+	<div class="version">v1.0.8</div>
 	<div>auth_login_result: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
