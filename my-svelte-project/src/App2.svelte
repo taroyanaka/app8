@@ -21,16 +21,17 @@ let filter_tag_id_ary = [];
 let filtered_allDescs = [];
 
 let errors = [];
-const test_mode = true;
-// const test_mode = false;
+// const test_mode = true;
+const test_mode = false;
 let auth_login_result = 'Not logged in';
 let web_endpoint = 'http://localhost:8000';
 let web_data = 	{
-		"allDescs": [],
-		"allTags": [],
-		"any_user_new_allDescs_with_tags": [],
-		"filtered_allDescs": [],
-	};
+		// "allDescs": [],
+		// "allTags": [],
+		// "any_user_new_allDescs_with_tags": [],
+		// "filtered_allDescs": [],
+};
+let other_data = {};
 let any_user_new_allDescs_with_tags = [];
 let web_data_with_title = [];
 const test_sampleUIDs = [
@@ -39,13 +40,11 @@ const test_sampleUIDs = [
 	'user3a34klmn5678opqr9012stuv'
 ];
 let auth_uid = '';
-
 let design_showFullDescription = false;
+
 function design_toggleDescription() {
 	design_showFullDescription = !design_showFullDescription;
 }
-
-
 function add_tag_to_desc(desc_id, tag_name) {
 	try {
 		// tag_nameからtag_idを取得
@@ -213,16 +212,10 @@ function valid_all(){
 }
 async function fetch_insert_desc() {
 try {
-	console.log(
-		auth_uid,
-		title,
-		description,
-		tags,
-	)
 	if(!valid_all()) {
 		throw new Error('Validation failed');
 	}
-	const res = await fetch('http://localhost:8000/insert_desc', {
+	const response = await fetch('http://localhost:8000/insert_desc', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
@@ -234,9 +227,10 @@ try {
 			tags: tags
 		})
 	});
-	const data = await res.json();
-	console.log(data);
+	console.log(1);
+	await fetch_get_all_sequnce(response);
 } catch (error) {
+	console.error('Error:', error);
 }
 }
 async function fetch_init_db() {
@@ -256,16 +250,19 @@ async function fetch_init_db() {
 async function fetch_get_all_sequnce(Response) {
 	try {
 		const data = await Response.json();
-		console.log(data);
-		web_data = data;
+		console.log(1);
+		// dataからallDescs, allTags, any_user_new_allDescs_with_tags,以外のデータをother_dataに分離
+		other_data = Object.fromEntries(Object.entries(data).filter(([key, value]) => key !== 'allDescs' && key !== 'allTags' && key !== 'any_user_new_allDescs_with_tags'));
+		// allDescs, allTags, any_user_new_allDescs_with_tagsをweb_dataに追加(それ以外のプロパティはweb_dataに追加しない)
+		web_data = Object.fromEntries(Object.entries(data).filter(([key, value]) => key === 'allDescs' || key === 'allTags' || key === 'any_user_new_allDescs_with_tags'));
+
 		all_tags = data.allTags;
-		if(data.any_user_new_allDescs_with_tags){
-			any_user_new_allDescs_with_tags = data.any_user_new_allDescs_with_tags;
-		}
+		console.log("web_data", web_data);
+		console.log("other_data", other_data);
+		console.log(2);
 	} catch (error) {
 		console.error('Error:', error);
 	}
-	
 }
 async function fetch_get_all_descs_and_tags() {
 try {
@@ -379,7 +376,6 @@ async function auth_check_login() {
 		const auth_user = current_user;
 		if (auth_user) {
 			auth_uid = auth_user.uid;
-			console.log(1);
 			auth_login_result = 'Logged in';
 		} else {
 			console.log(2);
@@ -508,6 +504,9 @@ function copy_link(id) {
 }
 
 $: (async () => {
+// web_dataをリアクティブにする
+// web_data = web_data;
+
 
 })();
 
@@ -515,10 +514,10 @@ import { onMount } from "svelte";
 
 onMount(async () => {
 	await auth_check_login();
-	console.log(auth_uid);
+	console.log("auth_check_login");
 	await fetch_get_all_descs_and_tags();
+	console.log("fetch_get_all_descs_and_tags");
 	design_scrollToId();
-
 });
 </script>
 
@@ -568,7 +567,6 @@ h1{
 	flex: 1;
 	padding: 10px;
 }
-
 .desc_tag {
 /* text-align: right; */
 /* font-size: 0.8rem; */
@@ -666,7 +664,7 @@ h1{
 								<p class="break_word">{desc.title}</p>
 								<!-- description:  -->
 								<p class="break_word">
-									{design_showFullDescription ? desc.description : `${desc.description.slice(0, 10)}...`}
+									{design_showFullDescription ? desc.description : desc.description.slice(0, 10)}
 									<button class="button_reset" on:click={design_toggleDescription}>{design_showFullDescription ? '▲' : '▼'}</button>
 								</p>
 								{#if desc.tags}
