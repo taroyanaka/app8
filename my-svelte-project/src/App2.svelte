@@ -1,5 +1,21 @@
 <script>
-// fetch周りの修正のテストとresのmessage用のUIの追加
+// resのmessage用のUIの追加
+// 以下の文字列を多言語表記に対応に
+	// auth_login_result
+	// auth_sign_out
+	// web_data_tags
+	// any_user_new_all_descs_with_tags
+	// all_descs
+	// web_data_edit
+	// title
+	// description
+	// tag
+	// auth_sign_out
+	// set_desc_data
+	// delete_desc
+	// add_tag_to_desc
+	// update_desc
+	// insert_desc
 
 // 命名規則(prefix)
 // auth => authentication関係の変数と関数
@@ -18,7 +34,7 @@ let title = "";
 let description = "";
 let tags = [];
 let filter_tag_id_ary = [];
-let filtered_allDescs = [];
+let filtered_all_descs = [];
 
 let errors = [];
 // const test_mode = true;
@@ -26,19 +42,9 @@ const test_mode = false;
 let auth_login_result = 'Not logged in';
 let web_endpoint = 'http://localhost:8000';
 let web_data = 	{
-		// "allDescs": [],
-		// "allTags": [],
-		// "any_user_new_allDescs_with_tags": [],
-		// "filtered_allDescs": [],
 };
 let other_data = {};
-let any_user_new_allDescs_with_tags = [];
 let web_data_with_title = [];
-const test_sampleUIDs = [
-	'user1a34efgh5678ijkl9012mnop',
-	'user2a34uvwx5678yzab9012cdef',
-	'user3a34klmn5678opqr9012stuv'
-];
 let auth_uid = '';
 let design_showFullDescription = false;
 
@@ -94,15 +100,15 @@ function filtering_by_tag(tag_id) {
 	if (!tag_id_exists) {
 		filter_tag_id_ary = [...filter_tag_id_ary, tag_id];
 	}
-	const filtered_allDescs = web_data.allDescs.filter(desc => {
+	const filtered_all_descs = web_data.allDescs.filter(desc => {
 		const tag_id_exists = desc.tags.some(tag => filter_tag_id_ary.some(id => id === tag.id));
 		return tag_id_exists;
 	});
-	web_data['filtered_allDescs'] = filtered_allDescs;
+	web_data['filtered_all_descs'] = filtered_all_descs;
 
 }
-async function clear_filtered_allDescs(){
-	filtered_allDescs = [];
+async function clear_filtered_all_descs(){
+	filtered_all_descs = [];
 	filter_tag_id_ary = [];
 	web_data_with_title = [];
 	await fetch_get_all_descs_and_tags();
@@ -168,13 +174,6 @@ const validators = {
 	},
 };
 function valid_all(){
-    console.log(
-        "auth_uid", auth_uid,
-        "desc_id", desc_id,
-        "title", title,
-        "description", description,
-        "tags", tags,
-    )
     const valid_data = {
         "auth_uid": auth_uid,
         "desc_id": desc_id,
@@ -203,7 +202,6 @@ function valid_all(){
             key === "description" ? validators.validateDescription(description) : null;
         }
     }
-    // errorsが空でない場合はエラーを表示
     if(errors.length > 0) {
         console.log(errors);
         return false;
@@ -212,14 +210,8 @@ function valid_all(){
 }
 async function fetch_insert_desc() {
 try {
-	if(!valid_all()) {
-		throw new Error('Validation failed');
-	}
-	const response = await fetch('http://localhost:8000/insert_desc', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
+	if(!valid_all()) throw new Error('Validation failed');
+	const response = await fetch('http://localhost:8000/insert_desc', {method: 'POST',headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({
 			auth_uid: auth_uid,
 			title: title,
@@ -227,7 +219,6 @@ try {
 			tags: tags
 		})
 	});
-	console.log(1);
 	await fetch_get_all_sequnce(response);
 } catch (error) {
 	console.error('Error:', error);
@@ -248,29 +239,20 @@ async function fetch_init_db() {
 	}
 }
 async function fetch_get_all_sequnce(Response) {
-	try {
-		const data = await Response.json();
-		console.log(1);
-		// dataからallDescs, allTags, any_user_new_allDescs_with_tags,以外のデータをother_dataに分離
-		other_data = Object.fromEntries(Object.entries(data).filter(([key, value]) => key !== 'allDescs' && key !== 'allTags' && key !== 'any_user_new_allDescs_with_tags'));
-		// allDescs, allTags, any_user_new_allDescs_with_tagsをweb_dataに追加(それ以外のプロパティはweb_dataに追加しない)
-		web_data = Object.fromEntries(Object.entries(data).filter(([key, value]) => key === 'allDescs' || key === 'allTags' || key === 'any_user_new_allDescs_with_tags'));
-
-		all_tags = data.allTags;
-		console.log("web_data", web_data);
-		console.log("other_data", other_data);
-		console.log(2);
-	} catch (error) {
-		console.error('Error:', error);
-	}
+try {
+	const data = await Response.json();
+	// dataからallDescs, allTags, any_user_new_allDescs_with_tags,以外のデータをother_dataに分離
+	other_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key !== 'all_descs' && key !== 'all_tags' && key !== 'any_user_new_all_descs_with_tags'));
+	// allDescs, allTags, any_user_new_allDescs_with_tagsをweb_dataに追加(それ以外のプロパティはweb_dataに追加しない)
+	web_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key === 'all_descs' || key === 'all_tags' || key === 'any_user_new_all_descs_with_tags'));
+	all_tags = data.all_tags;
+} catch (error) {
+	console.error('Error:', error);
+}
 }
 async function fetch_get_all_descs_and_tags() {
 try {
-	const response = await fetch(web_endpoint + '/', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
+	const response = await fetch(web_endpoint + '/', {method: 'POST', headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify({
 				auth_uid: auth_uid
 			}) // 必要なデータをここに追加
@@ -285,11 +267,7 @@ try {
 	if(!valid_all()) {
 		throw new Error('Validation failed');
 	}
-	const response = await fetch(web_endpoint + '/update_desc', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
+	const response = await fetch(web_endpoint + '/update_desc', {method: 'POST',headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({
 			auth_uid: auth_uid,
 			desc_id: desc_id,
@@ -306,17 +284,12 @@ try {
 }
 async function fetch_delete_desc(id) {
 try {
-	const response = await fetch(web_endpoint + '/delete_desc', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
+	const response = await fetch(web_endpoint + '/delete_desc', {method: 'POST',headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({
 			id: id,
 			auth_uid: auth_uid
 		})
 	});
-	// const data = await response.json();
 	await fetch_get_all_sequnce(response);
 } catch (error) {
 	console.error('Error:', error);
@@ -367,7 +340,7 @@ firebase.initializeApp(auth_firebase_config);
 const auth_google_provider = new firebase.auth.GoogleAuthProvider();
 async function auth_check_login() {
 	try {
-		console.log('auth_check_login');
+
 		const current_user = await new Promise((resolve, reject) => {
 			firebase.auth().onAuthStateChanged(resolve, reject);
 		});
@@ -381,12 +354,8 @@ async function auth_check_login() {
 			console.log(2);
 			auth_login_result = 'Not logged in';
 			auth_uid = '';
-			if(test_mode){
-				console.log(3);
-				console.log('test_mode');
-				auth_login_result = 'Logged in';
-			}
 		}
+		if(test_mode) auth_login_result = 'Logged in';
 	} catch (error) {
 		console.error('Error during authentication:', error);
 		auth_login_result = 'Authentication failed';
@@ -504,10 +473,6 @@ function copy_link(id) {
 }
 
 $: (async () => {
-// web_dataをリアクティブにする
-// web_data = web_data;
-
-
 })();
 
 import { onMount } from "svelte";
@@ -614,7 +579,7 @@ h1{
 <div class="container">
 
 <div class="header">
-	<div class="version">v1.0.8</div>
+	<div class="version">v1.0.9</div>
 	<div>auth_login_result: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
@@ -645,17 +610,17 @@ h1{
 
 		<div class="list">
 			{#each Object.entries(web_data) as [key, value]}
-			{#if key !== "allTags"}
+			{#if key !== "all_tags"}
 				<div class={key}>
 					<h1>{key}</h1>
-					{#if key === "filtered_allDescs"}
-						<button on:click={clear_filtered_allDescs}>clear_filtered_allDescs</button>
+					{#if key === "filtered_all_descs"}
+						<button on:click={clear_filtered_all_descs}>clear_filtered_all_descs</button>
 					{/if}
 						{#each value as desc}
 							<div>
 								<p id={desc.id}>
 								<button class="button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
-								{#if key === "any_user_new_allDescs_with_tags" && auth_uid}
+								{#if key === "any_user_new_all_descs_with_tags" && auth_uid}
 								<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
 								<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
 								{/if}
@@ -664,7 +629,7 @@ h1{
 								<p class="break_word">{desc.title}</p>
 								<!-- description:  -->
 								<p class="break_word">
-									{design_showFullDescription ? desc.description : desc.description.slice(0, 10)}
+									<!-- {design_showFullDescription ? desc.description : desc.description.slice(0, 10)} -->
 									<button class="button_reset" on:click={design_toggleDescription}>{design_showFullDescription ? '▲' : '▼'}</button>
 								</p>
 								{#if desc.tags}
@@ -678,9 +643,9 @@ h1{
 			{/if}
 			{/each}
 				<div class="web_data_tags">
-					<h1>Web Data Tags</h1>
-					{#if web_data.allTags}
-					{#each web_data.allTags as tag}
+					<h1>web_data_tags</h1>
+					{#if web_data.all_tags}
+					{#each web_data.all_tags as tag}
 						<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
 					{/each}
 					{/if}
@@ -696,7 +661,7 @@ h1{
 		{/each}
 		{/if}
 
-		<h1>Web Data Edit</h1>
+		<h1>web_data_edit</h1>
 		{#if auth_uid !== ''}
 		<button on:click={fetch_update_desc}>update_desc</button>
 		<p>id: {desc_id}</p>
