@@ -1,4 +1,7 @@
 <script>
+// let web_endpoint = 'http://localhost:8000/app8';
+let web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
+
 // デザイン変える前にモバイル環境で本当に必要な見た目を確認する(そのためにプレリリース)
 // デザインをグリッドシステム準拠で変更
 
@@ -97,7 +100,6 @@ let errors = [];
 // const test_mode = true;
 const test_mode = false;
 let auth_login_result = 'Not logged in';
-let web_endpoint = 'http://localhost:8000';
 let web_data = 	{
 };
 let other_data = {};
@@ -287,7 +289,7 @@ errors.push(design_words[key][design_lang]);
 async function fetch_insert_desc() {
 try {
 	if(!valid_all()) throw new Error('Validation failed');
-	const response = await fetch('http://localhost:8000/insert_desc', {method: 'POST',headers: {'Content-Type': 'application/json'},
+	const response = await fetch(web_endpoint+ '/insert_desc', {method: 'POST',headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({
 			auth_uid: auth_uid,
 			title: title,
@@ -658,7 +660,7 @@ h1{
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.1.1</div>
+	<div class="version">v1.1.2</div>
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
