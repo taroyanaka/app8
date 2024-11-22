@@ -1,21 +1,39 @@
 <script>
-// resのmessage用のUIの追加
-// 以下の文字列を多言語表記に対応に
-	// auth_login_result
-	// auth_sign_out
-	// web_data_tags
-	// any_user_new_all_descs_with_tags
-	// all_descs
-	// web_data_edit
-	// title
-	// description
-	// tag
-	// auth_sign_out
-	// set_desc_data
-	// delete_desc
-	// add_tag_to_desc
-	// update_desc
-	// insert_desc
+// titleとdescriptionとtagsをクリアする関数(confirmがある)
+function clear_title_description_tags() {
+	if (confirm(words["confirm_clear_title_description_tags"][lang])) {
+		title = '';
+		description = '';
+		tags = [];
+	}
+}
+
+let lang = "en";
+const words = {
+	"auth_login_result": {en:"Log in result", ja:"ログイン結果", zh:"登录结果", es:"resultado de inicio de sesión"},
+	"auth_sign_out": {en:"Sign out", ja:"サインアウト", zh:"登出", es:"Cerrar sesión"},
+	"web_data_tags": {en:"Web data tags", ja:"ウェブデータタグ", zh:"网页数据标签", es:"Etiquetas de datos web"},
+	"any_user_new_all_descs_with_tags": {en:"Any user new all descriptions with tags", ja:"任意のユーザーの新しいすべてのタグ付き説明", zh:"任何用户的新所有带标签的描述", es:"Cualquier usuario nuevo todas las descripciones con etiquetas"},
+	"all_descs": {en:"All descriptions", ja:"すべての説明", zh:"所有描述", es:"Todas las descripciones"},
+	"filtered_all_descs": {en:"Filtered all descriptions", ja:"すべての説明をフィルター", zh:"过滤所有描述", es:"Todas las descripciones filtradas"},
+	"web_data_edit": {en:"Web data edit", ja:"ウェブデータ編集", zh:"网页数据编辑", es:"Edición de datos web"},
+	"title": {en:"Title", ja:"タイトル", zh:"标题", es:"Título"},
+	"description": {en:"Description", ja:"説明", zh:"描述", es:"Descripción"},
+	"tag": {en:"Tag", ja:"タグ", zh:"标签", es:"Etiqueta"},
+	"set_desc_data": {en:"Set description data", ja:"説明データを設定", zh:"设置描述数据", es:"Establecer datos de descripción"},
+	"delete_desc": {en:"Delete description", ja:"説明を削除", zh:"删除描述", es:"Eliminar descripción"},
+	"add_tag_to_desc": {en:"Add tag to description", ja:"説明にタグを追加", zh:"添加标签到描述", es:"Agregar etiqueta a la descripción"},
+	"update_desc": {en:"Update description", ja:"説明を更新", zh:"更新描述", es:"Actualizar descripción"},
+	"insert_desc": {en:"Insert description", ja:"説明を挿入", zh:"插入描述", es:"Insertar descripción"},
+"errors": {en:"Errors", ja:"エラー", zh:"错误", es:"Errores"},
+"is_auth_uid_valid": {en:"Invalid auth_uid", ja:"無効なauth_uid", zh:"无效的auth_uid", es:"auth_uid no válido"},
+"is_title_valid": {ja: "タイトルは1文字以上100文字以下", en: "Title must be between 1 and 100 characters", zh: "标题必须在1到100个字符之间", es: "El título debe tener entre 1 y 100 caracteres"},
+"is_description_valid": {ja: "説明は1文字以上1000文字以下", en: "Description must be between 1 and 1000 characters", zh: "描述必须在1到1000个字符之间", es: "La descripción debe tener entre 1 y 1000 caracteres"},
+"are_tags_valid": {ja: "タグは1文字以上10文字以下", en: "Tags must be between 1 and 10 characters", zh: "标签必须在1到10个字符之间", es: "Las etiquetas deben tener entre 1 y 10 caracteres"},
+"confirm_clear_title_description_tags": {ja: "タイトル、説明、タグをクリアしますか？", en: "Clear title, description, and tags?", zh: "清除标题、描述和标签吗？", es: "¿Borrar título, descripción y etiquetas?"},
+"clear_title_description_tags": {ja: "タイトル、説明、タグをクリア", en: "Clear title, description, and tags", zh: "清除标题、描述和标签", es: "Borrar título, descripción y etiquetas"},
+
+}
 
 // 命名規則(prefix)
 // auth => authentication関係の変数と関数
@@ -46,10 +64,10 @@ let web_data = 	{
 let other_data = {};
 let web_data_with_title = [];
 let auth_uid = '';
-let design_showFullDescription = false;
+let design_show_full_description = false;
 
-function design_toggleDescription() {
-	design_showFullDescription = !design_showFullDescription;
+function design_toggle_description() {
+	design_show_full_description = !design_show_full_description;
 }
 function add_tag_to_desc(desc_id, tag_name) {
 	try {
@@ -82,7 +100,7 @@ function add_tag_to_desc(desc_id, tag_name) {
 }
 function set_desc_data(id){
 try {
-const desc = web_data.allDescs.find(desc => desc.id === id);
+const desc = web_data.all_descs.find(desc => desc.id === id);
 if (desc) {
 	desc_id = desc.id;
 	title = desc.title;
@@ -100,7 +118,7 @@ function filtering_by_tag(tag_id) {
 	if (!tag_id_exists) {
 		filter_tag_id_ary = [...filter_tag_id_ary, tag_id];
 	}
-	const filtered_all_descs = web_data.allDescs.filter(desc => {
+	const filtered_all_descs = web_data.all_descs.filter(desc => {
 		const tag_id_exists = desc.tags.some(tag => filter_tag_id_ary.some(id => id === tag.id));
 		return tag_id_exists;
 	});
@@ -128,48 +146,44 @@ try {
 }
 }
 const validators = {
-	validateAuthUid(uid) {
+	validate_auth_uid(uid) {
 		const uidRegex = /^[a-zA-Z0-9_-]+$/;
 		return uidRegex.test(uid);
 	},
-	validateDescId(id) {
-		console.log('validateDescId', id);
+	validate_desc_id(id) {
+		console.log('validate_desc_id', id);
 		return Number.isInteger(id) && id > 0;
 	},
-	validateISODate(date) {
+	validate_iso_date(date) {
 		const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
 		return isoDateRegex.test(date);
 	},
-	validateTitle(title) {
-		console.log('validateTitle', title);
+	validate_title(title) {
+		console.log('validate_title', title);
 		return typeof title === 'string' && title.length >= 1 && title.length <= 100;
 	},
-	validateDescription(description) {
-		console.log('validateDescription', description);
+	validate_description(description) {
+		console.log('validate_description', description);
 		return typeof description === 'string' && description.length >= 1 && description.length <= 1000;
 	},
-	validateTagName(name) {
+	validate_tag_name(name) {
 		return typeof name === 'string' && name.length >= 1 && name.length <= 10;
 	},
-	validateData(data) {
-		const { auth_uid, desc_id, created_at, updated_at, title, description, tags } = data;
+	validate_data(data) {
+		const { auth_uid, desc_id, title, description, tags } = data;
 
-		const isAuthUidValid = this.validateAuthUid(auth_uid);
-		const isDescIdValid = this.validateDescId(desc_id);
-		// const isCreatedAtValid = this.validateISODate(created_at);
-		// const isUpdatedAtValid = this.validateISODate(updated_at);
-		const isTitleValid = this.validateTitle(title);
-		const isDescriptionValid = this.validateDescription(description);
-		const areTagsValid = tags.every(tag => this.validateTagName(tag.name));
+		// const is_desc_id_valid = this.validate_desc_id(desc_id);
 
+		const is_auth_uid_valid = this.validate_auth_uid(auth_uid);
+		const is_title_valid = this.validate_title(title);
+		const is_description_valid = this.validate_description(description);
+		const are_tags_valid = tags.every(tag => this.validate_tag_name(tag.name));
+		
 		return {
-			isAuthUidValid,
-			// isDescIdValid,
-			// isCreatedAtValid,
-			// isUpdatedAtValid,
-			isTitleValid,
-			isDescriptionValid,
-			areTagsValid
+			is_auth_uid_valid,
+			is_title_valid,
+			is_description_valid,
+			are_tags_valid
 		};
 	},
 };
@@ -183,23 +197,24 @@ function valid_all(){
     };
     errors = [];
     // 全部のバリデーションを行い結果をerrorsに追加
-    for(const [key, value] of Object.entries(validators.validateData(valid_data))) {
+    for(const [key, value] of Object.entries(validators.validate_data(valid_data))) {
         if(!value) {
-            errors.push(key);
+            // errors.push(key);
+errors.push(words[key][lang]);
         }
         if(key === "tags"){
             for(const [index, tag] of value.entries()) {
-                for(const [key, value] of Object.entries(validators.validateData(tag))) {
+                for(const [key, value] of Object.entries(validators.validate_data(tag))) {
                     if(!value) {
                         errors.push(`tags[${index}].${key}`);
                     }
                 }
             }
         }else{
-            key === "auth_uid" ? validators.validateAuthUid(auth_uid) : null;
-            key === "desc_id" ? validators.validateDescId(desc_id) : null;
-            key === "title" ? validators.validateTitle(title) : null;
-            key === "description" ? validators.validateDescription(description) : null;
+            key === "auth_uid" ? validators.validate_auth_uid(auth_uid) : null;
+            key === "desc_id" ? validators.validate_desc_id(desc_id) : null;
+            key === "title" ? validators.validate_title(title) : null;
+            key === "description" ? validators.validate_description(description) : null;
         }
     }
     if(errors.length > 0) {
@@ -241,9 +256,9 @@ async function fetch_init_db() {
 async function fetch_get_all_sequnce(Response) {
 try {
 	const data = await Response.json();
-	// dataからallDescs, allTags, any_user_new_allDescs_with_tags,以外のデータをother_dataに分離
+	// dataからall_descs, all_tags, any_user_new_all_descs_with_tags,以外のデータをother_dataに分離
 	other_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key !== 'all_descs' && key !== 'all_tags' && key !== 'any_user_new_all_descs_with_tags'));
-	// allDescs, allTags, any_user_new_allDescs_with_tagsをweb_dataに追加(それ以外のプロパティはweb_dataに追加しない)
+	// all_descs, all_tags, any_user_new_all_descs_with_tagsをweb_dataに追加(それ以外のプロパティはweb_dataに追加しない)
 	web_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key === 'all_descs' || key === 'all_tags' || key === 'any_user_new_all_descs_with_tags'));
 	all_tags = data.all_tags;
 } catch (error) {
@@ -255,7 +270,7 @@ try {
 	const response = await fetch(web_endpoint + '/', {method: 'POST', headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify({
 				auth_uid: auth_uid
-			}) // 必要なデータをここに追加
+			})
 	});
 	await fetch_get_all_sequnce(response);
 } catch (error) {
@@ -276,7 +291,6 @@ try {
 			tags: tags
 		})
 	});
-	// const data = await response.json();
 	await fetch_get_all_sequnce(response);
 } catch (error) {
 	console.error('Error:', error);
@@ -295,29 +309,7 @@ try {
 	console.error('Error:', error);
 }
 }
-// async function fetch_insert_desc_tag(desc_id, name) {
-// try {
-// 	console.log(desc_id, name, 1);
-// 	if(!validators.validateTagName(name)) {
-// 		throw new Error('Validation failed');
-// 	}
-// 	console.log(desc_id, name, 2);
 
-// 	const response = await fetch(web_endpoint + '/insert_desc_tag', {
-// 		method: 'POST',
-// 		headers: {
-// 			'Content-Type': 'application/json'
-// 		},
-// 		body: JSON.stringify({
-// 			desc_id: desc_id,
-// 			name: name
-// 		})
-// 	});
-// 	await fetch_get_all_sequnce(response);
-// } catch (error) {
-// 	console.error('Error:', error);
-// }
-// }
 const test_all_validation_fn = {
 	validateUser: (uid) => {
 		const errors = [];
@@ -450,14 +442,14 @@ const boundary_test_data = [
 	}
 ];
 // 境界値テストを実行
-function runBoundaryTests() {
+function run_boundary_tests() {
 	const index = 1;
 	title = boundary_test_data[index].title;
 	description = boundary_test_data[index].description;
 	tags = boundary_test_data[index].tags;
 	fetch_insert_desc();
 };
-function design_scrollToId() {
+function design_scroll_to_id() {
 	// URLに#Nのようなidが存在する場合指定したid(#id)の要素にスクロールする
 	if (location.hash) {
 		const id = location.hash.slice(1);
@@ -482,7 +474,7 @@ onMount(async () => {
 	console.log("auth_check_login");
 	await fetch_get_all_descs_and_tags();
 	console.log("fetch_get_all_descs_and_tags");
-	design_scrollToId();
+	design_scroll_to_id();
 });
 </script>
 
@@ -528,7 +520,7 @@ h1{
 	display: flex;
 	width: 100%;
 }
-.left-column, .right-column {
+.left_column, .right_column {
 	flex: 1;
 	padding: 10px;
 }
@@ -536,7 +528,7 @@ h1{
 /* text-align: right; */
 /* font-size: 0.8rem; */
 }
-.fetch_insert_desc_button{
+.fetch_insert_desc_button, .fetch_update_desc_button{
 	background-color: #4CAF50; /* Green */
 	border: none;
 	color: white;
@@ -560,13 +552,13 @@ h1{
 	flex-direction: column;
 }
 /* 順序を変更するためのクラス */
-.allDescs {
+.all_descs {
 	order: 4;
 }
-.allTags {
+.all_tags {
 	order: 2;
 }
-.any_user_new_allDescs_with_tags {
+.any_user_new_all_descs_with_tags {
 	order: 3;
 }
 .web_data_tags {
@@ -579,18 +571,29 @@ h1{
 <div class="container">
 
 <div class="header">
+	<div>
+		<input type="radio" id="en" name="lang" value="en" bind:group={lang} />
+		<label for="en">🇺🇸</label>
+		<input type="radio" id="ja" name="lang" value="ja" bind:group={lang} />
+		<label for="ja">🇯🇵</label>
+		<input type="radio" id="zh" name="lang" value="zh" bind:group={lang} />
+		<label for="zh">🇨🇳🇹🇼</label>
+		<input type="radio" id="es" name="lang" value="es" bind:group={lang} />
+		<label for="es">🇪🇸</label>
+	</div>
+
 	<div class="version">v1.0.9</div>
-	<div>auth_login_result: <span>{auth_login_result}</span></div>
+	<div>{words["auth_login_result"][lang]}: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
 	{/if}
 	{#if auth_uid !== ''}
-	<div>auth_sign_out: <button on:click={auth_sign_out}>auth_sign_out</button></div>
+	<div><button on:click={auth_sign_out}>{words["auth_sign_out"][lang]}</button></div>
 	{/if}
 
 	{#if test_mode}
 	<div>auth_uid: {auth_uid}</div>
-	<button on:click={runBoundaryTests}>runBoundaryTests</button>
+	<button on:click={run_boundary_tests}>run_boundary_tests</button>
 	<button on:click={init_and_sample_insert}>init_and_sample_insert</button>
 	<button on:click={fetch_init_db}>init_db</button>
 	<button on:click={fetch_get_all_descs_and_tags}>get_all_descs_and_tags</button>
@@ -598,7 +601,7 @@ h1{
 </div>
 
 <div class="content">
-	<div class="left-column server_side">
+	<div class="left_column server_side">
 		<div class="console">
 		{#if errors > 0}
 		<p>Errors:</p>
@@ -612,7 +615,7 @@ h1{
 			{#each Object.entries(web_data) as [key, value]}
 			{#if key !== "all_tags"}
 				<div class={key}>
-					<h1>{key}</h1>
+					<h1>{words[key][lang]}</h1>
 					{#if key === "filtered_all_descs"}
 						<button on:click={clear_filtered_all_descs}>clear_filtered_all_descs</button>
 					{/if}
@@ -621,16 +624,13 @@ h1{
 								<p id={desc.id}>
 								<button class="button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
 								{#if key === "any_user_new_all_descs_with_tags" && auth_uid}
-								<button on:click={() => set_desc_data(desc.id)}>set_desc_data</button>
-								<button on:click={() => fetch_delete_desc(desc.id)}>delete_desc</button>
+								<button on:click={() => set_desc_data(desc.id)}>{words["set_desc_data"][lang]}</button>
+								<button on:click={() => fetch_delete_desc(desc.id)}>{words["delete_desc"][lang]}</button>
 								{/if}
 								</p>
-								<!-- title:  -->
 								<p class="break_word">{desc.title}</p>
-								<!-- description:  -->
 								<p class="break_word">
-									<!-- {design_showFullDescription ? desc.description : desc.description.slice(0, 10)} -->
-									<button class="button_reset" on:click={design_toggleDescription}>{design_showFullDescription ? '▲' : '▼'}</button>
+									<button class="button_reset" on:click={design_toggle_description}>{design_show_full_description ? '▲' : '▼'}</button>
 								</p>
 								{#if desc.tags}
 								{#each desc.tags as tag}
@@ -643,7 +643,7 @@ h1{
 			{/if}
 			{/each}
 				<div class="web_data_tags">
-					<h1>web_data_tags</h1>
+					<h1>{words["web_data_tags"][lang]}</h1>
 					{#if web_data.all_tags}
 					{#each web_data.all_tags as tag}
 						<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
@@ -653,18 +653,12 @@ h1{
 		</div>
 	</div>
 
-	<div class="right-column">
-		{#if errors.length > 0}
-		<h2>errors</h2>
-		{#each errors as error}
-			<p>{error}</p>
-		{/each}
-		{/if}
-
-		<h1>web_data_edit</h1>
+	<div class="right_column">
+		{JSON.parse(JSON.stringify(web_data_with_title))}
+		<h1>{words["web_data_edit"][lang]}</h1>
 		{#if auth_uid !== ''}
-		<button on:click={fetch_update_desc}>update_desc</button>
 		<p>id: {desc_id}</p>
+		<button on:click={clear_title_description_tags}>{words["clear_title_description_tags"][lang]}</button>
 		<div>title: </div>
 		<textarea class="title" bind:value={title} minlength="1" maxlength="100" required placeholder="1_100"></textarea>
 		<div>description: </div>
@@ -675,15 +669,33 @@ h1{
 		{/each}
 		</div>
 
-		<label for="my_all_tags">tag</label>
+		<label for="my_all_tags">{words["tag"][lang]}</label>
 		<input list="all_tags" id="my_all_tags" name="my_all_tags" bind:value={new_tag} minlength="1" maxlength="10" required placeholder="1_10"/>
 		<datalist id="all_tags">
 		{#each all_tags as tag}
 			<option value={tag.name} />
 		{/each}
 		</datalist>
-		<button on:click={() => add_tag_to_desc(desc_id, new_tag)}>add_tag_to_desc</button>
-		<button on:click={fetch_insert_desc} class="fetch_insert_desc_button">insert_desc</button>
+		<button on:click={() => add_tag_to_desc(desc_id, new_tag)}>{words["add_tag_to_desc"][lang]}</button>
+		{#if errors.length > 0}
+		<h2>{words["errors"][lang]}</h2>
+
+		{#each errors as error}
+			<p>{error}</p>
+		{/each}
+		{/if}
+		<!-- <button on:click={fetch_insert_desc} class="fetch_insert_desc_button">{words["insert_desc"][lang]}</button> -->
+
+		{#if desc_id === null}
+		<button on:click={fetch_insert_desc} class="fetch_insert_desc_button">{words["insert_desc"][lang]}</button>
+		{/if}
+		{#if desc_id !== null}
+		<!-- desc_idがnullならupdate -->
+		 <!-- fetch_update_desc -->
+		<button on:click={fetch_update_desc} class="fetch_update_desc_button">{words["update_desc"][lang]}</button>
+		{/if}
+
+
 		{/if}
 	</div>
 </div>
