@@ -1,12 +1,10 @@
 <script>
-// titleとdescriptionとtagsをクリアする関数(confirmがある)
-function clear_title_description_tags() {
-	if (confirm(words["confirm_clear_title_description_tags"][lang])) {
-		title = '';
-		description = '';
-		tags = [];
-	}
-}
+// 命名規則(prefix)
+// auth => authentication関係の変数と関数
+// test => テスト用の変数と関数
+// design => デザイン関係の変数と関数
+// web => webデータの変数と関数
+// fetch => fetch関係の関数
 
 let lang = "en";
 const words = {
@@ -25,23 +23,15 @@ const words = {
 	"add_tag_to_desc": {en:"Add tag to description", ja:"説明にタグを追加", zh:"添加标签到描述", es:"Agregar etiqueta a la descripción"},
 	"update_desc": {en:"Update description", ja:"説明を更新", zh:"更新描述", es:"Actualizar descripción"},
 	"insert_desc": {en:"Insert description", ja:"説明を挿入", zh:"插入描述", es:"Insertar descripción"},
-"errors": {en:"Errors", ja:"エラー", zh:"错误", es:"Errores"},
-"is_auth_uid_valid": {en:"Invalid auth_uid", ja:"無効なauth_uid", zh:"无效的auth_uid", es:"auth_uid no válido"},
-"is_title_valid": {ja: "タイトルは1文字以上100文字以下", en: "Title must be between 1 and 100 characters", zh: "标题必须在1到100个字符之间", es: "El título debe tener entre 1 y 100 caracteres"},
-"is_description_valid": {ja: "説明は1文字以上1000文字以下", en: "Description must be between 1 and 1000 characters", zh: "描述必须在1到1000个字符之间", es: "La descripción debe tener entre 1 y 1000 caracteres"},
-"are_tags_valid": {ja: "タグは1文字以上10文字以下", en: "Tags must be between 1 and 10 characters", zh: "标签必须在1到10个字符之间", es: "Las etiquetas deben tener entre 1 y 10 caracteres"},
-"confirm_clear_title_description_tags": {ja: "タイトル、説明、タグをクリアしますか？", en: "Clear title, description, and tags?", zh: "清除标题、描述和标签吗？", es: "¿Borrar título, descripción y etiquetas?"},
-"clear_title_description_tags": {ja: "タイトル、説明、タグをクリア", en: "Clear title, description, and tags", zh: "清除标题、描述和标签", es: "Borrar título, descripción y etiquetas"},
 
+	"errors": {en:"Errors", ja:"エラー", zh:"错误", es:"Errores"},
+	"is_auth_uid_valid": {en:"Invalid auth_uid", ja:"無効なauth_uid", zh:"无效的auth_uid", es:"auth_uid no válido"},
+	"is_title_valid": {ja: "タイトルは1文字以上100文字以下", en: "Title must be between 1 and 100 characters", zh: "标题必须在1到100个字符之间", es: "El título debe tener entre 1 y 100 caracteres"},
+	"is_description_valid": {ja: "説明は1文字以上1000文字以下", en: "Description must be between 1 and 1000 characters", zh: "描述必须在1到1000个字符之间", es: "La descripción debe tener entre 1 y 1000 caracteres"},
+	"are_tags_valid": {ja: "タグは1文字以上10文字以下", en: "Tags must be between 1 and 10 characters", zh: "标签必须在1到10个字符之间", es: "Las etiquetas deben tener entre 1 y 10 caracteres"},
+	"confirm_clear_title_description_tags": {ja: "タイトル、説明、タグをクリアしますか？", en: "Clear title, description, and tags?", zh: "清除标题、描述和标签吗？", es: "¿Borrar título, descripción y etiquetas?"},
+	"clear_title_description_tags": {ja: "タイトル、説明、タグをクリア", en: "Clear title, description, and tags", zh: "清除标题、描述和标签", es: "Borrar título, descripción y etiquetas"},
 }
-
-// 命名規則(prefix)
-// auth => authentication関係の変数と関数
-// test => テスト用の変数と関数
-// design => デザイン関係の変数と関数
-// web => webデータの変数と関数
-// fetch => fetch関係の関数
-
 
 // descのidを指定してデータを更新する関数
 let new_tag = "";
@@ -66,6 +56,14 @@ let web_data_with_title = [];
 let auth_uid = '';
 let design_show_full_description = false;
 
+function clear_title_description_tags() {
+	if (confirm(words["confirm_clear_title_description_tags"][lang])) {
+		title = '';
+		description = '';
+		tags = [];
+		desc_id = null;
+	}
+}
 function design_toggle_description() {
 	design_show_full_description = !design_show_full_description;
 }
