@@ -1,4 +1,5 @@
 <script>
+// デザイン変える前にモバイル環境で本当に必要な見た目を確認する(そのためにプレリリース)
 // デザインをグリッドシステム準拠で変更
 
 
@@ -535,7 +536,6 @@ onMount(async () => {
 	console.log("auth_check_login");
 	await fetch_get_all_descs_and_tags();
 	console.log("fetch_get_all_descs_and_tags");
-	// sorter();
 	design_scroll_to_id();
 });
 </script>
@@ -554,14 +554,14 @@ h1{
 	width: 50vw;
 }
 .break_word {
-	background-color: lightgray;
+	/* background-color: lightgray; */
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	width: 50vw;
 }
 .title:invalid,
 .description:invalid {
-	background-color: lightgray;
+	/* background-color: lightgray; */
 }
 .title:valid,
 .description:valid {
@@ -591,7 +591,7 @@ h1{
 /* font-size: 0.8rem; */
 }
 .fetch_insert_desc_button, .fetch_update_desc_button{
-	background-color: #4CAF50; /* Green */
+	/* background-color: #4CAF50; */
 	border: none;
 	color: white;
 	padding: 15px 32px;
