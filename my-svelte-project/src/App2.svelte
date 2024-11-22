@@ -1,4 +1,8 @@
 <script>
+// ローカルで動くソート機能追加
+// デザインをグリッドシステム準拠で変更
+
+
 // 命名規則(prefix)
 // auth => authentication関係の変数と関数
 // test => テスト用の変数と関数
@@ -580,7 +584,7 @@ h1{
 		<label for="es">🇪🇸</label>
 	</div>
 
-	<div class="version">v1.0.9</div>
+	<div class="version">v1.1.0</div>
 	<div>{words["auth_login_result"][lang]}: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
