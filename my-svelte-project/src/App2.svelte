@@ -1,5 +1,4 @@
 <script>
-// ローカルで動くソート機能追加
 // デザインをグリッドシステム準拠で変更
 
 
@@ -10,8 +9,8 @@
 // web => webデータの変数と関数
 // fetch => fetch関係の関数
 
-let lang = "en";
-const words = {
+let design_lang = "en";
+const design_words = {
 	"auth_login_result": {en:"Log in result", ja:"ログイン結果", zh:"登录结果", es:"resultado de inicio de sesión"},
 	"auth_sign_out": {en:"Sign out", ja:"サインアウト", zh:"登出", es:"Cerrar sesión"},
 	"web_data_tags": {en:"Web data tags", ja:"ウェブデータタグ", zh:"网页数据标签", es:"Etiquetas de datos web"},
@@ -27,6 +26,7 @@ const words = {
 	"add_tag_to_desc": {en:"Add tag to description", ja:"説明にタグを追加", zh:"添加标签到描述", es:"Agregar etiqueta a la descripción"},
 	"update_desc": {en:"Update description", ja:"説明を更新", zh:"更新描述", es:"Actualizar descripción"},
 	"insert_desc": {en:"Insert description", ja:"説明を挿入", zh:"插入描述", es:"Insertar descripción"},
+	"clear_filtered_all_descs": {en:"Clear filtered all descriptions", ja:"すべてのフィルターをクリア", zh:"清除所有过滤描述", es:"Borrar todas las descripciones filtradas"},
 
 	"errors": {en:"Errors", ja:"エラー", zh:"错误", es:"Errores"},
 	"is_auth_uid_valid": {en:"Invalid auth_uid", ja:"無効なauth_uid", zh:"无效的auth_uid", es:"auth_uid no válido"},
@@ -35,7 +35,51 @@ const words = {
 	"are_tags_valid": {ja: "タグは1文字以上10文字以下", en: "Tags must be between 1 and 10 characters", zh: "标签必须在1到10个字符之间", es: "Las etiquetas deben tener entre 1 y 10 caracteres"},
 	"confirm_clear_title_description_tags": {ja: "タイトル、説明、タグをクリアしますか？", en: "Clear title, description, and tags?", zh: "清除标题、描述和标签吗？", es: "¿Borrar título, descripción y etiquetas?"},
 	"clear_title_description_tags": {ja: "タイトル、説明、タグをクリア", en: "Clear title, description, and tags", zh: "清除标题、描述和标签", es: "Borrar título, descripción y etiquetas"},
+	"sort": {ja: "並べ替え", en: "Sort", zh: "分类", es: "Clasificar"},
 }
+
+
+
+const sort_kind = ["id","title","description","tags","created_at","updated_at",];
+let sort_kind_and_order = {kind: 'id', order: 'desc',};
+function sorter() {
+try {
+    if (sort_kind_and_order.kind === null || sort_kind_and_order.order === null) return;
+    if (web_data.all_descs === undefined) return;
+    if (web_data.any_user_new_all_descs_with_tags === undefined) return;
+    const sort_function = (a, b) => {
+        switch (sort_kind_and_order.kind) {
+            case "id":
+                return sort_kind_and_order.order === "asc" ? a.id - b.id : b.id - a.id;
+            case "title":
+                return sort_kind_and_order.order === "asc" ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title);
+            case "description":
+                return sort_kind_and_order.order === "asc" ? a.description.localeCompare(b.description) : b.description.localeCompare(a.description);
+            case "tags":
+                return sort_kind_and_order.order === "asc" ? a.tags.length - b.tags.length : b.tags.length - a.tags.length;
+            case "created_at":
+                return sort_kind_and_order.order === "asc" ? a.created_at.localeCompare(b.created_at) : b.created_at.localeCompare(a.created_at);
+            case "updated_at":
+                return sort_kind_and_order.order === "asc" ? a.updated_at.localeCompare(b.updated_at) : b.updated_at.localeCompare(a.updated_at);
+            default:
+                return 0;
+        }
+    };
+
+    const res_all_descs = web_data.all_descs.sort(sort_function);
+	const res_any_user_new_all_descs_with_tags = web_data.any_user_new_all_descs_with_tags.sort(sort_function);
+
+	web_data = {
+		...web_data,
+		all_descs: res_all_descs,
+		any_user_new_all_descs_with_tags: res_any_user_new_all_descs_with_tags,
+	};
+} catch (error) {
+	console.error('Error:', error);
+}
+}
+	
+
 
 // descのidを指定してデータを更新する関数
 let new_tag = "";
@@ -61,7 +105,7 @@ let auth_uid = '';
 let design_show_full_description = false;
 
 function clear_title_description_tags() {
-	if (confirm(words["confirm_clear_title_description_tags"][lang])) {
+	if (confirm(design_words["confirm_clear_title_description_tags"][design_lang])) {
 		title = '';
 		description = '';
 		tags = [];
@@ -73,6 +117,18 @@ function design_toggle_description() {
 }
 function add_tag_to_desc(desc_id, tag_name) {
 	try {
+// valid
+// errorsの中のtagのエラーを削除(design_words["are_tags_valid"]のいずれかが含まれるエラーを削除)
+console.log(errors);
+errors = errors.filter(error => !error.includes(design_words["are_tags_valid"][design_lang]));
+console.log(errors);
+
+		if (!validators.validate_tag_name(tag_name)) {
+			// errors.push('Invalid tag name');
+			errors.push(design_words["are_tags_valid"][design_lang]);
+			return;
+		}
+
 		// tag_nameからtag_idを取得
 		const tag = all_tags.find(tag => tag.name === tag_name);
 		// tagsに存在しないtag_nameの場合はtagsに追加。存在する場合は追加しない
@@ -169,6 +225,7 @@ const validators = {
 		return typeof description === 'string' && description.length >= 1 && description.length <= 1000;
 	},
 	validate_tag_name(name) {
+		console.log('validate_tag_name', name);
 		return typeof name === 'string' && name.length >= 1 && name.length <= 10;
 	},
 	validate_data(data) {
@@ -179,6 +236,7 @@ const validators = {
 		const is_auth_uid_valid = this.validate_auth_uid(auth_uid);
 		const is_title_valid = this.validate_title(title);
 		const is_description_valid = this.validate_description(description);
+		console.log('tags', tags);
 		const are_tags_valid = tags.every(tag => this.validate_tag_name(tag.name));
 		
 		return {
@@ -202,7 +260,7 @@ function valid_all(){
     for(const [key, value] of Object.entries(validators.validate_data(valid_data))) {
         if(!value) {
             // errors.push(key);
-errors.push(words[key][lang]);
+errors.push(design_words[key][design_lang]);
         }
         if(key === "tags"){
             for(const [index, tag] of value.entries()) {
@@ -263,6 +321,7 @@ try {
 	// all_descs, all_tags, any_user_new_all_descs_with_tagsをweb_dataに追加(それ以外のプロパティはweb_dataに追加しない)
 	web_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key === 'all_descs' || key === 'all_tags' || key === 'any_user_new_all_descs_with_tags'));
 	all_tags = data.all_tags;
+	sorter();
 } catch (error) {
 	console.error('Error:', error);
 }
@@ -476,6 +535,7 @@ onMount(async () => {
 	console.log("auth_check_login");
 	await fetch_get_all_descs_and_tags();
 	console.log("fetch_get_all_descs_and_tags");
+	// sorter();
 	design_scroll_to_id();
 });
 </script>
@@ -574,23 +634,37 @@ h1{
 
 <div class="header">
 	<div>
-		<input type="radio" id="en" name="lang" value="en" bind:group={lang} />
+		<input type="radio" id="en" name="design_lang" value="en" bind:group={design_lang} />
 		<label for="en">🇺🇸</label>
-		<input type="radio" id="ja" name="lang" value="ja" bind:group={lang} />
+		<input type="radio" id="ja" name="design_lang" value="ja" bind:group={design_lang} />
 		<label for="ja">🇯🇵</label>
-		<input type="radio" id="zh" name="lang" value="zh" bind:group={lang} />
+		<input type="radio" id="zh" name="design_lang" value="zh" bind:group={design_lang} />
 		<label for="zh">🇨🇳🇹🇼</label>
-		<input type="radio" id="es" name="lang" value="es" bind:group={lang} />
+		<input type="radio" id="es" name="design_lang" value="es" bind:group={design_lang} />
 		<label for="es">🇪🇸</label>
 	</div>
+	<!-- sort_kindとsort_orderを変更するボタン -->
+	<div>
+		<select bind:value={sort_kind_and_order.kind}>
+			{#each sort_kind as kind}
+				<option value={kind}>{kind}</option>
+			{/each}
+		</select>
+		<select bind:value={sort_kind_and_order.order}>
+			{#each ["desc", "asc"] as order}
+				<option value={order}>{order}</option>
+			{/each}
+		</select>
+		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
+	</div>
 
-	<div class="version">v1.1.0</div>
-	<div>{words["auth_login_result"][lang]}: <span>{auth_login_result}</span></div>
+	<div class="version">v1.1.1</div>
+	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
 	{/if}
 	{#if auth_uid !== ''}
-	<div><button on:click={auth_sign_out}>{words["auth_sign_out"][lang]}</button></div>
+	<div><button on:click={auth_sign_out}>{design_words["auth_sign_out"][design_lang]}</button></div>
 	{/if}
 
 	{#if test_mode}
@@ -617,22 +691,24 @@ h1{
 			{#each Object.entries(web_data) as [key, value]}
 			{#if key !== "all_tags"}
 				<div class={key}>
-					<h1>{words[key][lang]}</h1>
+					<h1>{design_words[key][design_lang]}</h1>
 					{#if key === "filtered_all_descs"}
-						<button on:click={clear_filtered_all_descs}>clear_filtered_all_descs</button>
+						<button on:click={clear_filtered_all_descs}>{design_words["clear_filtered_all_descs"][design_lang]}</button>
 					{/if}
 						{#each value as desc}
 							<div>
 								<p id={desc.id}>
 								<button class="button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
 								{#if key === "any_user_new_all_descs_with_tags" && auth_uid}
-								<button on:click={() => set_desc_data(desc.id)}>{words["set_desc_data"][lang]}</button>
-								<button on:click={() => fetch_delete_desc(desc.id)}>{words["delete_desc"][lang]}</button>
+								<button on:click={() => set_desc_data(desc.id)}>{design_words["set_desc_data"][design_lang]}</button>
+								<button on:click={() => fetch_delete_desc(desc.id)}>{design_words["delete_desc"][design_lang]}</button>
 								{/if}
 								</p>
 								<p class="break_word">{desc.title}</p>
 								<p class="break_word">
-									<button class="button_reset" on:click={design_toggle_description}>{design_show_full_description ? '▲' : '▼'}</button>
+									<button class="button_reset break_word" on:click={design_toggle_description}>
+										{desc.description.length > 10 && !design_show_full_description ? desc.description.slice(0, 10) + '...▼' : desc.description}
+									</button>
 								</p>
 								{#if desc.tags}
 								{#each desc.tags as tag}
@@ -645,7 +721,7 @@ h1{
 			{/if}
 			{/each}
 				<div class="web_data_tags">
-					<h1>{words["web_data_tags"][lang]}</h1>
+					<h1>{design_words["web_data_tags"][design_lang]}</h1>
 					{#if web_data.all_tags}
 					{#each web_data.all_tags as tag}
 						<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
@@ -657,10 +733,10 @@ h1{
 
 	<div class="right_column">
 		{JSON.parse(JSON.stringify(web_data_with_title))}
-		<h1>{words["web_data_edit"][lang]}</h1>
+		<h1>{design_words["web_data_edit"][design_lang]}</h1>
 		{#if auth_uid !== ''}
 		<p>id: {desc_id}</p>
-		<button on:click={clear_title_description_tags}>{words["clear_title_description_tags"][lang]}</button>
+		<button on:click={clear_title_description_tags}>{design_words["clear_title_description_tags"][design_lang]}</button>
 		<div>title: </div>
 		<textarea class="title" bind:value={title} minlength="1" maxlength="100" required placeholder="1_100"></textarea>
 		<div>description: </div>
@@ -671,30 +747,30 @@ h1{
 		{/each}
 		</div>
 
-		<label for="my_all_tags">{words["tag"][lang]}</label>
+		<label for="my_all_tags">{design_words["tag"][design_lang]}</label>
 		<input list="all_tags" id="my_all_tags" name="my_all_tags" bind:value={new_tag} minlength="1" maxlength="10" required placeholder="1_10"/>
 		<datalist id="all_tags">
 		{#each all_tags as tag}
 			<option value={tag.name} />
 		{/each}
 		</datalist>
-		<button on:click={() => add_tag_to_desc(desc_id, new_tag)}>{words["add_tag_to_desc"][lang]}</button>
+		<button on:click={() => add_tag_to_desc(desc_id, new_tag)}>{design_words["add_tag_to_desc"][design_lang]}</button>
 		{#if errors.length > 0}
-		<h2>{words["errors"][lang]}</h2>
+		<h2>{design_words["errors"][design_lang]}</h2>
 
 		{#each errors as error}
 			<p>{error}</p>
 		{/each}
 		{/if}
-		<!-- <button on:click={fetch_insert_desc} class="fetch_insert_desc_button">{words["insert_desc"][lang]}</button> -->
+		<!-- <button on:click={fetch_insert_desc} class="fetch_insert_desc_button">{design_words["insert_desc"][design_lang]}</button> -->
 
 		{#if desc_id === null}
-		<button on:click={fetch_insert_desc} class="fetch_insert_desc_button">{words["insert_desc"][lang]}</button>
+		<button on:click={fetch_insert_desc} class="fetch_insert_desc_button">{design_words["insert_desc"][design_lang]}</button>
 		{/if}
 		{#if desc_id !== null}
 		<!-- desc_idがnullならupdate -->
 		 <!-- fetch_update_desc -->
-		<button on:click={fetch_update_desc} class="fetch_update_desc_button">{words["update_desc"][lang]}</button>
+		<button on:click={fetch_update_desc} class="fetch_update_desc_button">{design_words["update_desc"][design_lang]}</button>
 		{/if}
 
 
