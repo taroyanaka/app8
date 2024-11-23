@@ -1,8 +1,15 @@
 <script>
+	let show_menu = false;
 
-    // 使用例
-    // const chars_per_50vw = get_chars_per_100vw(design_vw_num);
-    // console.log(`50vwあたりの文字数: ${chars_per_50vw}`);
+    function toggle_menu() {
+        show_menu = !show_menu;
+    }
+    let show_modal = false;
+    let design_lang = "en";
+
+    function toggle_modal() {
+        show_modal = !show_modal;
+    }
 
 let design_only_column = "left";
 // let design_only_column = "right";
@@ -21,7 +28,7 @@ let web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
 // web => webデータの変数と関数
 // fetch => fetch関係の関数
 
-let design_lang = "en";
+
 const design_words = {
 	"auth_login_result": {en:"Log in result", ja:"ログイン結果", zh:"登录结果", es:"resultado de inicio de sesión"},
 	"auth_sign_out": {en:"Sign out", ja:"サインアウト", zh:"登出", es:"Cerrar sesión"},
@@ -51,6 +58,8 @@ const design_words = {
 
 	"left": {ja: "リスト表示", en: "List view", zh: "列表视图", es: "Vista de lista"},
 	"right": {ja: "編集表示", en: "Edit view", zh: "编辑视图", es: "Vista de edición"},
+	// "select_language": {ja: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", en: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", zh: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", es: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸"},
+	"select_language": {ja: "言語を選択", en: "Select language", zh: "选择语言", es: "Seleccionar idioma"},
 }
 
 
@@ -588,6 +597,70 @@ onMount(async () => {
 
     }
 
+	/* menu_listの上の要素 */
+.header {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	position: relative;
+
+}
+.toggle_menu {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+    .menu_list {
+        display: block;
+        position: absolute;
+        top: 50px;
+        right: 10px;
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		/* 右上に表示 */
+		/* top: 0; */
+		/* right: 0; */
+
+    }
+
+    .modal {
+        display: block;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
     .left_column {
         display: var(--display-left-column);
     }
@@ -693,7 +766,16 @@ h1{
 .web_data_tags {
 	order: 1;
 }
+.edit_button, .list_button {
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	z-index: 1000;
+	/* サイズを縦横5rem 10remに */
+	width: 10rem;
+	height: 4rem;
 
+}
 
 </style>
 
@@ -703,23 +785,38 @@ h1{
 
 <div class="header">
 	<!-- columnをleft, rightを切り替えるラジオボタン -->
-	<div>
+	<!-- <div>
 		<input type="radio" id="left" name="design_only_column" value="left" bind:group={design_only_column} />
 		<label for="left">left</label>
 		<input type="radio" id="right" name="design_only_column" value="right" bind:group={design_only_column} />
 		<label for="right">right</label>
-	</div>
+	</div> -->
 
-	<div>
-		<input type="radio" id="en" name="design_lang" value="en" bind:group={design_lang} />
-		<label for="en">🇺🇸</label>
-		<input type="radio" id="ja" name="design_lang" value="ja" bind:group={design_lang} />
-		<label for="ja">🇯🇵</label>
-		<input type="radio" id="zh" name="design_lang" value="zh" bind:group={design_lang} />
-		<label for="zh">🇨🇳🇹🇼</label>
-		<input type="radio" id="es" name="design_lang" value="es" bind:group={design_lang} />
-		<label for="es">🇪🇸</label>
-	</div>
+
+<button class="toggle_menu" on:click={toggle_menu}>≡</button>
+{#if show_menu}
+<div class="menu_list">
+	<button on:click={toggle_modal}>{design_words["select_language"][design_lang]}</button>
+
+	{#if show_modal}
+    <div class="modal">
+        <div class="modal-content">
+            <button class="close" on:click={toggle_modal}>&times;</button>
+            <h2>{design_words["select_language"][design_lang]}</h2>
+            <div>
+                <input type="radio" id="en" name="design_lang" value="en" bind:group={design_lang} />
+                <label for="en">🇺🇸 English</label>
+                <input type="radio" id="ja" name="design_lang" value="ja" bind:group={design_lang} />
+                <label for="ja">🇯🇵 日本語</label>
+                <input type="radio" id="zh" name="design_lang" value="zh" bind:group={design_lang} />
+                <label for="zh">🇨🇳🇹🇼 中文</label>
+                <input type="radio" id="es" name="design_lang" value="es" bind:group={design_lang} />
+                <label for="es">🇪🇸 Español</label>
+            </div>
+        </div>
+    </div>
+	{/if}
+
 	<!-- sort_kindとsort_orderを変更するボタン -->
 	<div>
 		<select bind:value={sort_kind_and_order.kind}>
@@ -736,6 +833,8 @@ h1{
 	</div>
 
 	<div class="version">v1.1.4</div>
+
+
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
@@ -744,6 +843,7 @@ h1{
 	<div><button on:click={auth_sign_out}>{design_words["auth_sign_out"][design_lang]}</button></div>
 	{/if}
 
+
 	{#if test_mode}
 	<div>auth_uid: {auth_uid}</div>
 	<button on:click={run_boundary_tests}>run_boundary_tests</button>
@@ -751,6 +851,11 @@ h1{
 	<button on:click={fetch_init_db}>init_db</button>
 	<button on:click={fetch_get_all_descs_and_tags}>get_all_descs_and_tags</button>
 	{/if}
+</div>
+{/if}
+
+
+
 </div>
 
 <div class="content">
@@ -766,7 +871,7 @@ h1{
 
 		<div class="list">
 			<!-- right表示 -->
-			<button on:click={() => design_only_column = "right"}>{design_words["right"][design_lang]}</button>
+			<button class="edit_button"	on:click={() => design_only_column = "right"}>{design_words["right"][design_lang]}</button>
 
 			{#each Object.entries(web_data) as [key, value]}
 			{#if key !== "all_tags"}
@@ -826,7 +931,7 @@ h1{
 	<div class="right_column">
 		<h1>{design_words["web_data_edit"][design_lang]}</h1>
 		<!-- left表示ボタン -->
-		<button on:click={() => design_only_column = "left"}>{design_words["left"][design_lang]}</button>
+		<button class="list_button" on:click={() => design_only_column = "left"}>{design_words["left"][design_lang]}</button>
 
 		{#if auth_uid !== ''}
 		<p>id: {desc_id}</p>
