@@ -735,7 +735,7 @@ h1{
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.1.3</div>
+	<div class="version">v1.1.4</div>
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
