@@ -1,4 +1,12 @@
 <script>
+
+    // 使用例
+    // const chars_per_50vw = get_chars_per_100vw(design_vw_num);
+    // console.log(`50vwあたりの文字数: ${chars_per_50vw}`);
+
+let design_only_column = "left";
+// let design_only_column = "right";
+
 // let web_endpoint = 'http://localhost:8000/app8';
 let web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
 
@@ -40,6 +48,9 @@ const design_words = {
 	"confirm_clear_title_description_tags": {ja: "タイトル、説明、タグをクリアしますか？", en: "Clear title, description, and tags?", zh: "清除标题、描述和标签吗？", es: "¿Borrar título, descripción y etiquetas?"},
 	"clear_title_description_tags": {ja: "タイトル、説明、タグをクリア", en: "Clear title, description, and tags", zh: "清除标题、描述和标签", es: "Borrar título, descripción y etiquetas"},
 	"sort": {ja: "並べ替え", en: "Sort", zh: "分类", es: "Clasificar"},
+
+	"left": {ja: "リスト表示", en: "List view", zh: "列表视图", es: "Vista de lista"},
+	"right": {ja: "編集表示", en: "Edit view", zh: "编辑视图", es: "Vista de edición"},
 }
 
 
@@ -169,7 +180,9 @@ if (desc) {
 	tags = desc.tags;
 } else {
 	console.error(`No description found with id: ${id}`);
-}		
+}
+// right_columnに移動
+design_only_column = "right";
 } catch (error) {
 	console.error('Error:', error);	
 }
@@ -298,6 +311,7 @@ try {
 		})
 	});
 	await fetch_get_all_sequnce(response);
+	design_only_column = "left";
 } catch (error) {
 	console.error('Error:', error);
 }
@@ -356,6 +370,7 @@ try {
 		})
 	});
 	await fetch_get_all_sequnce(response);
+	design_only_column = "left";
 } catch (error) {
 	console.error('Error:', error);
 }
@@ -529,6 +544,13 @@ function copy_link(id) {
 }
 
 $: (async () => {
+	if (design_only_column === "left") {
+            document.documentElement.style.setProperty('--display-left-column', 'block');
+            document.documentElement.style.setProperty('--display-right-column', 'none');
+        } else if (design_only_column === "right") {
+            document.documentElement.style.setProperty('--display-left-column', 'none');
+            document.documentElement.style.setProperty('--display-right-column', 'block');
+        }
 })();
 
 import { onMount } from "svelte";
@@ -544,22 +566,47 @@ onMount(async () => {
 
 
 <style>
-.button_reset {
+    :root {
+        --display-left-column: none;
+        --display-right-column: none;
+--chars-per-100vw: 39ch;
+
+    }
+
+    .left_column {
+        display: var(--display-left-column);
+    }
+
+    .right_column {
+        display: var(--display-right-column);
+    }
+
+	.button_reset {
 	background: none;
 	border: none;
 	padding: 0;
 	font: inherit;
 	color: inherit;
 	cursor: pointer;
+	font-size: 16px;
 }
 h1{
-	width: 50vw;
+	/* width: 50vw; */
 }
 .break_word {
 	/* background-color: lightgray; */
+	word-break: break-all;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
-	width: 50vw;
+	/* max-width: var(--chars-per-100vw); */
+}
+.break_word_title {
+	word-break: break-all;
+
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+	/* max-width: var(--chars-per-100vw); */
+	/* max-width: 50ch; */
 }
 .title:invalid,
 .description:invalid {
@@ -628,6 +675,8 @@ h1{
 .web_data_tags {
 	order: 1;
 }
+
+
 </style>
 
 
@@ -635,6 +684,14 @@ h1{
 <div class="container">
 
 <div class="header">
+	<!-- columnをleft, rightを切り替えるラジオボタン -->
+	<div>
+		<input type="radio" id="left" name="design_only_column" value="left" bind:group={design_only_column} />
+		<label for="left">left</label>
+		<input type="radio" id="right" name="design_only_column" value="right" bind:group={design_only_column} />
+		<label for="right">right</label>
+	</div>
+
 	<div>
 		<input type="radio" id="en" name="design_lang" value="en" bind:group={design_lang} />
 		<label for="en">🇺🇸</label>
@@ -660,7 +717,7 @@ h1{
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.1.2</div>
+	<div class="version">v1.1.3</div>
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
 	{#if auth_uid === ''}
 	<div>auth_google_login: <button on:click={auth_google_login}>auth_google_login</button></div>
@@ -690,6 +747,9 @@ h1{
 		</div>
 
 		<div class="list">
+			<!-- right表示 -->
+			<button on:click={() => design_only_column = "right"}>{design_words["right"][design_lang]}</button>
+
 			{#each Object.entries(web_data) as [key, value]}
 			{#if key !== "all_tags"}
 				<div class={key}>
@@ -706,10 +766,11 @@ h1{
 								<button on:click={() => fetch_delete_desc(desc.id)}>{design_words["delete_desc"][design_lang]}</button>
 								{/if}
 								</p>
-								<p class="break_word">{desc.title}</p>
+<p class="break_word_title">{desc.title}</p>
 								<p class="break_word">
 									<button class="button_reset break_word" on:click={design_toggle_description}>
-										{desc.description.length > 10 && !design_show_full_description ? desc.description.slice(0, 10) + '...▼' : desc.description}
+<!-- {desc.description.length > get_chars_per_100vw(70) && !design_show_full_description ? desc.description.slice(0, get_chars_per_100vw(70)) + '...▼' : desc.description} -->
+{desc.description.length > 200 && !design_show_full_description ? desc.description.slice(0, 200) + '...▼' : desc.description}
 									</button>
 								</p>
 								{#if desc.tags}
@@ -734,8 +795,10 @@ h1{
 	</div>
 
 	<div class="right_column">
-		{JSON.parse(JSON.stringify(web_data_with_title))}
 		<h1>{design_words["web_data_edit"][design_lang]}</h1>
+		<!-- left表示ボタン -->
+		<button on:click={() => design_only_column = "left"}>{design_words["left"][design_lang]}</button>
+
 		{#if auth_uid !== ''}
 		<p>id: {desc_id}</p>
 		<button on:click={clear_title_description_tags}>{design_words["clear_title_description_tags"][design_lang]}</button>
