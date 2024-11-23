@@ -112,6 +112,10 @@ let errors = [];
 const test_mode = false;
 let auth_login_result = 'Not logged in';
 let web_data = 	{
+	"all_descs": [],
+	"all_tags": [],
+	"any_user_new_all_descs_with_tags": [],
+	"filtered_all_descs": [],	
 };
 let other_data = {};
 let web_data_with_title = [];
@@ -200,11 +204,18 @@ function filtering_by_tag(tag_id) {
 
 }
 async function clear_filtered_all_descs(){
-	filtered_all_descs = [];
+	web_data['filtered_all_descs'] = [];
 	filter_tag_id_ary = [];
-	web_data_with_title = [];
-	await fetch_get_all_descs_and_tags();
 }
+// 指定したidをfilter_tag_id_aryから削除
+function remove_filter_tag_id(tag_id) {
+	filter_tag_id_ary = filter_tag_id_ary.filter(id => id !== tag_id);
+	web_data['filtered_all_descs'] = web_data['filtered_all_descs'].filter(desc => {
+		const tag_id_exists = desc.tags.some(tag => filter_tag_id_ary.some(id => id === tag.id));
+		return tag_id_exists;
+	});
+}
+
 async function init_and_sample_insert(){
 try {
 	for(const data of test_sample_data) {
@@ -333,10 +344,14 @@ async function fetch_init_db() {
 async function fetch_get_all_sequnce(Response) {
 try {
 	const data = await Response.json();
+	// dataにfiltered_all_descsを追加(既存のfiltered_all_descsがあればそれを保存)
+	data['filtered_all_descs'] = web_data['filtered_all_descs'] ? web_data['filtered_all_descs'] : [];
+
 	// dataからall_descs, all_tags, any_user_new_all_descs_with_tags,以外のデータをother_dataに分離
 	other_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key !== 'all_descs' && key !== 'all_tags' && key !== 'any_user_new_all_descs_with_tags'));
 	// all_descs, all_tags, any_user_new_all_descs_with_tagsをweb_dataに追加(それ以外のプロパティはweb_dataに追加しない)
-	web_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key === 'all_descs' || key === 'all_tags' || key === 'any_user_new_all_descs_with_tags'));
+	web_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key === 'all_descs' || key === 'all_tags' || key === 'any_user_new_all_descs_with_tags' || key === 'filtered_all_descs'));
+
 	all_tags = data.all_tags;
 	sorter();
 } catch (error) {
@@ -663,6 +678,9 @@ h1{
 	flex-direction: column;
 }
 /* 順序を変更するためのクラス */
+.filtered_all_desc {
+	order: 5;
+}
 .all_descs {
 	order: 4;
 }
@@ -756,6 +774,17 @@ h1{
 					<h1>{design_words[key][design_lang]}</h1>
 					{#if key === "filtered_all_descs"}
 						<button on:click={clear_filtered_all_descs}>{design_words["clear_filtered_all_descs"][design_lang]}</button>
+						<!-- filter_tag_id_aryの一覧 -->
+						{#each filter_tag_id_ary as tag_id}
+						<!-- tag_idからtagのnameを一覧表示 -->
+							{#each all_tags as tag}
+								{#if tag.id === tag_id}
+									<!-- <button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button> -->
+									<button on:click={() => remove_filter_tag_id(tag.id)}>{tag.name}</button>
+								{/if}
+							{/each}
+							
+						{/each}
 					{/if}
 						{#each value as desc}
 							<div>
