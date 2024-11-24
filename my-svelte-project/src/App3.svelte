@@ -1,27 +1,28 @@
 <script>
-	    let active_tab = 'all_descs';
-	function set_active_tab(tab) {
-        active_tab = tab;
+	let design_active_tab = 'all_descs';
+	function design_set_design_active_tab(tab) {
+        design_active_tab = tab;
+
     }
 
 
-	let show_menu = false;
+	let design_show_menu = false;
 
-    function toggle_menu() {
-        show_menu = !show_menu;
+    function design_toggle_menu() {
+        design_show_menu = !design_show_menu;
     }
-    let show_modal = false;
+    let design_show_modal = false;
     let design_lang = "en";
 
-    function toggle_modal() {
-        show_modal = !show_modal;
+    function design_toggle_modal() {
+        design_show_modal = !design_show_modal;
     }
 
 let design_only_column = "left";
 // let design_only_column = "right";
 
-// let web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
-let web_endpoint = 'http://localhost:8000/app8';
+let web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
+// let web_endpoint = 'http://localhost:8000/app8';
 
 
 // デザイン変える前にモバイル環境で本当に必要な見た目を確認する(そのためにプレリリース)
@@ -617,7 +618,7 @@ onMount(async () => {
 	position: relative;
 
 }
-.toggle_menu {
+.design_toggle_menu {
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -810,15 +811,15 @@ h1{
 	</div> -->
 
 
-<button class="toggle_menu" on:click={toggle_menu}>≡</button>
-{#if show_menu}
+<button class="design_toggle_menu" on:click={design_toggle_menu}>≡</button>
+{#if design_show_menu}
 <div class="menu_list">
-	<button on:click={toggle_modal}>{design_words["select_language"][design_lang]}</button>
+	<button on:click={design_toggle_modal}>{design_words["select_language"][design_lang]}</button>
 
-	{#if show_modal}
+	{#if design_show_modal}
     <div class="modal">
         <div class="modal-content">
-            <button class="close" on:click={toggle_modal}>&times;</button>
+            <button class="close" on:click={design_toggle_modal}>&times;</button>
             <h2>{design_words["select_language"][design_lang]}</h2>
             <div>
                 <input type="radio" id="en" name="design_lang" value="en" bind:group={design_lang} />
@@ -849,7 +850,7 @@ h1{
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.1.4</div>
+	<div class="version">v1.1.5</div>
 
 
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
@@ -897,7 +898,7 @@ h1{
 			<div class="tabs">
 				{#each Object.keys(web_data) as tab}
 
-<button on:click={() => set_active_tab(tab)} class:active={active_tab === tab}>
+<button on:click={() => design_set_design_active_tab(tab)} class:active={design_active_tab === tab}>
 	{design_words[tab] ? design_words[tab][design_lang] : tab}
 </button>
 				{/each}
@@ -908,7 +909,7 @@ h1{
 			<div class="tab-content">
 			{#each Object.entries(web_data) as [key, value]}
 			{#if key !== "all_tags"}
-			{#if active_tab === key}
+			{#if design_active_tab !== "all_tags" && design_active_tab === key}
 				<div class={key}>
 					<h1>{design_words[key][design_lang]}</h1>
 					{#if key === "filtered_all_descs"}
@@ -948,7 +949,7 @@ h1{
 				</div>
 			{/if}
 			{/if}
-			{/each}
+				{#if design_active_tab ===  "all_tags" && key === "all_tags"}
 				<div class="web_data_tags">
 					<h1>{design_words["web_data_tags"][design_lang]}</h1>
 					{#if web_data.all_tags}
@@ -957,6 +958,12 @@ h1{
 					{/each}
 					{/if}
 				</div>
+				{/if}
+
+			{/each}
+
+
+				
 			</div>
 
 
