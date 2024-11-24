@@ -1,4 +1,9 @@
 <script>
+	    let active_tab = 'all_descs';
+	function set_active_tab(tab) {
+        active_tab = tab;
+    }
+
 
 	let show_menu = false;
 
@@ -62,6 +67,12 @@ const design_words = {
 	"right": {ja: "編集表示", en: "Edit view", zh: "编辑视图", es: "Vista de edición"},
 	// "select_language": {ja: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", en: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", zh: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", es: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸"},
 	"select_language": {ja: "言語を選択", en: "Select language", zh: "选择语言", es: "Seleccionar idioma"},
+
+
+
+
+	"tab": {ja: "タブ", en: "Tab", zh: "标签", es: "Pestaña"},
+
 }
 
 
@@ -771,6 +782,15 @@ h1{
 	/* サイズを縦横5rem 10remに */
 	width: 10rem;
 	height: 4rem;
+}
+.tabs {
+	position: fixed;
+	bottom: 10px;
+	left: 10px;
+	z-index: 1000;
+	/* サイズを縦横5rem 10remに */
+	/* width: 10rem; */
+	/* height: 4rem; */
 
 }
 
@@ -869,8 +889,26 @@ h1{
 		<div class="list">
 			<button class="edit_button"	on:click={() => design_only_column = "right"}>{design_words["right"][design_lang]}</button>
 
+
+
+
+
+
+			<div class="tabs">
+				{#each Object.keys(web_data) as tab}
+
+<button on:click={() => set_active_tab(tab)} class:active={active_tab === tab}>
+	{design_words[tab] ? design_words[tab][design_lang] : tab}
+</button>
+				{/each}
+
+				
+			</div>
+
+			<div class="tab-content">
 			{#each Object.entries(web_data) as [key, value]}
 			{#if key !== "all_tags"}
+			{#if active_tab === key}
 				<div class={key}>
 					<h1>{design_words[key][design_lang]}</h1>
 					{#if key === "filtered_all_descs"}
@@ -909,6 +947,7 @@ h1{
 						{/each}
 				</div>
 			{/if}
+			{/if}
 			{/each}
 				<div class="web_data_tags">
 					<h1>{design_words["web_data_tags"][design_lang]}</h1>
@@ -918,6 +957,15 @@ h1{
 					{/each}
 					{/if}
 				</div>
+			</div>
+
+
+
+
+
+
+
+
 		</div>
 	</div>
 
