@@ -1,6 +1,6 @@
 <script>
 	// all_tagsとFiltered by tagを同じタブ内に表示する
-	// id表示をタイトルの右側に表示に位置変更, editボタンとlistボタンをトランジションで表示変化に変更
+	// id表示をタイトルの右側に表示に位置変更, editボタンとlistボタンをトランジションで表示変化を試す
 
 	let design_active_tab = 'all_descs';
 	function design_set_design_active_tab(tab) {
@@ -789,8 +789,8 @@ h1{
 }
 .edit_button, .list_button {
 	position: fixed;
-	bottom: 10px;
-	right: 10px;
+	top: 0rem;
+	left: 40%;
 	z-index: 1000;
 	/* サイズを縦横5rem 10remに */
 	width: 10rem;
@@ -803,7 +803,9 @@ h1{
 .tabs {
 	position: fixed;
 	bottom: 10px;
-	left: 10px;
+	/* left: 10px; */
+	/* 中央に表示 */
+	left: 20%;
 	z-index: 10;
 	/* 左右の区切りのborderを1pxで */
 }
@@ -813,8 +815,12 @@ h1{
 	border-bottom: none;
 	font-size: 1.2rem;
 	font-weight: bold;
-
 }
+/* 最後の.tabs buttonはborder不要 */
+.tabs button:last-child {
+	border-right: none;
+}
+
 
 /* button reset css */
 /* ボタンをボタン的な表示でなくする */
@@ -940,7 +946,7 @@ button {
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.1.6</div>
+	<div class="version">v1.1.7</div>
 
 
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
