@@ -763,17 +763,6 @@ h1{
 .web_data_tags {
 	order: 1;
 }
-.edit_button, .list_button {
-	position: fixed;
-	bottom: 10px;
-	right: 10px;
-	z-index: 1000;
-	/* サイズを縦横5rem 10remに */
-	width: 10rem;
-	height: 4rem;
-
-}
-
 </style>
 
 

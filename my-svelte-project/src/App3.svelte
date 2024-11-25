@@ -21,8 +21,8 @@
 let design_only_column = "left";
 // let design_only_column = "right";
 
-let web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
-// let web_endpoint = 'http://localhost:8000/app8';
+const web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
+// const web_endpoint = 'http://localhost:8000/app8';
 
 
 // デザイン変える前にモバイル環境で本当に必要な見た目を確認する(そのためにプレリリース)
@@ -41,19 +41,19 @@ const design_words = {
 	"auth_login_result": {en:"Log in result", ja:"ログイン結果", zh:"登录结果", es:"resultado de inicio de sesión"},
 	"auth_sign_out": {en:"Sign out", ja:"サインアウト", zh:"登出", es:"Cerrar sesión"},
 	"web_data_tags": {en:"Web data tags", ja:"ウェブデータタグ", zh:"网页数据标签", es:"Etiquetas de datos web"},
-	"any_user_new_all_descs_with_tags": {en:"Any user new all descriptions with tags", ja:"任意のユーザーの新しいすべてのタグ付き説明", zh:"任何用户的新所有带标签的描述", es:"Cualquier usuario nuevo todas las descripciones con etiquetas"},
-	"all_descs": {en:"All descriptions", ja:"すべての説明", zh:"所有描述", es:"Todas las descripciones"},
-	"filtered_all_descs": {en:"Filtered all descriptions", ja:"すべての説明をフィルター", zh:"过滤所有描述", es:"Todas las descripciones filtradas"},
+	"any_user_new_all_descs_with_tags": {en:"My data", ja:"自分のデータ", zh:"我的数据", es:"Mis datos"},
+	"all_descs": {en:"All", ja:"すべて", zh:"所有", es:"Todos"},
+	"filtered_all_descs": {ja:"タグで絞り込み", en:"Filtered by tag", zh:"通过标签筛选", es:"Filtrado por etiqueta"},
 	"web_data_edit": {en:"Web data edit", ja:"ウェブデータ編集", zh:"网页数据编辑", es:"Edición de datos web"},
 	"title": {en:"Title", ja:"タイトル", zh:"标题", es:"Título"},
 	"description": {en:"Description", ja:"説明", zh:"描述", es:"Descripción"},
 	"tag": {en:"Tag", ja:"タグ", zh:"标签", es:"Etiqueta"},
-	"set_desc_data": {en:"Set description data", ja:"説明データを設定", zh:"设置描述数据", es:"Establecer datos de descripción"},
-	"delete_desc": {en:"Delete description", ja:"説明を削除", zh:"删除描述", es:"Eliminar descripción"},
+	"set_desc_data": {en:"Set", ja:"セット", zh:"设置", es:"Establecer"},
+	"delete_desc": {en:"Delete", ja:"削除", zh:"删除", es:"Eliminar"},
 	"add_tag_to_desc": {en:"Add tag to description", ja:"説明にタグを追加", zh:"添加标签到描述", es:"Agregar etiqueta a la descripción"},
 	"update_desc": {en:"Update description", ja:"説明を更新", zh:"更新描述", es:"Actualizar descripción"},
 	"insert_desc": {en:"Insert description", ja:"説明を挿入", zh:"插入描述", es:"Insertar descripción"},
-	"clear_filtered_all_descs": {en:"Clear filtered all descriptions", ja:"すべてのフィルターをクリア", zh:"清除所有过滤描述", es:"Borrar todas las descripciones filtradas"},
+	"clear_filtered_all_descs": {ja: "フィルターをクリア", en: "Clear filter", zh: "清除过滤器", es: "Borrar filtro"},
 
 	"errors": {en:"Errors", ja:"エラー", zh:"错误", es:"Errores"},
 	"is_auth_uid_valid": {en:"Invalid auth_uid", ja:"無効なauth_uid", zh:"无效的auth_uid", es:"auth_uid no válido"},
@@ -599,6 +599,11 @@ onMount(async () => {
 	await fetch_get_all_descs_and_tags();
 	console.log("fetch_get_all_descs_and_tags");
 	design_scroll_to_id();
+	// My dataをクリック
+	// design_active_tab = 'any_user_new_all_descs_with_tags';
+	// right_columnに移動
+	// design_only_column = "right";
+
 });
 </script>
 
@@ -738,13 +743,17 @@ h1{
 }
 .fetch_insert_desc_button, .fetch_update_desc_button{
 	/* background-color: #4CAF50; */
-	border: none;
-	color: white;
+	/* color: gray; */
 	padding: 15px 32px;
 	text-align: center;
 	text-decoration: none;
 	display: inline-block;
 	font-size: 16px;
+	/* 縦横に線はあって、角の部分に線がない */
+	border-radius: 0;
+	border: 0.08rem solid gray;
+
+
 }
 .title {
 	width: 100%;
@@ -784,16 +793,94 @@ h1{
 	width: 10rem;
 	height: 4rem;
 }
+.edit_button {
+	/* bottom: 10rem; */
+	z-index: 100;
+}
 .tabs {
 	position: fixed;
 	bottom: 10px;
 	left: 10px;
-	z-index: 1000;
-	/* サイズを縦横5rem 10remに */
-	/* width: 10rem; */
-	/* height: 4rem; */
+	z-index: 10;
+	/* 左右の区切りのborderを1pxで */
+}
+.tabs button {
+	padding: 0 1rem 0 0;
+	border-right: 1px solid black;
+	border-bottom: none;
+	font-size: 1.2rem;
+	font-weight: bold;
 
 }
+
+/* button reset css */
+/* ボタンをボタン的な表示でなくする */
+button {
+	margin: 0.4rem;
+	background: none;
+	border: none;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+	font-size: 16px;
+	/* 下線のみ1pxで */
+	border-bottom: 1px solid black;
+}
+
+
+    /* 立体 / エンボスのボタンのスタイル */
+    .set_desc_data, .fetch_delete_desc {
+        /* background-color: #f1f1f1; */
+        border-left: 1px solid #f1f1f1;
+		border-bottom: 1px solid #f1f1f1;
+        border-radius: 5px;
+        padding: 0.2rem 0.2rem;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .set_desc_data:hover, .fetch_delete_desc:hover {
+        box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .set_desc_data:active, .fetch_delete_desc:active {
+        box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.2);
+    }
+
+	.each_desc_border {
+		/* 薄いグレイ */
+		border-top: 0.08rem solid #f1f1f1;
+		padding: 10px;
+		margin: 10px 0;
+	}
+
+	.id {
+		/* 薄いグレイ */
+		border-bottom: 0.1rem solid #f1f1f1;
+		padding: 10px;
+		margin: 0 0;
+		font-size: 0.8rem;
+		/* font colorを凄く薄いグレイに */
+		font: lightgray;
+	}
+	h1 {
+		font-size: 1.2rem;
+	}
+	.title{
+		font-size: 1.2rem;
+
+	}
+	.description {
+		/* 複数行のテキストを省略記号で省略する */
+		overflow: hidden;
+		text-overflow: ellipsis;
+		/* テキストを折り返す */
+		white-space: nowrap;
+	}
+
+
 
 </style>
 
@@ -850,7 +937,7 @@ h1{
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.1.5</div>
+	<div class="version">v1.1.6</div>
 
 
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
@@ -926,13 +1013,13 @@ h1{
 						{#each value as desc}
 							<div>
 								<p id={desc.id}>
-								<button class="button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
+								<button class="id button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
 								{#if key === "any_user_new_all_descs_with_tags" && auth_uid}
-								<button on:click={() => set_desc_data(desc.id)}>{design_words["set_desc_data"][design_lang]}</button>
-								<button on:click={() => fetch_delete_desc(desc.id)}>{design_words["delete_desc"][design_lang]}</button>
+								<button class="set_desc_data" on:click={() => set_desc_data(desc.id)}>{design_words["set_desc_data"][design_lang]}</button>
+								<button class="fetch_delete_desc" on:click={() => fetch_delete_desc(desc.id)}>{design_words["delete_desc"][design_lang]}</button>
 								{/if}
 								</p>
-<p class="break_word_title">{desc.title}</p>
+<p class="title break_word_title">{desc.title}</p>
 								<p class="break_word">
 									<button class="button_reset break_word" on:click={design_toggle_description}>
 <!-- {desc.description.length > get_chars_per_100vw(70) && !design_show_full_description ? desc.description.slice(0, get_chars_per_100vw(70)) + '...▼' : desc.description} -->
@@ -945,6 +1032,7 @@ h1{
 								{/each}
 								{/if}
 							</div>
+							<div class="each_desc_border"></div>
 						{/each}
 				</div>
 			{/if}
