@@ -1,4 +1,7 @@
 <script>
+	// all_tagsとFiltered by tagを同じタブ内に表示する
+	// id表示をタイトルの右側に表示に位置変更
+
 	let design_active_tab = 'all_descs';
 	function design_set_design_active_tab(tab) {
         design_active_tab = tab;
