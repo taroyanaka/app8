@@ -636,29 +636,38 @@ onMount(async () => {
 });
 </script>
 
-
 <style>
     :root {
         --display-left-column: none;
         --display-right-column: none;
-		--chars-per-100vw: 39ch;
+        --chars-per-100vw: 39ch;
+        --mobile-font-size: 8px;
     }
+
+    /* メディアクエリでipad以下のサイズは--mobile-font-sizeを適用 */
+    @media (max-width: 1024px) {
+        :root {
+            font-size: var(--mobile-font-size);
+        }
+    }
+
     .hidden_when_scroll {
         display: none;
     }
-	/* menu_listの上の要素 */
-.header {
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	position: relative;
 
-}
-.design_toggle_menu {
-	position: absolute;
-	top: 0;
-	left: 0;
-}
+    /* menu_listの上の要素 */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        position: relative;
+    }
+
+    .design_toggle_menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
 
     .menu_list {
         display: block;
@@ -667,7 +676,6 @@ onMount(async () => {
         right: 10px;
         background-color: white;
         border: 1px solid #ccc;
-        /* padding: 5rem; */
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
@@ -680,16 +688,17 @@ onMount(async () => {
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgb(0,0,0);
-        background-color: rgba(0,0,0,0.4);
+        background-color: rgba(0, 0, 0, 0.4);
     }
 
     .modal-content {
         background-color: #fefefe;
-        margin: 15% auto;
+        /* margin: 15% auto; */
         padding: 20px;
         border: 1px solid #888;
-        width: 80%;
+        /* width: 80%; */
+		width: 100%;
+		height: 100%;
     }
 
     .close {
@@ -714,172 +723,181 @@ onMount(async () => {
         display: var(--display-right-column);
     }
 
-	.button_reset {
-	background: none;
-	border: none;
-	padding: 0;
-	font: inherit;
-	color: inherit;
-	cursor: pointer;
-	font-size: 16px;
-}
-h1{
-	/* width: 50vw; */
-}
-.break_word {
-	/* background-color: lightgray; */
-	word-break: break-all;
-	word-wrap: break-word;
-	overflow-wrap: break-word;
-	/* max-width: var(--chars-per-100vw); */
-}
-.break_word_title {
-	word-break: break-all;
-
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-	/* max-width: var(--chars-per-100vw); */
-	/* max-width: 50ch; */
-}
-.title:invalid,
-.description:invalid {
-	/* background-color: lightgray; */
-}
-.title:valid,
-.description:valid {
-  /* background-color: palegreen; */
-}
-.container {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 20px;
-}
-.header {
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-}
-.content {
-	margin-top: 3rem;
-	display: flex;
-	width: 100%;
-}
-.left_column, .right_column {
-	flex: 1;
-	padding: 10px;
-}
-.desc_tag {
-/* text-align: right; */
-/* font-size: 0.8rem; */
-}
-.fetch_insert_desc_button, .fetch_update_desc_button{
-	/* background-color: #4CAF50; */
-	/* color: gray; */
-	padding: 15px 32px;
-	text-align: center;
-	text-decoration: none;
-	display: inline-block;
-	font-size: 16px;
-	/* 縦横に線はあって、角の部分に線がない */
-	border-radius: 0;
-	border: 0.08rem solid gray;
-}
-.title {
-	width: 100%;
-	height: 2rem;
-}
-.description {
-		width: 100%;
-		height: 17rem;
-}
-
-.list {
-	display: flex;
-	flex-direction: column;
-}
-/* 順序を変更するためのクラス */
-.filtered_all_desc {
-	order: 5;
-}
-.all_descs {
-	order: 4;
-}
-.all_tags {
-	order: 2;
-}
-.any_user_new_all_descs_with_tags {
-	order: 3;
-}
-.web_data_tags {
-	order: 1;
-}
-.edit_button, .list_button {
-	position: fixed;
-	top: 0rem;
-	right: 0rem;
-	z-index: 1000;
-	/* サイズを縦横5rem 10remに */
-	width: 10rem;
-	height: 4rem;
-}
-.edit_button {
-	/* bottom: 10rem; */
-	z-index: 100;
-}
-.tabs {
-	position: fixed;
-	bottom: 10px;
-	/* left: 10px; */
-	/* 中央に表示 */
-	left: 20%;
-	z-index: 10;
-	/* 左右の区切りのborderを1pxで */
-	justify-content: space-around;
-	/* 画面幅一杯に */
-	width: 60%;
-
-	display: flex;
-
-}
-.tabs button {
-	/* padding: 0 1rem 0 0; */
-	border-right: 1px solid black;
-	border-bottom: none;
-	font-size: 1.2rem;
-	font-weight: bold;
-	flex: 1;
-	padding: 10px 20px;
-	cursor: pointer;
-	text-align: center;
+    .button_reset {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        font-size: 16px;
     }
-/* 最後の.tabs buttonはborder不要 */
-.tabs button:last-child {
-	border-right: none;
-}
+
+    .break_word {
+        word-break: break-all;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .break_word_title {
+        word-break: break-all;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .title:invalid,
+    .description:invalid {
+        /* background-color: lightgray; */
+    }
+
+    .title:valid,
+    .description:valid {
+        /* background-color: palegreen; */
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .content {
+        margin-top: 3rem;
+        display: flex;
+        width: 100%;
+    }
+
+    .left_column,
+    .right_column {
+        flex: 1;
+    }
+
+    .fetch_insert_desc_button,
+    .fetch_update_desc_button {
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        border-radius: 0;
+        border: 0.08rem solid gray;
+    }
+
+    .title {
+        width: 100%;
+        height: 2rem;
+    }
+
+    .description {
+        width: 100%;
+        height: 17rem;
+    }
+
+    .list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 順序を変更するためのクラス */
+    .filtered_all_desc {
+        order: 5;
+    }
+
+    .all_descs {
+        order: 4;
+    }
+
+    .all_tags {
+        order: 2;
+    }
+
+	.parent_tags, .desc_tags {
+		display: flex;
+		/* justify-content: space-around; */
+		/* justify-content: space-evenly; */
+		justify-content: start;
+		/* background-color: palegoldenrod; */
+		flex-wrap: wrap;
+		column-gap: 2rem;
+		row-gap: 1rem;
+
+	}
+
+	.tag {
+		/* この要素同士の隙間を作る(flexで) */
+		
+		/* background-color: red; */
+		/* gap: 5rem; */
+		/* column-gap: 1em; */
 
 
-/* button reset css */
-/* ボタンをボタン的な表示でなくする */
-button {
-	margin: 0.4rem;
-	background: none;
-	border: none;
-	padding: 0;
-	font: inherit;
-	color: inherit;
-	cursor: pointer;
-	font-size: 16px;
-	/* 下線のみ1pxで */
-	border-bottom: 1px solid black;
-}
+	}
 
+    .any_user_new_all_descs_with_tags {
+        order: 3;
+    }
+
+    .web_data_tags {
+        order: 1;
+    }
+
+    .edit_button,
+    .list_button {
+        position: fixed;
+        top: 0rem;
+        right: 0rem;
+        z-index: 1000;
+        width: 10rem;
+        height: 4rem;
+    }
+
+    .edit_button {
+        z-index: 100;
+    }
+
+    .tabs {
+        position: fixed;
+        bottom: 10px;
+        z-index: 10;
+        justify-content: space-around;
+        width: 100%;
+        display: flex;
+		background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .tabs button {
+        border-right: 1px solid black;
+        border-bottom: none;
+        font-size: 1.2rem;
+        font-weight: bold;
+        flex: 1;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    /* 最後の.tabs buttonはborder不要 */
+    .tabs button:last-child {
+        border-right: none;
+    }
+
+    /* button reset css */
+    /* ボタンをボタン的な表示でなくする */
+    button {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        font-size: 16px;
+        border-bottom: 1px solid black;
+    }
 
     /* 立体 / エンボスのボタンのスタイル */
-    .set_desc_data, .fetch_delete_desc {
-        /* background-color: #f1f1f1; */
+    .set_desc_data,
+    .fetch_delete_desc {
         border-left: 1px solid #f1f1f1;
-		border-bottom: 1px solid #f1f1f1;
+        border-bottom: 1px solid #f1f1f1;
         border-radius: 5px;
         padding: 0.2rem 0.2rem;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
@@ -887,64 +905,59 @@ button {
         transition: box-shadow 0.3s ease;
     }
 
-    .set_desc_data:hover, .fetch_delete_desc:hover {
+    .set_desc_data:hover,
+    .fetch_delete_desc:hover {
         box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
     }
 
-    .set_desc_data:active, .fetch_delete_desc:active {
+    .set_desc_data:active,
+    .fetch_delete_desc:active {
         box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.2);
     }
 
     .each_desc_border {
         border-bottom: 1px solid #ccc;
         position: relative;
-		/* した方向に1rem margin */
-		margin-bottom: 4rem;
+        margin-bottom: 4rem;
     }
 
-	.id_and_set_delete {
-		position: absolute;
-		right: 0;
-		top: -1rem;
-		transform: translateY(-50%);
-		background-color: white; /* 白背景を追加 */
-		padding: 0.5rem; /* パディングを追加して背景がボタンを覆うようにする */
-	}
+    .id_and_set_delete {
+        position: absolute;
+        right: 0;
+        top: -1rem;
+        transform: translateY(-50%);
+        background-color: white;
+        padding: 0.5rem;
+    }
 
-	.id {
-		/* 薄いグレイ */
-		/* border-bottom: 0.1rem solid #f1f1f1; */
-		padding: 10px;
-		margin: 0 0;
-		font-size: 0.6rem;
-		/* font colorを凄く薄いグレイに */
-		font: lightgray;
-	}
-	h1 {
-		font-size: 1.2rem;
-	}
-	.title{
-		font-size: 1.2rem;
+    .id {
+        padding: 10px;
+        margin: 0 0;
+        font-size: 0.6rem;
+        font: lightgray;
+    }
 
-	}
-	.description {
-		/* 複数行のテキストを省略記号で省略する */
-		overflow: hidden;
-		text-overflow: ellipsis;
-		/* テキストを折り返す */
-		white-space: nowrap;
-	}
+    h1 {
+        font-size: 1.2rem;
+    }
+
+    .title {
+        font-size: 1.2rem;
+    }
+
+    .description {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 
     .active {
-        background-color: #ddd; /* 背景色を灰色に設定 */
+        background-color: #ddd;
     }
 
-	.hidden_when_scroll {
-		/* スクロール時に非表示 */
-		display: none;
-	}
-
-
+    .hidden_when_scroll {
+        display: none;
+    }
 </style>
 
 
@@ -1000,7 +1013,7 @@ button {
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.1.9</div>
+	<div class="version">v1.2.0</div>
 
 
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
@@ -1064,21 +1077,25 @@ button {
 				<div class={key}>
 <!-- <h1>{design_words[key][design_lang]}</h1> -->
 					{#if key === "filtered_all_descs"}
-					all_tags: {#each all_tags as tag}
-						<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+					all_tags: 
+					<div class="parent_tags">
+					{#each all_tags as tag}
+						<button class="tag" on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
 					{/each}
+					</div>
 					<div class="each_desc_border"></div>
 
 
 
 						<button on:click={clear_filtered_all_descs}>{design_words["clear_filtered_all_descs"][design_lang]}</button>
 						{#each filter_tag_id_ary as tag_id}
+							<div class="parent_tags">
 							{#each all_tags as tag}
 								{#if tag.id === tag_id}
-									<button on:click={() => remove_filter_tag_id(tag.id)}>{tag.name}</button>
+									<button class="tag" on:click={() => remove_filter_tag_id(tag.id)}>{tag.name}</button>
 								{/if}
 							{/each}
-							
+							</div>
 						{/each}
 					{/if}
 						{#each value as desc}
@@ -1091,9 +1108,11 @@ button {
 									</button>
 								</p>
 								{#if desc.tags}
+								<div class="desc_tags">
 								{#each desc.tags as tag}
-									<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+									<button class="tag" on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
 								{/each}
+								</div>
 								{/if}
 							</div>
 							<!-- <p id={desc.id} class="id_and_set_delete">
@@ -1121,9 +1140,11 @@ button {
 				<div class="web_data_tags">
 					<h1>{design_words["web_data_tags"][design_lang]}</h1>
 					{#if web_data.all_tags}
+					<div class="parent_tags">
 					{#each web_data.all_tags as tag}
-						<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+						<button class="tag" on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
 					{/each}
+					</div>
 					{/if}
 				</div>
 				{/if}
