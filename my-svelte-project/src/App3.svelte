@@ -1,4 +1,15 @@
 <script>
+    let design_is_hidden = false;
+    let design_scroll_timeout;
+
+    function design_handle_scroll() {
+        design_is_hidden = true;
+        clearTimeout(design_scroll_timeout);
+        design_scroll_timeout = setTimeout(() => {
+            design_is_hidden = false;
+        }, 1000); // スクロールが止まった後に表示するまでの遅延時間（ミリ秒）
+    }
+window.addEventListener('scroll', design_handle_scroll);
 	// all_tagsとFiltered by tagを同じタブ内に表示する
 	// id表示をタイトルの右側に表示に位置変更, editボタンとlistボタンをトランジションで表示変化を試す
 
@@ -46,13 +57,16 @@ const design_words = {
 	"web_data_tags": {en:"Web data tags", ja:"ウェブデータタグ", zh:"网页数据标签", es:"Etiquetas de datos web"},
 	"any_user_new_all_descs_with_tags": {en:"My data", ja:"自分のデータ", zh:"我的数据", es:"Mis datos"},
 	"all_descs": {en:"All", ja:"すべて", zh:"所有", es:"Todos"},
-	"filtered_all_descs": {ja:"タグで絞り込み", en:"Filtered by tag", zh:"通过标签筛选", es:"Filtrado por etiqueta"},
+	"filtered_all_descs": {ja:"絞り込み", en:"Filtered", zh:"过滤", es:"Filtrado"},
 	"web_data_edit": {en:"Web data edit", ja:"ウェブデータ編集", zh:"网页数据编辑", es:"Edición de datos web"},
 	"title": {en:"Title", ja:"タイトル", zh:"标题", es:"Título"},
 	"description": {en:"Description", ja:"説明", zh:"描述", es:"Descripción"},
 	"tag": {en:"Tag", ja:"タグ", zh:"标签", es:"Etiqueta"},
 	"set_desc_data": {en:"Set", ja:"セット", zh:"设置", es:"Establecer"},
 	"delete_desc": {en:"Delete", ja:"削除", zh:"删除", es:"Eliminar"},
+	"confirm_delete_desc": {ja: "削除しますか？", en: "Delete?", zh: "删除？", es: "¿Eliminar?"},
+
+
 	"add_tag_to_desc": {en:"Add tag to description", ja:"説明にタグを追加", zh:"添加标签到描述", es:"Agregar etiqueta a la descripción"},
 	"update_desc": {en:"Update description", ja:"説明を更新", zh:"更新描述", es:"Actualizar descripción"},
 	"insert_desc": {en:"Insert description", ja:"説明を挿入", zh:"插入描述", es:"Insertar descripción"},
@@ -67,8 +81,10 @@ const design_words = {
 	"clear_title_description_tags": {ja: "タイトル、説明、タグをクリア", en: "Clear title, description, and tags", zh: "清除标题、描述和标签", es: "Borrar título, descripción y etiquetas"},
 	"sort": {ja: "並べ替え", en: "Sort", zh: "分类", es: "Clasificar"},
 
-	"left": {ja: "リスト表示", en: "List view", zh: "列表视图", es: "Vista de lista"},
-	"right": {ja: "編集表示", en: "Edit view", zh: "编辑视图", es: "Vista de edición"},
+	// "left": {ja: "リスト表示", en: "List view", zh: "列表视图", es: "Vista de lista"},
+	"left": {ja: "-", en: "-", zh: "-", es: "-"},
+	// "right": {ja: "編集表示", en: "Edit view", zh: "编辑视图", es: "Vista de edición"},
+	"right": {ja: "+", en: "+", zh: "+", es: "+"},
 	// "select_language": {ja: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", en: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", zh: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", es: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸"},
 	"select_language": {ja: "言語を選択", en: "Select language", zh: "选择语言", es: "Seleccionar idioma"},
 
@@ -148,12 +164,13 @@ let web_data_with_title = [];
 let auth_uid = '';
 let design_show_full_description = false;
 
-function clear_title_description_tags() {
-	if (confirm(design_words["confirm_clear_title_description_tags"][design_lang])) {
-		title = '';
-		description = '';
-		tags = [];
-		desc_id = null;
+function clear_title_description_tags({with_confirm = true} = {}) {
+	if (with_confirm) {
+		if (confirm(design_words["confirm_clear_title_description_tags"][design_lang])) {
+		title = ''; description = ''; tags = []; desc_id = null;
+		}
+	} else {
+		title = ''; description = ''; tags = []; desc_id = null;
 	}
 }
 function design_toggle_description() {
@@ -227,6 +244,8 @@ function filtering_by_tag(tag_id) {
 		return tag_id_exists;
 	});
 	web_data['filtered_all_descs'] = filtered_all_descs;
+	// tabをfiltered_all_descsに変更
+	design_active_tab = 'filtered_all_descs';
 
 }
 async function clear_filtered_all_descs(){
@@ -349,6 +368,8 @@ try {
 	});
 	await fetch_get_all_sequnce(response);
 	design_only_column = "left";
+	design_active_tab = 'all_descs';
+	clear_title_description_tags({with_confirm: false});
 } catch (error) {
 	console.error('Error:', error);
 }
@@ -412,12 +433,17 @@ try {
 	});
 	await fetch_get_all_sequnce(response);
 	design_only_column = "left";
+	design_active_tab = 'all_descs';
+	clear_title_description_tags({with_confirm: false});
 } catch (error) {
 	console.error('Error:', error);
 }
 }
 async function fetch_delete_desc(id) {
 try {
+	if (!confirm(design_words["confirm_delete_desc"][design_lang])) {
+		return;
+	}
 	const response = await fetch(web_endpoint + '/delete_desc', {method: 'POST',headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({
 			id: id,
@@ -617,7 +643,9 @@ onMount(async () => {
         --display-right-column: none;
 		--chars-per-100vw: 39ch;
     }
-
+    .hidden_when_scroll {
+        display: none;
+    }
 	/* menu_listの上の要素 */
 .header {
 	display: flex;
@@ -629,17 +657,17 @@ onMount(async () => {
 .design_toggle_menu {
 	position: absolute;
 	top: 0;
-	right: 0;
+	left: 0;
 }
 
     .menu_list {
         display: block;
         position: absolute;
-        top: 50px;
+        top: 0rem;
         right: 10px;
         background-color: white;
         border: 1px solid #ccc;
-        padding: 10px;
+        /* padding: 5rem; */
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
@@ -733,6 +761,7 @@ h1{
 	width: 100%;
 }
 .content {
+	margin-top: 3rem;
 	display: flex;
 	width: 100%;
 }
@@ -755,8 +784,6 @@ h1{
 	/* 縦横に線はあって、角の部分に線がない */
 	border-radius: 0;
 	border: 0.08rem solid gray;
-
-
 }
 .title {
 	width: 100%;
@@ -790,7 +817,7 @@ h1{
 .edit_button, .list_button {
 	position: fixed;
 	top: 0rem;
-	left: 40%;
+	right: 0rem;
 	z-index: 1000;
 	/* サイズを縦横5rem 10remに */
 	width: 10rem;
@@ -808,14 +835,24 @@ h1{
 	left: 20%;
 	z-index: 10;
 	/* 左右の区切りのborderを1pxで */
+	justify-content: space-around;
+	/* 画面幅一杯に */
+	width: 60%;
+
+	display: flex;
+
 }
 .tabs button {
-	padding: 0 1rem 0 0;
+	/* padding: 0 1rem 0 0; */
 	border-right: 1px solid black;
 	border-bottom: none;
 	font-size: 1.2rem;
 	font-weight: bold;
-}
+	flex: 1;
+	padding: 10px 20px;
+	cursor: pointer;
+	text-align: center;
+    }
 /* 最後の.tabs buttonはborder不要 */
 .tabs button:last-child {
 	border-right: none;
@@ -858,19 +895,28 @@ button {
         box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.2);
     }
 
-	.each_desc_border {
-		/* 薄いグレイ */
-		border-top: 0.08rem solid #f1f1f1;
-		padding: 10px;
-		margin: 10px 0;
+    .each_desc_border {
+        border-bottom: 1px solid #ccc;
+        position: relative;
+		/* した方向に1rem margin */
+		margin-bottom: 4rem;
+    }
+
+	.id_and_set_delete {
+		position: absolute;
+		right: 0;
+		top: -1rem;
+		transform: translateY(-50%);
+		background-color: white; /* 白背景を追加 */
+		padding: 0.5rem; /* パディングを追加して背景がボタンを覆うようにする */
 	}
 
 	.id {
 		/* 薄いグレイ */
-		border-bottom: 0.1rem solid #f1f1f1;
+		/* border-bottom: 0.1rem solid #f1f1f1; */
 		padding: 10px;
 		margin: 0 0;
-		font-size: 0.8rem;
+		font-size: 0.6rem;
 		/* font colorを凄く薄いグレイに */
 		font: lightgray;
 	}
@@ -889,6 +935,14 @@ button {
 		white-space: nowrap;
 	}
 
+    .active {
+        background-color: #ddd; /* 背景色を灰色に設定 */
+    }
+
+	.hidden_when_scroll {
+		/* スクロール時に非表示 */
+		display: none;
+	}
 
 
 </style>
@@ -946,7 +1000,7 @@ button {
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.1.7</div>
+	<div class="version">v1.1.9</div>
 
 
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
@@ -984,21 +1038,22 @@ button {
 		</div>
 
 		<div class="list">
-			<button class="edit_button"	on:click={() => design_only_column = "right"}>{design_words["right"][design_lang]}</button>
-
+			<button class="edit_button {design_is_hidden ? 'hidden_when_scroll' : ''}" on:click={() => design_only_column = "right"}>
+				{design_words["right"][design_lang]}
+			</button>
 
 
 
 
 
 			<div class="tabs">
-				{#each Object.keys(web_data) as tab}
-
-<button on:click={() => design_set_design_active_tab(tab)} class:active={design_active_tab === tab}>
-	{design_words[tab] ? design_words[tab][design_lang] : tab}
-</button>
-				{/each}
-
+			{#each Object.keys(web_data) as tab}
+				{#if tab !== "all_tags"}
+					<button on:click={() => design_set_design_active_tab(tab)} class:active={design_active_tab === tab}>
+						{design_words[tab] ? design_words[tab][design_lang] : tab}
+					</button>
+				{/if}
+			{/each}
 				
 			</div>
 
@@ -1007,8 +1062,15 @@ button {
 			{#if key !== "all_tags"}
 			{#if design_active_tab !== "all_tags" && design_active_tab === key}
 				<div class={key}>
-					<h1>{design_words[key][design_lang]}</h1>
+<!-- <h1>{design_words[key][design_lang]}</h1> -->
 					{#if key === "filtered_all_descs"}
+					all_tags: {#each all_tags as tag}
+						<button on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+					{/each}
+					<div class="each_desc_border"></div>
+
+
+
 						<button on:click={clear_filtered_all_descs}>{design_words["clear_filtered_all_descs"][design_lang]}</button>
 						{#each filter_tag_id_ary as tag_id}
 							{#each all_tags as tag}
@@ -1021,13 +1083,6 @@ button {
 					{/if}
 						{#each value as desc}
 							<div>
-								<p id={desc.id}>
-								<button class="id button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
-								{#if key === "any_user_new_all_descs_with_tags" && auth_uid}
-								<button class="set_desc_data" on:click={() => set_desc_data(desc.id)}>{design_words["set_desc_data"][design_lang]}</button>
-								<button class="fetch_delete_desc" on:click={() => fetch_delete_desc(desc.id)}>{design_words["delete_desc"][design_lang]}</button>
-								{/if}
-								</p>
 <p class="title break_word_title">{desc.title}</p>
 								<p class="break_word">
 									<button class="button_reset break_word" on:click={design_toggle_description}>
@@ -1041,7 +1096,23 @@ button {
 								{/each}
 								{/if}
 							</div>
-							<div class="each_desc_border"></div>
+							<!-- <p id={desc.id} class="id_and_set_delete">
+								<button class="id button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
+								{#if key === "any_user_new_all_descs_with_tags" && auth_uid}
+								<button class="set_desc_data" on:click={() => set_desc_data(desc.id)}>{design_words["set_desc_data"][design_lang]}</button>
+								<button class="fetch_delete_desc" on:click={() => fetch_delete_desc(desc.id)}>{design_words["delete_desc"][design_lang]}</button>
+								{/if}
+							</p>
+							<div class="each_desc_border"></div> -->
+							<div class="each_desc_border">
+								<p id={desc.id} class="id_and_set_delete">
+									<button class="id button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
+									{#if key === "any_user_new_all_descs_with_tags" && auth_uid}
+										<button class="set_desc_data" on:click={() => set_desc_data(desc.id)}>{design_words["set_desc_data"][design_lang]}</button>
+										<button class="fetch_delete_desc" on:click={() => fetch_delete_desc(desc.id)}>{design_words["delete_desc"][design_lang]}</button>
+									{/if}
+								</p>
+							</div>
 						{/each}
 				</div>
 			{/if}
@@ -1078,8 +1149,11 @@ button {
 		<button class="list_button" on:click={() => design_only_column = "left"}>{design_words["left"][design_lang]}</button>
 
 		{#if auth_uid !== ''}
+		<!-- desc_idがnullの時は非表示 -->
+		{#if desc_id !== null}
 		<p>id: {desc_id}</p>
-		<button on:click={clear_title_description_tags}>{design_words["clear_title_description_tags"][design_lang]}</button>
+		{/if}
+		<button on:click={() => clear_title_description_tags({with_confirm: true})}>{design_words["clear_title_description_tags"][design_lang]}</button>
 		<div>title: </div>
 		<textarea class="title" bind:value={title} minlength="1" maxlength="100" required placeholder="1_100"></textarea>
 		<div>description: </div>
