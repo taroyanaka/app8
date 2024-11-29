@@ -178,6 +178,7 @@ function design_toggle_description() {
 }
 function add_tag_to_desc(desc_id, tag_name) {
 	try {
+		console.log('add_tag_to_desc', desc_id, tag_name);
 // valid
 // errorsの中のtagのエラーを削除(design_words["are_tags_valid"]のいずれかが含まれるエラーを削除)
 console.log(errors);
@@ -186,18 +187,27 @@ console.log(errors);
 
 		if (!validators.validate_tag_name(tag_name)) {
 			// errors.push('Invalid tag name');
+			console.log(3);
 			errors.push(design_words["are_tags_valid"][design_lang]);
 			return;
 		}
 
+		console.log(4);
+
 		// tag_nameからtag_idを取得
-		const tag = all_tags.find(tag => tag.name === tag_name);
+		const tag_in_all_tags = all_tags.find(tag => tag.name === tag_name);
+		console.log(tag_in_all_tags);
+		console.log(5);
 		// tagsに存在しないtag_nameの場合はtagsに追加。存在する場合は追加しない
-		if (tag) {
-			tag.desc_id = desc_id;
-			const tag_already_exists = tags.some(tag => tag.id === tag.id);
+		if (tag_in_all_tags) {
+			console.log(6);
+			tag_in_all_tags.desc_id = desc_id;
+			console.log(tag_in_all_tags.desc_id, desc_id);
+			console.log(7);
+			const tag_already_exists = tags.some(tags_tag => tags_tag.id === tag_in_all_tags.id);
+			console.log(tag_already_exists);
 			if (!tag_already_exists) {
-				tags = [...tags, tag];
+				tags = [...tags, tag_in_all_tags];
 			}
 			// tagのinputを空にする
 			new_tag = "";
@@ -297,7 +307,9 @@ const validators = {
 		return typeof description === 'string' && description.length >= 1 && description.length <= 1000;
 	},
 	validate_tag_name(name) {
+		console.log(1);
 		console.log('validate_tag_name', name);
+		console.log(2);
 		return typeof name === 'string' && name.length >= 1 && name.length <= 10;
 	},
 	validate_data(data) {
