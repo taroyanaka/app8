@@ -705,12 +705,10 @@ onMount(async () => {
 
     .modal-content {
         background-color: #fefefe;
-        /* margin: 15% auto; */
         padding: 20px;
         border: 1px solid #888;
-        /* width: 80%; */
-		width: 100%;
-		height: 100%;
+		width: 50%;
+		height: 10rem;
     }
 
     .close {
@@ -1025,7 +1023,7 @@ onMount(async () => {
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.2.0</div>
+	<div class="version">v1.2.1</div>
 
 
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
