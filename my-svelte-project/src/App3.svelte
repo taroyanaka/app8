@@ -1,4 +1,7 @@
 <script>
+	// tag周りの実装が汚いからリファクタリング(必要であればtag周辺全部スクラップ&ビルド)
+
+
     let design_is_hidden = false;
     let design_scroll_timeout;
 
