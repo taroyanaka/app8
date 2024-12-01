@@ -1,5 +1,18 @@
 <script>
+// const web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
+const web_endpoint = 'http://localhost:8000/app8';
+
 	// tag周りの実装が汚いからリファクタリング(必要であればtag周辺全部スクラップ&ビルド)
+
+// descのidを指定してデータを更新する関数
+	// tagsをnew_tags_aryに変更(new_tagが入る配列と明示し、all_tagsとの違いを明確にする)
+	// 一度new_tags_aryに変更してから全般的なリファクタリングする
+
+
+let new_tag = "";
+let all_tags = [];
+let tags = [];
+let filter_tag_id_ary = [];
 
 
     let design_is_hidden = false;
@@ -38,8 +51,6 @@ window.addEventListener('scroll', design_handle_scroll);
 let design_only_column = "left";
 // let design_only_column = "right";
 
-const web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
-// const web_endpoint = 'http://localhost:8000/app8';
 
 
 // デザイン変える前にモバイル環境で本当に必要な見た目を確認する(そのためにプレリリース)
@@ -138,18 +149,11 @@ try {
 	console.error('Error:', error);
 }
 }
-	
 
-
-// descのidを指定してデータを更新する関数
-let new_tag = "";
-let all_tags = [];
 
 let desc_id = null;
 let title = "";
 let description = "";
-let tags = [];
-let filter_tag_id_ary = [];
 let filtered_all_descs = [];
 
 let errors = [];
@@ -182,42 +186,24 @@ function design_toggle_description() {
 function add_tag_to_desc(desc_id, tag_name) {
 	try {
 		console.log('add_tag_to_desc', desc_id, tag_name);
-// valid
-// errorsの中のtagのエラーを削除(design_words["are_tags_valid"]のいずれかが含まれるエラーを削除)
-console.log(errors);
-errors = errors.filter(error => !error.includes(design_words["are_tags_valid"][design_lang]));
-console.log(errors);
-
+		errors = errors.filter(error => !error.includes(design_words["are_tags_valid"][design_lang]));
 		if (!validators.validate_tag_name(tag_name)) {
-			// errors.push('Invalid tag name');
-			console.log(3);
 			errors.push(design_words["are_tags_valid"][design_lang]);
 			return;
 		}
-
-		console.log(4);
-
 		// tag_nameからtag_idを取得
 		const tag_in_all_tags = all_tags.find(tag => tag.name === tag_name);
-		console.log(tag_in_all_tags);
-		console.log(5);
 		// tagsに存在しないtag_nameの場合はtagsに追加。存在する場合は追加しない
 		if (tag_in_all_tags) {
-			console.log(6);
 			tag_in_all_tags.desc_id = desc_id;
-			console.log(tag_in_all_tags.desc_id, desc_id);
-			console.log(7);
 			const tag_already_exists = tags.some(tags_tag => tags_tag.id === tag_in_all_tags.id);
-			console.log(tag_already_exists);
 			if (!tag_already_exists) {
 				tags = [...tags, tag_in_all_tags];
 			}
-			// tagのinputを空にする
 			new_tag = "";
 		} else {
-			// If the tag does not exist, create a new tag and add it to the tags array
 			const newTag = {
-				id: all_tags.length + 1, // Assuming id is incremental
+				id: all_tags.length + 1,
 				name: tag_name,
 				desc_id: desc_id,
 				created_at: new Date().toISOString(),
