@@ -1,70 +1,45 @@
 <script>
-// const web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
-const web_endpoint = 'http://localhost:8000/app8';
-
-	// tag周りの実装が汚いからリファクタリング(必要であればtag周辺全部スクラップ&ビルド)
-
-// descのidを指定してデータを更新する関数
-	// tagsをnew_tags_aryに変更(new_tagが入る配列と明示し、all_tagsとの違いを明確にする)
-	// 一度new_tags_aryに変更してから全般的なリファクタリングする
-
-
-let new_tag = "";
-let all_tags = [];
-let new_tags_ary = [];
-let filter_tag_id_ary = [];
-
-
-    let design_is_hidden = false;
-    let design_scroll_timeout;
-
-    function design_handle_scroll() {
-        design_is_hidden = true;
-        clearTimeout(design_scroll_timeout);
-        design_scroll_timeout = setTimeout(() => {
-            design_is_hidden = false;
-        }, 1000); // スクロールが止まった後に表示するまでの遅延時間（ミリ秒）
-    }
-window.addEventListener('scroll', design_handle_scroll);
-	// all_tagsとFiltered by tagを同じタブ内に表示する
-	// id表示をタイトルの右側に表示に位置変更, editボタンとlistボタンをトランジションで表示変化を試す
-
-	let design_active_tab = 'all_descs';
-	function design_set_design_active_tab(tab) {
-        design_active_tab = tab;
-
-    }
-
-
-	let design_show_menu = false;
-
-    function design_toggle_menu() {
-        design_show_menu = !design_show_menu;
-    }
-    let design_show_modal = false;
-    let design_lang = "en";
-
-    function design_toggle_modal() {
-        design_show_modal = !design_show_modal;
-    }
-
-let design_only_column = "left";
-// let design_only_column = "right";
-
-
-
 // デザイン変える前にモバイル環境で本当に必要な見た目を確認する(そのためにプレリリース)
 // デザインをグリッドシステム準拠で変更
 
-
 // 命名規則(prefix)
-// auth => authentication関係の変数と関数
-// test => テスト用の変数と関数
-// design => デザイン関係の変数と関数
 // web => webデータの変数と関数
+// design => デザイン関係の変数と関数
+// test => テスト用の変数と関数
 // fetch => fetch関係の関数
+// auth => authentication関係の変数と関数
 
+let desc_id = null;
+let title = "";
+let description = "";
+let sort_kind_and_order = {kind: 'id', order: 'desc',};
+const sort_kind = ["id","title","description","tags","created_at","updated_at",];
+let new_tag = "";
+let all_tags = [];
+let new_tags_ary = [];
+let filter_tag_name_ary = [];
 
+let errors = [];
+
+const web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
+// const web_endpoint = 'http://localhost:8000/app8';
+let web_data = 	{
+	"all_descs": [],
+	"all_tags": [],
+	"any_user_new_all_descs_with_tags": [],
+	"filtered_all_descs": [],	
+};
+let web_other_data = {};
+
+let design_is_hidden = false;
+let design_scroll_timeout;
+let design_active_tab = 'all_descs';
+let design_show_menu = false;
+let design_only_column = "left";
+// let design_only_column = "right";
+let design_show_modal = false;
+let design_lang = "en";
+let design_show_full_description = false;
 const design_words = {
 	"auth_login_result": {en:"Log in result", ja:"ログイン結果", zh:"登录结果", es:"resultado de inicio de sesión"},
 	"auth_sign_out": {en:"Sign out", ja:"サインアウト", zh:"登出", es:"Cerrar sesión"},
@@ -79,13 +54,10 @@ const design_words = {
 	"set_desc_data": {en:"Set", ja:"セット", zh:"设置", es:"Establecer"},
 	"delete_desc": {en:"Delete", ja:"削除", zh:"删除", es:"Eliminar"},
 	"confirm_delete_desc": {ja: "削除しますか？", en: "Delete?", zh: "删除？", es: "¿Eliminar?"},
-
-
 	"add_tag_to_desc": {en:"Add tag to description", ja:"説明にタグを追加", zh:"添加标签到描述", es:"Agregar etiqueta a la descripción"},
 	"update_desc": {en:"Update description", ja:"説明を更新", zh:"更新描述", es:"Actualizar descripción"},
 	"insert_desc": {en:"Insert description", ja:"説明を挿入", zh:"插入描述", es:"Insertar descripción"},
 	"clear_filtered_all_descs": {ja: "フィルターをクリア", en: "Clear filter", zh: "清除过滤器", es: "Borrar filtro"},
-
 	"errors": {en:"Errors", ja:"エラー", zh:"错误", es:"Errores"},
 	"is_auth_uid_valid": {en:"Invalid auth_uid", ja:"無効なauth_uid", zh:"无效的auth_uid", es:"auth_uid no válido"},
 	"is_title_valid": {ja: "タイトルは1文字以上100文字以下", en: "Title must be between 1 and 100 characters", zh: "标题必须在1到100个字符之间", es: "El título debe tener entre 1 y 100 caracteres"},
@@ -94,25 +66,102 @@ const design_words = {
 	"confirm_clear_title_description_tags": {ja: "タイトル、説明、タグをクリアしますか？", en: "Clear title, description, and tags?", zh: "清除标题、描述和标签吗？", es: "¿Borrar título, descripción y etiquetas?"},
 	"clear_title_description_tags": {ja: "タイトル、説明、タグをクリア", en: "Clear title, description, and tags", zh: "清除标题、描述和标签", es: "Borrar título, descripción y etiquetas"},
 	"sort": {ja: "並べ替え", en: "Sort", zh: "分类", es: "Clasificar"},
-
-	// "left": {ja: "リスト表示", en: "List view", zh: "列表视图", es: "Vista de lista"},
 	"left": {ja: "-", en: "-", zh: "-", es: "-"},
-	// "right": {ja: "編集表示", en: "Edit view", zh: "编辑视图", es: "Vista de edición"},
 	"right": {ja: "+", en: "+", zh: "+", es: "+"},
-	// "select_language": {ja: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", en: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", zh: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸", es: "🇺🇸🇯🇵🇨🇳🇹🇼🇪🇸"},
 	"select_language": {ja: "言語を選択", en: "Select language", zh: "选择语言", es: "Seleccionar idioma"},
-
-
-
-
 	"tab": {ja: "タブ", en: "Tab", zh: "标签", es: "Pestaña"},
-
+	"link_copied_to_clipboard": {ja: "リンクをコピーしました", en: "Link copied to clipboard", zh: "链接已复制到剪贴板", es: "Enlace copiado al portapapeles"},
 }
 
+// const test_mode = true;
+const test_mode = false;
+
+let auth_login_result = 'Not logged in';
+let auth_uid = '';
 
 
-const sort_kind = ["id","title","description","tags","created_at","updated_at",];
-let sort_kind_and_order = {kind: 'id', order: 'desc',};
+function add_tag_to_desc(desc_id, tag_name) {
+try {
+	const validate_tag_name = (tag_name) => validators.validate_tag_name(tag_name) ? true : (errors.push(design_words["are_tags_valid"][design_lang]), false);
+	const filter_errors = () => errors = errors.filter(error => !error.includes(design_words["are_tags_valid"][design_lang]));
+    const find_tag_in_all_tags = (tag_name) => all_tags.find(tag => tag.name === tag_name);
+    const create_new_tag = (tag_in_all_tags, tag_name, desc_id) => tag_in_all_tags ? { ...tag_in_all_tags, desc_id } : { id: all_tags.length + 1, name: tag_name, desc_id, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    const update_all_tags = (tag_in_all_tags, new_tag) => tag_in_all_tags ? all_tags : [...all_tags, new_tag];
+    const update_new_tags_ary = (new_tag) => new_tags_ary.some(tags_tag => tags_tag.id === new_tag.id) ? new_tags_ary : [...new_tags_ary, new_tag];
+    const clear_new_tag = () => new_tag = "";
+    if (validate_tag_name(tag_name)) {
+        filter_errors();
+        validate_tag_name(tag_name);
+        const tag_in_all_tags = find_tag_in_all_tags(tag_name);
+        const new_tag = create_new_tag(tag_in_all_tags, tag_name, desc_id);
+        all_tags = update_all_tags(tag_in_all_tags, new_tag);
+        new_tags_ary = update_new_tags_ary(new_tag);
+        clear_new_tag();
+    }
+} catch (error) {
+	console.error('Error:', error);
+}
+}
+function filtering_by_tag(tag_name) {
+	const add_filter_tag_name = (tag_name) => filter_tag_name_ary = filter_tag_name_ary.includes(tag_name) ? filter_tag_name_ary : [...filter_tag_name_ary, tag_name];
+	const update_filtered_descs = () => web_data['filtered_all_descs'] = web_data.all_descs.filter(desc => desc.tags.some(tag => filter_tag_name_ary.includes(tag.name)));
+	add_filter_tag_name(tag_name);
+	update_filtered_descs();
+    design_active_tab = 'filtered_all_descs';
+}
+function remove_filter_tag_name(tag_name) {
+	const remove_filter_tag_name = (tag_name) => filter_tag_name_ary = filter_tag_name_ary.filter(name => name !== tag_name);
+	const update_filtered_descs = () => web_data['filtered_all_descs'] = web_data.all_descs.filter(desc => desc.tags.some(tag => filter_tag_name_ary.includes(tag.name)));
+	remove_filter_tag_name(tag_name);
+	update_filtered_descs();
+}
+function clear_title_description_tags({with_confirm = true} = {}) {
+	if (with_confirm) {
+		if (confirm(design_words["confirm_clear_title_description_tags"][design_lang])) {
+		title = ''; description = ''; new_tags_ary = []; desc_id = null;
+		}
+	} else {
+		title = ''; description = ''; new_tags_ary = []; desc_id = null;
+	}
+}
+function set_desc_data(id){
+try {
+	const desc = web_data.all_descs.find(desc => desc.id === id);
+	if (desc) {
+		desc_id = desc.id;
+		title = desc.title;
+		description = desc.description;
+		new_tags_ary = desc.tags;
+	} else {
+		console.error(`No description found with id: ${id}`);
+	}
+	design_only_column = "right";
+} catch (error) {
+	console.error('Error:', error);	
+}
+}
+async function clear_filtered_all_descs(){
+	web_data['filtered_all_descs'] = [];
+	filter_tag_name_ary = [];
+}
+async function init_and_sample_insert(){
+try {
+	for(const data of test_sample_data) {
+		auth_uid = data.auth_uid;
+		desc_id = data.desc_id;
+		title = data.title;
+		description = data.description;
+		new_tags_ary = data.tags;
+		await fetch_insert_desc();
+	}
+} catch (error) {
+	console.error('Error:', error);
+}
+}
+function copy_link(id) {
+	navigator.clipboard.writeText(`${window.location.href.split('#')[0]}#${id}`);
+	alert(design_words["link_copied_to_clipboard"][design_lang]);
+}
 function sorter() {
 try {
     if (sort_kind_and_order.kind === null || sort_kind_and_order.order === null) return;
@@ -150,126 +199,32 @@ try {
 }
 }
 
-
-let desc_id = null;
-let title = "";
-let description = "";
-let filtered_all_descs = [];
-
-let errors = [];
-// const test_mode = true;
-const test_mode = false;
-let auth_login_result = 'Not logged in';
-let web_data = 	{
-	"all_descs": [],
-	"all_tags": [],
-	"any_user_new_all_descs_with_tags": [],
-	"filtered_all_descs": [],	
-};
-let other_data = {};
-let web_data_with_title = [];
-let auth_uid = '';
-let design_show_full_description = false;
-
-function add_tag_to_desc(desc_id, tag_name) {
-	try {
-		errors = errors.filter(error => !error.includes(design_words["are_tags_valid"][design_lang]));
-		if (!validators.validate_tag_name(tag_name)) {
-			errors.push(design_words["are_tags_valid"][design_lang]);
-			return;
-		}
-		const tag_in_all_tags = all_tags.find(tag => tag.name === tag_name);
-		if (tag_in_all_tags) {
-			tag_in_all_tags.desc_id = desc_id;
-			const tag_already_exists = new_tags_ary.some(tags_tag => tags_tag.id === tag_in_all_tags.id);
-			if (!tag_already_exists) {
-				new_tags_ary = [...new_tags_ary, tag_in_all_tags];
-			}
-			new_tag = "";
-		} else {
-			const newTag = {
-				id: all_tags.length + 1,
-				name: tag_name,
-				desc_id: desc_id,
-				created_at: new Date().toISOString(),
-				updated_at: new Date().toISOString()
-			};
-			all_tags = [...all_tags, newTag];
-			new_tags_ary = [...new_tags_ary, newTag];
-		}
-	} catch (error) {
-		console.error('Error:', error);
-	}
+function design_handle_scroll() {
+	design_is_hidden = true;
+	clearTimeout(design_scroll_timeout);
+	design_scroll_timeout = setTimeout(() => {
+		design_is_hidden = false;
+	}, 1000);
 }
-function filtering_by_tag(tag_id) {
-	const tag_id_exists = filter_tag_id_ary.some(id => id === tag_id);
-	if (!tag_id_exists) {
-		filter_tag_id_ary = [...filter_tag_id_ary, tag_id];
-	}
-	const filtered_all_descs = web_data.all_descs.filter(desc => {
-		const tag_id_exists = desc.tags.some(tag => filter_tag_id_ary.some(id => id === tag.id));
-		return tag_id_exists;
-	});
-	web_data['filtered_all_descs'] = filtered_all_descs;
-	design_active_tab = 'filtered_all_descs';
+function design_toggle_menu() {
+	design_show_menu = !design_show_menu;
 }
-function remove_filter_tag_id(tag_id) {
-	filter_tag_id_ary = filter_tag_id_ary.filter(id => id !== tag_id);
-	web_data['filtered_all_descs'] = web_data['filtered_all_descs'].filter(desc => {
-		const tag_id_exists = desc.tags.some(tag => filter_tag_id_ary.some(id => id === tag.id));
-		return tag_id_exists;
-	});
-}
-
-
-
-function clear_title_description_tags({with_confirm = true} = {}) {
-	if (with_confirm) {
-		if (confirm(design_words["confirm_clear_title_description_tags"][design_lang])) {
-		title = ''; description = ''; new_tags_ary = []; desc_id = null;
-		}
-	} else {
-		title = ''; description = ''; new_tags_ary = []; desc_id = null;
-	}
+function design_toggle_modal() {
+	design_show_modal = !design_show_modal;
 }
 function design_toggle_description() {
 	design_show_full_description = !design_show_full_description;
 }
-function set_desc_data(id){
-try {
-const desc = web_data.all_descs.find(desc => desc.id === id);
-if (desc) {
-	desc_id = desc.id;
-	title = desc.title;
-	description = desc.description;
-	new_tags_ary = desc.tags;
-} else {
-	console.error(`No description found with id: ${id}`);
-}
-// right_columnに移動
-design_only_column = "right";
-} catch (error) {
-	console.error('Error:', error);	
-}
-}
-async function clear_filtered_all_descs(){
-	web_data['filtered_all_descs'] = [];
-	filter_tag_id_ary = [];
-}
-async function init_and_sample_insert(){
-try {
-	for(const data of test_sample_data) {
-		auth_uid = data.auth_uid;
-		desc_id = data.desc_id;
-		title = data.title;
-		description = data.description;
-		new_tags_ary = data.tags;
-		await fetch_insert_desc();
+function design_scroll_to_id() {
+	if (location.hash) {
+		const id = location.hash.slice(1);
+		const element = document.getElementById(id);
+		if (element) {
+			element.scrollIntoView({ behavior: 'smooth' });
+		}
 	}
-} catch (error) {
-	console.error('Error:', error);
 }
-}
+
 const validators = {
 	validate_auth_uid(uid) {
 		const uidRegex = /^[a-zA-Z0-9_-]+$/;
@@ -352,6 +307,77 @@ errors.push(design_words[key][design_lang]);
     }
     return true;
 }
+const test_sample_data = [
+	{
+		"auth_uid": "user1",
+		"desc_id": 1,
+		"created_at": "2024-09-01T00:00:00",
+		"updated_at": "2024-09-01T00:00:00",
+		"title": "foo1",
+		"description": "bar1",
+		"tags": [
+			{ "desc_id": 1, "id": 1, "name": "tag1", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
+			{ "desc_id": 1, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
+			{ "desc_id": 1, "id": 3, "name": "tag3", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
+		]
+	},
+	{
+		"auth_uid": "user1",
+		"desc_id": 2,
+		"created_at": "2024-09-01T00:00:00",
+		"updated_at": "2024-09-01T00:00:00",
+		"title": "foo2",
+		"description": "bar2",
+		"tags": [
+			{ "desc_id": 2, "id": 1, "name": "tag1", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
+			{ "desc_id": 2, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
+			]
+		},
+		{
+			"auth_uid": "user2",
+			"desc_id": 3,
+			"created_at": "2024-09-01T00:00:00",
+			"updated_at": "2024-09-01T00:00:00",
+			"title": "foo3",
+			"description": "bar3",
+			"tags": [
+				{ "desc_id": 3, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
+				{ "desc_id": 3, "id": 3, "name": "tag3", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
+			]
+		}
+];
+const test_boundary_test_data = [
+	{
+		"auth_uid": "user1",
+		"desc_id": 4,
+		"created_at": "2024-09-01T00:00:00",
+		"updated_at": "2024-09-01T00:00:00",
+		"title": "a".repeat(100), // 最大長
+		"description": "b".repeat(1000), // 最大長
+		"tags": [
+			{ "desc_id": 4, "id": 4, "name": "tag4", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
+		]
+	},
+	{
+		"auth_uid": "user1",
+		"desc_id": 5,
+		"created_at": "2024-09-01T00:00:00",
+		"updated_at": "2024-09-01T00:00:00",
+		"title": "", // 最小長
+		"description": "", // 最小長
+		"tags": [
+			{ "desc_id": 5, "id": 5, "name": "t".repeat(10), "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" } // 最大長
+		]
+	}
+];
+function test_run_boundary_tests() {
+	const index = 1;
+	title = test_boundary_test_data[index].title;
+	description = test_boundary_test_data[index].description;
+	new_tags_ary = test_boundary_test_data[index].tags;
+	fetch_insert_desc();
+};
+
 async function fetch_insert_desc() {
 try {
 	if(!valid_all()) throw new Error('Validation failed');
@@ -391,8 +417,8 @@ try {
 	// dataにfiltered_all_descsを追加(既存のfiltered_all_descsがあればそれを保存)
 	data['filtered_all_descs'] = web_data['filtered_all_descs'] ? web_data['filtered_all_descs'] : [];
 
-	// dataからall_descs, all_tags, any_user_new_all_descs_with_tags,以外のデータをother_dataに分離
-	other_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key !== 'all_descs' && key !== 'all_tags' && key !== 'any_user_new_all_descs_with_tags'));
+	// dataからall_descs, all_tags, any_user_new_all_descs_with_tags,以外のデータをweb_other_dataに分離
+	web_other_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key !== 'all_descs' && key !== 'all_tags' && key !== 'any_user_new_all_descs_with_tags'));
 	// all_descs, all_tags, any_user_new_all_descs_with_tagsをweb_dataに追加(それ以外のプロパティはweb_dataに追加しない)
 	web_data = Object.fromEntries(Object.entries(data).filter(([key, _]) => key === 'all_descs' || key === 'all_tags' || key === 'any_user_new_all_descs_with_tags' || key === 'filtered_all_descs'));
 
@@ -453,16 +479,6 @@ try {
 }
 }
 
-const test_all_validation_fn = {
-	validateUser: (uid) => {
-		const errors = [];
-		const uidRegex = /^[a-zA-Z0-9_-]{28}$/; // Google Firebase Authentication UID format
-		if (!uidRegex.test(uid)) {
-			errors.push('Invalid UID format');
-		}
-		return errors;
-	},
-}
 const auth_firebase_config = {
 	apiKey: "AIzaSyBcOlIDP2KWbJuKM0WeMHNp-WvjTVfLt9Y",
 	authDomain: "p2auth-ea50a.firebaseapp.com",
@@ -471,35 +487,33 @@ const auth_firebase_config = {
 	messagingSenderId: "796225429484",
 	appId: "1:796225429484:web:ece56ef2fc0be28cd6eac9"
 }
-firebase.initializeApp(auth_firebase_config);
-const auth_google_provider = new firebase.auth.GoogleAuthProvider();
 async function auth_check_login() {
-	try {
+try {
+	const current_user = await new Promise((resolve, reject) => {
+		firebase.auth().onAuthStateChanged(resolve, reject);
+	});
+	console.log('Current user:', current_user);
 
-		const current_user = await new Promise((resolve, reject) => {
-			firebase.auth().onAuthStateChanged(resolve, reject);
-		});
-		console.log('Current user:', current_user);
-	
-		const auth_user = current_user;
-		if (auth_user) {
-			auth_uid = auth_user.uid;
-			auth_login_result = 'Logged in';
-		} else {
-			console.log(2);
-			auth_login_result = 'Not logged in';
-			auth_uid = '';
-		}
-		if(test_mode) auth_login_result = 'Logged in';
-	} catch (error) {
-		console.error('Error during authentication:', error);
-		auth_login_result = 'Authentication failed';
-		auth_uid = "";
+	const auth_user = current_user;
+	if (auth_user) {
+		auth_uid = auth_user.uid;
+		auth_login_result = 'Logged in';
+	} else {
+		console.log(2);
+		auth_login_result = 'Not logged in';
+		auth_uid = '';
 	}
+	if(test_mode) auth_login_result = 'Logged in';
+} catch (error) {
+	console.error('Error during authentication:', error);
+	auth_login_result = 'Authentication failed';
+	auth_uid = "";
+}
 }
 async function auth_google_login() {
 	try {
 		console.log('auth_google_login');
+		const auth_google_provider = new firebase.auth.GoogleAuthProvider();
 		const result = await firebase.auth().signInWithPopup(auth_google_provider);
 		const auth_user = result.user;
 		console.log(4);
@@ -510,102 +524,18 @@ async function auth_google_login() {
 	}
 }
 async function auth_sign_out() {
-	try {
-		console.log(5);
-		await firebase.auth().signOut();
-		auth_login_result = 'Not logged in';
-	} catch (error) {
-		console.error('Error during sign-out:', error);
-		alert('Sign out failed. ' + error.message);
-	}
+try {
+	console.log(5);
+	await firebase.auth().signOut();
+	auth_login_result = 'Not logged in';
+} catch (error) {
+	console.error('Error during sign-out:', error);
+	alert('Sign out failed. ' + error.message);
 }
-// 3つのテストデータを作成
-const test_sample_data = [
-	{
-		"auth_uid": "user1",
-		"desc_id": 1,
-		"created_at": "2024-09-01T00:00:00",
-		"updated_at": "2024-09-01T00:00:00",
-		"title": "foo1",
-		"description": "bar1",
-		"tags": [
-			{ "desc_id": 1, "id": 1, "name": "tag1", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
-			{ "desc_id": 1, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
-			{ "desc_id": 1, "id": 3, "name": "tag3", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
-		]
-	},
-	{
-		"auth_uid": "user1",
-		"desc_id": 2,
-		"created_at": "2024-09-01T00:00:00",
-		"updated_at": "2024-09-01T00:00:00",
-		"title": "foo2",
-		"description": "bar2",
-		"tags": [
-			{ "desc_id": 2, "id": 1, "name": "tag1", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
-			{ "desc_id": 2, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
-			]
-		},
-		{
-			"auth_uid": "user2",
-			"desc_id": 3,
-			"created_at": "2024-09-01T00:00:00",
-			"updated_at": "2024-09-01T00:00:00",
-			"title": "foo3",
-			"description": "bar3",
-			"tags": [
-				{ "desc_id": 3, "id": 2, "name": "tag2", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" },
-				{ "desc_id": 3, "id": 3, "name": "tag3", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
-			]
-		}
-];
-// 境界値テストデータ
-const boundary_test_data = [
-	{
-		"auth_uid": "user1",
-		"desc_id": 4,
-		"created_at": "2024-09-01T00:00:00",
-		"updated_at": "2024-09-01T00:00:00",
-		"title": "a".repeat(100), // 最大長
-		"description": "b".repeat(1000), // 最大長
-		"tags": [
-			{ "desc_id": 4, "id": 4, "name": "tag4", "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" }
-		]
-	},
-	{
-		"auth_uid": "user1",
-		"desc_id": 5,
-		"created_at": "2024-09-01T00:00:00",
-		"updated_at": "2024-09-01T00:00:00",
-		"title": "", // 最小長
-		"description": "", // 最小長
-		"tags": [
-			{ "desc_id": 5, "id": 5, "name": "t".repeat(10), "created_at": "2024-09-01T00:00:00", "updated_at": "2024-09-01T00:00:00" } // 最大長
-		]
-	}
-];
-// 境界値テストを実行
-function run_boundary_tests() {
-	const index = 1;
-	title = boundary_test_data[index].title;
-	description = boundary_test_data[index].description;
-	new_tags_ary = boundary_test_data[index].tags;
-	fetch_insert_desc();
-};
-function design_scroll_to_id() {
-	// URLに#Nのようなidが存在する場合指定したid(#id)の要素にスクロールする
-	if (location.hash) {
-		const id = location.hash.slice(1);
-		const element = document.getElementById(id);
-		if (element) {
-			element.scrollIntoView({ behavior: 'smooth' });
-		}
-	}
 }
-function copy_link(id) {
-	navigator.clipboard.writeText(`${window.location.href.split('#')[0]}#${id}`);
-	alert('Link copied to clipboard');
-}
+
+window.addEventListener('scroll', design_handle_scroll);
+firebase.initializeApp(auth_firebase_config);
 
 $: (async () => {
 	if (design_only_column === "left") {
@@ -1008,7 +938,7 @@ onMount(async () => {
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.2.1</div>
+	<div class="version">v1.2.2</div>
 
 
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
@@ -1022,7 +952,7 @@ onMount(async () => {
 
 	{#if test_mode}
 	<div>auth_uid: {auth_uid}</div>
-	<button on:click={run_boundary_tests}>run_boundary_tests</button>
+	<button on:click={test_run_boundary_tests}>test_run_boundary_tests</button>
 	<button on:click={init_and_sample_insert}>init_and_sample_insert</button>
 	<button on:click={fetch_init_db}>init_db</button>
 	<button on:click={fetch_get_all_descs_and_tags}>get_all_descs_and_tags</button>
@@ -1057,7 +987,7 @@ onMount(async () => {
 			<div class="tabs">
 			{#each Object.keys(web_data) as tab}
 				{#if tab !== "all_tags"}
-					<button on:click={() => design_set_design_active_tab(tab)} class:active={design_active_tab === tab}>
+					<button on:click={() => design_active_tab = tab} class:active={design_active_tab === tab}>
 						{design_words[tab] ? design_words[tab][design_lang] : tab}
 					</button>
 				{/if}
@@ -1075,7 +1005,8 @@ onMount(async () => {
 					all_tags: 
 					<div class="parent_tags">
 					{#each all_tags as tag}
-						<button class="tag" on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+						<!-- <button class="tag" on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button> -->
+						<button class="tag" on:click={() => filtering_by_tag(tag.name)}>{tag.name}</button>
 					{/each}
 					</div>
 					<div class="each_desc_border"></div>
@@ -1083,11 +1014,12 @@ onMount(async () => {
 
 
 						<button on:click={clear_filtered_all_descs}>{design_words["clear_filtered_all_descs"][design_lang]}</button>
-						{#each filter_tag_id_ary as tag_id}
+						{#each filter_tag_name_ary as tag_name}
 							<div class="parent_tags">
 							{#each all_tags as tag}
-								{#if tag.id === tag_id}
-									<button class="tag" on:click={() => remove_filter_tag_id(tag.id)}>{tag.name}</button>
+								<!-- {#if tag.id === tag_id} -->
+								{#if tag.name === tag_name}
+									<button class="tag" on:click={() => remove_filter_tag_name(tag.name)}>{tag.name}</button>
 								{/if}
 							{/each}
 							</div>
@@ -1105,7 +1037,8 @@ onMount(async () => {
 								{#if desc.tags}
 								<div class="desc_tags">
 								{#each desc.tags as tag}
-									<button class="tag" on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+									<!-- <button class="tag" on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button> -->
+									<button class="tag" on:click={() => filtering_by_tag(tag.name)}>{tag.name}</button>
 								{/each}
 								</div>
 								{/if}
@@ -1136,8 +1069,9 @@ onMount(async () => {
 					<h1>{design_words["web_data_tags"][design_lang]}</h1>
 					{#if web_data.all_tags}
 					<div class="parent_tags">
-					{#each web_data.all_tags as tag}
-						<button class="tag" on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button>
+					{#each all_tags as tag}
+						<!-- <button class="tag" on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button> -->
+						<button class="tag" on:click={() => filtering_by_tag(tag.name)}>{tag.name}</button>
 					{/each}
 					</div>
 					{/if}
