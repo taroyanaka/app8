@@ -937,7 +937,7 @@ onMount(async () => {
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.2.2</div>
+	<div class="version">v1.2.3</div>
 
 
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
