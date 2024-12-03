@@ -1,5 +1,4 @@
 <script>
-// デザイン変える前にモバイル環境で本当に必要な見た目を確認する(そのためにプレリリース)
 // デザインをグリッドシステム準拠で変更
 
 // 命名規則(prefix)
@@ -977,19 +976,30 @@ onMount(async () => {
 
 		<div class="list">
 			<button class="edit_button {design_is_hidden ? 'hidden_when_scroll' : ''}" on:click={() => design_only_column = "right"}>
+				<span class="material-icons">edit</span>
 				{design_words["right"][design_lang]}
 			</button>
-
-
-
-
 
 			<div class="tabs">
 			{#each Object.keys(web_data) as tab}
 				{#if tab !== "all_tags"}
 					<button on:click={() => design_active_tab = tab} class:active={design_active_tab === tab}>
+						{#if tab === "all_descs"}
+						<div class="material-icons">home</div>
+						{/if}
+						{#if tab === "any_user_new_all_descs_with_tags"}
+						<div class="material-icons">person</div>
+						{/if}
+						{#if tab === "filtered_all_descs"}
+						<div class="material-icons">filter</div>
+						{/if}
 						{design_words[tab] ? design_words[tab][design_lang] : tab}
 					</button>
+
+
+
+
+
 				{/if}
 			{/each}
 				

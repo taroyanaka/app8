@@ -2,13 +2,6 @@
 // const web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
 const web_endpoint = 'http://localhost:8000/app8';
 
-	// tag周りの実装が汚いからリファクタリング(必要であればtag周辺全部スクラップ&ビルド)
-
-// descのidを指定してデータを更新する関数
-	// tagsをnew_tags_aryに変更(new_tagが入る配列と明示し、all_tagsとの違いを明確にする)
-	// 一度new_tags_aryに変更してから全般的なリファクタリングする
-
-
 let new_tag = "";
 let all_tags = [];
 let new_tags_ary = [];
