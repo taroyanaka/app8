@@ -1,5 +1,6 @@
 <script>
-// デザインをグリッドシステム準拠で変更
+// デザインをグリッドシステム準拠で変更(leftとrightをdisplay: gridに変更済み)
+	// gridのドット(線)を表示するのを別のファイルで作って試す
 
 // 命名規則(prefix)
 // web => webデータの変数と関数
@@ -43,17 +44,21 @@ const design_words = {
 	"auth_login_result": {en:"Log in result", ja:"ログイン結果", zh:"登录结果", es:"resultado de inicio de sesión"},
 	"auth_sign_out": {en:"Sign out", ja:"サインアウト", zh:"登出", es:"Cerrar sesión"},
 	"web_data_tags": {en:"Web data tags", ja:"ウェブデータタグ", zh:"网页数据标签", es:"Etiquetas de datos web"},
-	"any_user_new_all_descs_with_tags": {en:"My data", ja:"自分のデータ", zh:"我的数据", es:"Mis datos"},
-	"all_descs": {en:"All", ja:"すべて", zh:"所有", es:"Todos"},
-	"filtered_all_descs": {ja:"絞り込み", en:"Filtered", zh:"过滤", es:"Filtrado"},
-	"web_data_edit": {en:"Web data edit", ja:"ウェブデータ編集", zh:"网页数据编辑", es:"Edición de datos web"},
+	// "any_user_new_all_descs_with_tags": {en:"My data", ja:"自分のデータ", zh:"我的数据", es:"Mis datos"},
+	"any_user_new_all_descs_with_tags": {en:"", ja:"", zh:"", es:""},
+	// "all_descs": {en:"All", ja:"すべて", zh:"所有", es:"Todos"},
+	"all_descs": {en:"", ja:"", zh:"", es:""},
+	// "filtered_all_descs": {ja:"絞り込み", en:"Filtered", zh:"过滤", es:"Filtrado"},
+	"filtered_all_descs": {ja:"", en:"", zh:"", es:""},
 	"title": {en:"Title", ja:"タイトル", zh:"标题", es:"Título"},
 	"description": {en:"Description", ja:"説明", zh:"描述", es:"Descripción"},
 	"tag": {en:"Tag", ja:"タグ", zh:"标签", es:"Etiqueta"},
 	"set_desc_data": {en:"Set", ja:"セット", zh:"设置", es:"Establecer"},
 	"delete_desc": {en:"Delete", ja:"削除", zh:"删除", es:"Eliminar"},
 	"confirm_delete_desc": {ja: "削除しますか？", en: "Delete?", zh: "删除？", es: "¿Eliminar?"},
-	"add_tag_to_desc": {en:"Add tag to description", ja:"説明にタグを追加", zh:"添加标签到描述", es:"Agregar etiqueta a la descripción"},
+
+	"add_tag_to_desc": {en:"Add tag", ja:"タグを追加", zh:"添加标签", es:"Agregar etiqueta"},
+
 	"update_desc": {en:"Update description", ja:"説明を更新", zh:"更新描述", es:"Actualizar descripción"},
 	"insert_desc": {en:"Insert description", ja:"説明を挿入", zh:"插入描述", es:"Insertar descripción"},
 	"clear_filtered_all_descs": {ja: "フィルターをクリア", en: "Clear filter", zh: "清除过滤器", es: "Borrar filtro"},
@@ -66,7 +71,7 @@ const design_words = {
 	"clear_title_description_tags": {ja: "タイトル、説明、タグをクリア", en: "Clear title, description, and tags", zh: "清除标题、描述和标签", es: "Borrar título, descripción y etiquetas"},
 	"sort": {ja: "並べ替え", en: "Sort", zh: "分类", es: "Clasificar"},
 	"left": {ja: "-", en: "-", zh: "-", es: "-"},
-	"right": {ja: "+", en: "+", zh: "+", es: "+"},
+	"right": {ja: "", en: "", zh: "", es: ""},
 	"select_language": {ja: "言語を選択", en: "Select language", zh: "选择语言", es: "Seleccionar idioma"},
 	"tab": {ja: "タブ", en: "Tab", zh: "标签", es: "Pestaña"},
 	"link_copied_to_clipboard": {ja: "リンクをコピーしました", en: "Link copied to clipboard", zh: "链接已复制到剪贴板", es: "Enlace copiado al portapapeles"},
@@ -538,11 +543,13 @@ firebase.initializeApp(auth_firebase_config);
 
 $: (async () => {
 	if (design_only_column === "left") {
-            document.documentElement.style.setProperty('--display-left-column', 'block');
+            // document.documentElement.style.setProperty('--display-left-column', 'block');
+            document.documentElement.style.setProperty('--display-left-column', 'grid');
             document.documentElement.style.setProperty('--display-right-column', 'none');
         } else if (design_only_column === "right") {
             document.documentElement.style.setProperty('--display-left-column', 'none');
-            document.documentElement.style.setProperty('--display-right-column', 'block');
+            // document.documentElement.style.setProperty('--display-right-column', 'block');
+            document.documentElement.style.setProperty('--display-right-column', 'grid');
         }
 })();
 
@@ -593,22 +600,32 @@ onMount(async () => {
         position: absolute;
         top: 0;
         left: 0;
+		/* border無し */
+		border: none;
+		background-color: transparent;
+		font-size: 1.5rem;
+		cursor: pointer;
     }
 
     .menu_list {
+		z-index: 1000;
         display: block;
         position: absolute;
         top: 0rem;
         right: 10px;
         background-color: white;
+        /* background-color:red; */
         border: 1px solid #ccc;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		width: 20rem;
+		height: 15rem;
+
     }
 
     .modal {
         display: block;
         position: fixed;
-        z-index: 1;
+        z-index: 10;
         left: 0;
         top: 0;
         width: 100%;
@@ -618,6 +635,7 @@ onMount(async () => {
     }
 
     .modal-content {
+		z-index: 100;
         background-color: #fefefe;
         padding: 20px;
         border: 1px solid #888;
@@ -645,6 +663,7 @@ onMount(async () => {
 
     .right_column {
         display: var(--display-right-column);
+		row-gap: 0.2rem; /* これで要素間の縦の隙間を設定 */
     }
 
     .button_reset {
@@ -781,7 +800,7 @@ onMount(async () => {
 
     .tabs {
         position: fixed;
-        bottom: 10px;
+        bottom: 0px;
         z-index: 10;
         justify-content: space-around;
         width: 100%;
@@ -882,6 +901,9 @@ onMount(async () => {
     .hidden_when_scroll {
         display: none;
     }
+	.small_font {
+		font-size: 0.8rem;
+	}
 </style>
 
 
@@ -898,7 +920,10 @@ onMount(async () => {
 	</div> -->
 
 
-<button class="design_toggle_menu" on:click={design_toggle_menu}>≡</button>
+<!-- <button class="design_toggle_menu" on:click={design_toggle_menu}>≡</button> -->
+<button class="design_toggle_menu" on:click={design_toggle_menu}>
+	<span class="material-icons">menubar</span>
+</button>
 {#if design_show_menu}
 <div class="menu_list">
 	<button on:click={design_toggle_modal}>{design_words["select_language"][design_lang]}</button>
@@ -937,7 +962,7 @@ onMount(async () => {
 		<button on:click={sorter}>{design_words["sort"][design_lang]}</button>
 	</div>
 
-	<div class="version">v1.2.3</div>
+	<div class="version">v1.2.4</div>
 
 
 	<div>{design_words["auth_login_result"][design_lang]}: <span>{auth_login_result}</span></div>
@@ -1105,7 +1130,6 @@ onMount(async () => {
 	</div>
 
 	<div class="right_column">
-		<h1>{design_words["web_data_edit"][design_lang]}</h1>
 		<button class="list_button" on:click={() => design_only_column = "left"}>{design_words["left"][design_lang]}</button>
 
 		{#if auth_uid !== ''}
@@ -1131,7 +1155,10 @@ onMount(async () => {
 			<option value={tag.name} />
 		{/each}
 		</datalist>
-		<button on:click={() => add_tag_to_desc(desc_id, new_tag)}>{design_words["add_tag_to_desc"][design_lang]}</button>
+		<button on:click={() => add_tag_to_desc(desc_id, new_tag)}>
+			<div class="material-icons">add</div>
+			{design_words["add_tag_to_desc"][design_lang]}
+		</button>
 		{#if errors.length > 0}
 		<h2>{design_words["errors"][design_lang]}</h2>
 
@@ -1141,7 +1168,14 @@ onMount(async () => {
 		{/if}
 
 		{#if desc_id === null}
-		<button on:click={fetch_insert_desc} class="fetch_insert_desc_button">{design_words["insert_desc"][design_lang]}</button>
+		<div>
+		<button on:click={fetch_insert_desc} class="fetch_insert_desc_button">
+			<div class="material-icons">upload</div>
+			<div class="small_font">
+				<div>{design_words["insert_desc"][design_lang]}</div>
+			</div>
+		</button>
+		</div>
 		{/if}
 		{#if desc_id !== null}
 		<!-- desc_idがnullならupdate -->
