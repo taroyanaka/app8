@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Display in Vue 3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            /* margin paddingを0 */
+            margin: 0;
+            padding: 0;
+            /* 文字サイズを0.5remに */
+            font-size: 0.5rem;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        iframe {
+            /* width: 100%;
+            height: 200px;
+            border: none; */
+            width: 20rem; /* 指定したremのサイズに縮小 */
+        height: 15rem; /* 指定したremのサイズに縮小 */
+        border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Data Display</h1>
+        <table>
+            <thead>
+                <tr>
+                    <!-- <th>ID</th> -->
+                    <th>Name</th>
+                    <th>Time</th>
+                    <th>URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in data" :key="item.id">
+                    <td><a :href="item.url" target="_blank"></a>{{ item.id }}</a></td>
+                    <td><a :href="item.url" target="_blank">{{ item.name }}</a></td>
+                    <td><a :href="item.url" target="_blank">{{ item.time }}</a></td>
+                    <td>
+                        <iframe :src="item.url"></iframe>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    data: [
+                        { id: 0, url: "https://twilikedemo.created.app", time: "00:30", name: "twilikedemo" },
+                        { id: 1, url: "https://twilikedemo.created.app", time: "00:30", name: "twilikedemo" },
+                        { id: 2, url: "https://orderfoordemo.created.app", time: "00:10", name: "orderfoordemo" },
+                        { id: 3, url: "https://instagramdemo.created.app", time: "00:10", name: "instagramdemo" },
+                        { id: 4, url: "https://tiktoklikedemo.created.app", time: "00:30", name: "tiktoklikedemo" },
+                        { id: 5, url: "https://companydemo.created.app", time: "00:30", name: "companydemo" },
+                        { id: 6, url: "https://discorddemo.created.app", time: "00:01", name: "discorddemo" },
+                        { id: 7, url: "https://threaddemo.created.app", time: "00:10", name: "threaddemo" },
+                        { id: 8, url: "https://landingpagedemo.created.app", time: "00:10", name: "landingpagedemo" },
+                        { id: 9, url: "https://kanbanboarddemo.created.app", time: "00:30", name: "kanbanboarddemo" },
+                        { id: 10, url: "https://tinderdemo.created.app", time: "00:10", name: "tinderdemo" },
+                        { id: 11, url: "https://chatbotdemo.created.app", time: "01:00", name: "chatbotdemo" },
+                        { id: 12, url: "https://craigslistdemo.created.app", time: "00:30", name: "craigslistdemo" },
+                        { id: 13, url: "https://jumpplusdemo.created.app", time: "00:30", name: "jumpplusdemo" },
+                        { id: 14, url: "https://skyscannerdemo.created.app", time: "00:30", name: "skyscannerdemo" },
+                        { id: 15, url: "https://rentaldemo.created.app", time: "00:30", name: "rentaldemo" },
+                        { id: 16, url: "https://netflixdemo.created.app", time: "00:30", name: "netflixdemo" },
+                        { id: 17, url: "https://costcodemo.created.app", time: "00:10", name: "costcodemo" },
+                        { id: 18, url: "https://metacriticdemo.created.app", time: "00:30", name: "metacriticdemo" },
+                        { id: 19, url: "https://newspaperdemo.created.app", time: "00:30", name: "newspaperdemo" },
+                        { id: 20, url: "https://workflowdemo.created.app", time: "01:00", name: "workflowdemo" },
+                        { id: 21, url: "https://admindashboarddemo.created.app", time: "00:30", name: "admindashboarddemo" },
+                        { id: 22, url: "https://ordertextdemo.created.app", time: "00:10", name: "ordertextdemo" },
+                        { id: 23, url: "https://orderselectdemo.created.app", time: "00:10", name: "orderselectdemo" },
+                        { id: 24, url: "https://votedemo.created.app", time: "01:00", name: "votedemo" },
+                        { id: 25, url: "https://4chandemo.created.app", time: "00:30", name: "4chandemo" },
+                        { id: 26, url: "https://propertymanagementdemo.created.app", time: "00:30", name: "propertymanagementdemo" },
+                        { id: 27, url: "https://roommanagementdemo.created.app", time: "00:30", name: "roommanagementdemo" },
+                        { id: 28, url: "https://linkedindemo.created.app", time: "00:10", name: "linkedindemo" },
+                        { id: 29, url: "https://linkmanagementdemo.created.app", time: "00:30", name: "linkmanagementdemo" },
+                        { id: 30, url: "https://betdemo.created.app", time: "01:30", name: "betdemo" }
+                    ]
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
