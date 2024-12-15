@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- text: "Metacriticデモサイト。"以降の追加予定 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -42,10 +43,12 @@
         <table>
             <thead>
                 <tr>
-                    <!-- <th>ID</th> -->
-                    <th>Name</th>
-                    <th>Time</th>
-                    <th>URL</th>
+                    <th @click="sortData('id')">ID</th>
+                    <th @click="sortData('name')">Name</th>
+                    <th @click="sortData('time')">Time</th>
+                    <th @click="sortData('url')">URL</th>
+                    <!-- text -->
+                    <th>Text</th>
                 </tr>
             </thead>
             <tbody>
@@ -53,6 +56,8 @@
                     <td><a :href="item.url" target="_blank"></a>{{ item.id }}</a></td>
                     <td><a :href="item.url" target="_blank">{{ item.name }}</a></td>
                     <td><a :href="item.url" target="_blank">{{ item.time }}</a></td>
+                    <td @click="show_text(item.text)">※</td>
+
                     <td>
                         <iframe :src="item.url"></iframe>
                     </td>
@@ -68,41 +73,71 @@
         createApp({
             data() {
                 return {
+                    text_sample: "。ログイン無し。データ入力有り削除無し更新無し。",
+                    sort_type: 'asc',
                     data: [
-                        { id: 0, url: "https://twilikedemo.created.app", time: "00:30", name: "twilikedemo" },
-                        { id: 1, url: "https://twilikedemo.created.app", time: "00:30", name: "twilikedemo" },
-                        { id: 2, url: "https://orderfoordemo.created.app", time: "00:10", name: "orderfoordemo" },
-                        { id: 3, url: "https://instagramdemo.created.app", time: "00:10", name: "instagramdemo" },
-                        { id: 4, url: "https://tiktoklikedemo.created.app", time: "00:30", name: "tiktoklikedemo" },
-                        { id: 5, url: "https://companydemo.created.app", time: "00:30", name: "companydemo" },
-                        { id: 6, url: "https://discorddemo.created.app", time: "00:01", name: "discorddemo" },
-                        { id: 7, url: "https://threaddemo.created.app", time: "00:10", name: "threaddemo" },
-                        { id: 8, url: "https://landingpagedemo.created.app", time: "00:10", name: "landingpagedemo" },
-                        { id: 9, url: "https://kanbanboarddemo.created.app", time: "00:30", name: "kanbanboarddemo" },
-                        { id: 10, url: "https://tinderdemo.created.app", time: "00:10", name: "tinderdemo" },
-                        { id: 11, url: "https://chatbotdemo.created.app", time: "01:00", name: "chatbotdemo" },
-                        { id: 12, url: "https://craigslistdemo.created.app", time: "00:30", name: "craigslistdemo" },
-                        { id: 13, url: "https://jumpplusdemo.created.app", time: "00:30", name: "jumpplusdemo" },
-                        { id: 14, url: "https://skyscannerdemo.created.app", time: "00:30", name: "skyscannerdemo" },
-                        { id: 15, url: "https://rentaldemo.created.app", time: "00:30", name: "rentaldemo" },
-                        { id: 16, url: "https://netflixdemo.created.app", time: "00:30", name: "netflixdemo" },
-                        { id: 17, url: "https://costcodemo.created.app", time: "00:10", name: "costcodemo" },
-                        { id: 18, url: "https://metacriticdemo.created.app", time: "00:30", name: "metacriticdemo" },
-                        { id: 19, url: "https://newspaperdemo.created.app", time: "00:30", name: "newspaperdemo" },
-                        { id: 20, url: "https://workflowdemo.created.app", time: "01:00", name: "workflowdemo" },
-                        { id: 21, url: "https://admindashboarddemo.created.app", time: "00:30", name: "admindashboarddemo" },
-                        { id: 22, url: "https://ordertextdemo.created.app", time: "00:10", name: "ordertextdemo" },
-                        { id: 23, url: "https://orderselectdemo.created.app", time: "00:10", name: "orderselectdemo" },
-                        { id: 24, url: "https://votedemo.created.app", time: "01:00", name: "votedemo" },
-                        { id: 25, url: "https://4chandemo.created.app", time: "00:30", name: "4chandemo" },
-                        { id: 26, url: "https://propertymanagementdemo.created.app", time: "00:30", name: "propertymanagementdemo" },
-                        { id: 27, url: "https://roommanagementdemo.created.app", time: "00:30", name: "roommanagementdemo" },
-                        { id: 28, url: "https://linkedindemo.created.app", time: "00:10", name: "linkedindemo" },
-                        { id: 29, url: "https://linkmanagementdemo.created.app", time: "00:30", name: "linkmanagementdemo" },
-                        { id: 30, url: "https://betdemo.created.app", time: "01:30", name: "betdemo" }
-                    ]
+                        { id: 0, url: "https://twilikedemo.created.app", time: 30, name: "twilikedemo", text: "Twilikeデモサイト。ログイン無し。データ入力有り削除無し更新無し。" },
+                        { id: 1, url: "https://twilikedemo.created.app", time: 30, name: "twilikedemo", text: "Twilikeデモサイト。ログイン無し。データ入力有り削除無し更新無し。" },
+                        { id: 2, url: "https://orderfoordemo.created.app", time: 10, name: "orderfoordemo", text: "Orderfooデモサイト。ログイン無し。データ入力有り削除無し更新無し。料金計算有りオーダー実行無し。" },
+                        { id: 3, url: "https://instagramdemo.created.app", time: 10, name: "instagramdemo", text: "Instagramデモサイト。ログイン無し。データ入力無し削除無し更新無し。" },
+                        { id: 4, url: "https://tiktoklikedemo.created.app", time: 30, name: "tiktoklikedemo", text: "TikTokLikeデモサイト。ログイン無し。データ入力無し削除無し更新無し。お気に入り変化有りフォロー変化有り。" },
+                        { id: 5, url: "https://companydemo.created.app", time: 30, name: "companydemo", text: "Companyデモサイト。ログイン無し。データ入力無し削除無し更新無し。言語変更有りメニューバー変化有り。" },
+                        { id: 6, url: "https://discorddemo.created.app", time: 1, name: "discorddemo", text: "Discordデモサイト。ログイン無し。データ入力有り削除無し更新無し。" },
+                        { id: 7, url: "https://threaddemo.created.app", time: 10, name: "threaddemo", text: "Threadデモサイト。ログイン無し。データ入力有り(投稿,返信)削除無し更新無し。コメント投稿のみ、スレッド作成無しコミュニティ作成無し。2段階の画面遷移有り" },
+                        { id: 8, url: "https://landingpagedemo.created.app", time: 10, name: "landingpagedemo", text: "LandingPageデモサイト。ログイン無し。データ入力無し削除無し更新無し。言語変更有り。" },
+                        { id: 9, url: "https://kanbanboarddemo.created.app", time: 30, name: "kanbanboarddemo", text: "KanbanBoardデモサイト。ログイン無し。データ入力有り削除無し更新無し。ドラッグ&ドロップ有り。3カラム。" },
+                        { id: 10, url: "https://tinderdemo.created.app", time: 10, name: "tinderdemo", text: "Tinderデモサイト。ログイン無し。データ入力有り(マルバツ選択)削除無し更新無し。モバイル環境で左右スワイプ有り。" },
+                        { id: 11, url: "https://chatbotdemo.created.app", time: 60, name: "chatbotdemo", text: "Chatbotデモサイト。ログイン無し。データ入力有り(ユーザーデータ,UI動作入力)削除無し更新無し。チャット表示有り。" },
+                        { id: 12, url: "https://craigslistdemo.created.app", time: 30, name: "craigslistdemo", text: "Craigslistデモサイト。ログイン無し。データ入力有り(表示のみ実動作無し)削除無し更新無し。画面遷移しないリスト詳細表示有り。" },
+                        { id: 13, url: "https://jumpplusdemo.created.app", time: 30, name: "jumpplusdemo", text: "JumpPlusデモサイト。ログイン無し。データ入力無し削除無し更新無し。メニュー動作有り。ページ変更動作(ページ指示器)有りチャプター変更一部有り(コメント表示のみ変化)コメント投稿動作無し。" },
+                        { id: 14, url: "https://skyscannerdemo.created.app", time: 30, name: "skyscannerdemo", text: "Skyscannerデモサイト。ログイン無し。データ入力有り削除無し更新無し。テキスト入力選択候補表示有り。検索結果表示変更有り。カレンダー動作有り。数字1以上増減有り。" },
+                        { id: 15, url: "https://rentaldemo.created.app", time: 30, name: "rentaldemo", text: "Rentalデモサイト。ログイン無し。データ入力無し削除無し更新無し。メニュー動作有り。ラジオボタン変更有り。" },
+                        { id: 16, url: "https://netflixdemo.created.app", time: 30, name: "netflixdemo", text: "Netflixデモサイト。ログイン無し。データ入力無し削除無し更新無し。縦スクロール読み込み有り。カルーセル有り。" },
+                        { id: 17, url: "https://costcodemo.created.app", time: 10, name: "costcodemo", text: "Costcoデモサイト。ログイン無し。データ入力無し削除無し更新無し。カルーセル有り。" },
+                        { id: 18, url: "https://metacriticdemo.created.app", time: 30, name: "metacriticdemo", text: "Metacriticデモサイト。" },
+                        { id: 19, url: "https://newspaperdemo.created.app", time: 30, name: "newspaperdemo", text: "Newspaperデモサイト" },
+                        { id: 20, url: "https://workflowdemo.created.app", time: 60, name: "workflowdemo", text: "Workflowデモサイト" },
+                        { id: 21, url: "https://admindashboarddemo.created.app", time: 30, name: "admindashboarddemo", text: "AdminDashboardデモサイト" },
+                        { id: 22, url: "https://ordertextdemo.created.app", time: 10, name: "ordertextdemo", text: "OrderTextデモサイト" },
+                        { id: 23, url: "https://orderselectdemo.created.app", time: 10, name: "orderselectdemo", text: "OrderSelectデモサイト" },
+                        { id: 24, url: "https://votedemo.created.app", time: 60, name: "votedemo", text: "Voteデモサイト" },
+                        { id: 25, url: "https://4chandemo.created.app", time: 30, name: "4chandemo", text: "4chanデモサイト" },
+                        { id: 26, url: "https://propertymanagementdemo.created.app", time: 30, name: "propertymanagementdemo", text: "PropertyManagementデモサイト" },
+                        { id: 27, url: "https://roommanagementdemo.created.app", time: 30, name: "roommanagementdemo", text: "RoomManagementデモサイト" },
+                        { id: 28, url: "https://linkedindemo.created.app", time: 10, name: "linkedindemo", text: "LinkedInデモサイト" },
+                        { id: 29, url: "https://linkmanagementdemo.created.app", time: 30, name: "linkmanagementdemo", text: "LinkManagementデモサイト" },
+                        { id: 30, url: "https://betdemo.created.app", time: 90, name: "betdemo", text: "Betデモサイト" }
+                    ],                    
                 };
-            }
+            },
+
+
+
+
+            methods: {
+                selectItem(url) {
+                    this.selectedUrl = url;
+                },
+                // sort by each data
+                sortData(key) {
+                    this.sort_type = this.sort_type === 'asc' ? 'desc' : 'asc';
+                    this.data.sort((a, b) => {
+                        if (a[key] < b[key]) {
+                            return this.sort_type === 'asc' ? -1 : 1;
+                        }
+                        if (a[key] > b[key]) {
+                            return this.sort_type === 'asc' ? 1 : -1;
+                        }
+                        return 0;
+                    });
+                },
+                // show_textはダイアログでtextを表示する
+                show_text(text) {
+                    alert(text);
+                },
+
+
+            },
         }).mount('#app');
     </script>
 </body>
