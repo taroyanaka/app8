@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<!-- yanaka.dev/demo の作成とりあえず完了。プレゼン(アプリ紹介と売り方とセールス)の話の組み立て考える。 -->
-<!-- text: "Metacriticデモサイト。"以降の追加予定。タグ機能追加。最初はtext keyの文字列を文字を区切って生成。 -->
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Display in Vue 3</title>
+    <title>デモページ</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,46 +17,47 @@
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #ddd;
-            /* margin paddingを0 */
             margin: 0;
             padding: 0;
-            /* 文字サイズを0.5remに */
             font-size: 0.5rem;
         }
         th {
             background-color: #f2f2f2;
         }
         iframe {
-            /* width: 100%;
-            height: 200px;
-            border: none; */
-            width: 20rem; /* 指定したremのサイズに縮小 */
-        height: 15rem; /* 指定したremのサイズに縮小 */
-        border: none;
+            width: 20rem;
+            height: 15rem;
+            border: none;
         }
     </style>
 </head>
 <body>
     <div id="app">
-        <h1>Data Display(ソート機能とタグ機能追加予定)</h1>
+        <h1>{{ translations[language].title }}</h1>
+        <p>{{ translations[language].instruction1 }}</p>
+        <p>{{ translations[language].instruction2 }}</p>
+        <select v-model="language">
+            <option value="ja">日本語</option>
+            <option value="en">英語</option>
+            <option value="zh">中国語(簡体)</option>
+            <option value="ko">韓国語</option>
+        </select>
         <table>
             <thead>
                 <tr>
                     <th @click="sortData('id')">ID</th>
-                    <th @click="sortData('name')">Name</th>
-                    <th @click="sortData('time')">Time</th>
+                    <th @click="sortData('name')">{{ translations[language].name }}</th>
+                    <th @click="sortData('time')">{{ translations[language].time }}</th>
                     <th @click="sortData('url')">URL</th>
-                    <!-- text -->
-                    <th>Text</th>
+                    <th>{{ translations[language].text }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="item in data" :key="item.id">
-                    <td><a :href="item.url" target="_blank"></a>{{ item.id }}</a></td>
+                    <td><a :href="item.url" target="_blank">{{ item.id }}</a></td>
                     <td><a :href="item.url" target="_blank">{{ item.name }}</a></td>
                     <td><a :href="item.url" target="_blank">{{ item.time }}</a></td>
                     <td @click="show_text(item.text)">※</td>
-
                     <td>
                         <iframe :src="item.url"></iframe>
                     </td>
@@ -74,10 +73,44 @@
         createApp({
             data() {
                 return {
-                    text_sample: "。ログイン無し。データ入力有り削除無し更新無し。",
+                    language: 'ja',
+                    translations: {
+                        ja: {
+                            title: "デモアプリのサンプルと作成時間",
+                            instruction1: "nameをクリックすると、そのデモアプリが表示されます。",
+                            instruction2: "※をクリックすると、そのデモアプリの説明が表示されます。",
+                            name: "名前",
+                            time: "時間(分)",
+                            text: "説明"
+                        },
+                        en: {
+                            title: "Sample Demo Apps and Creation Time",
+                            instruction1: "Click on the name to display the demo app.",
+                            instruction2: "Click on ※ to display the description of the demo app.",
+                            name: "Name",
+                            time: "Time (minutes)",
+                            text: "Description"
+                        },
+                        zh: {
+                            title: "示例演示应用程序和创建时间",
+                            instruction1: "点击名称以显示演示应用程序。",
+                            instruction2: "点击※以显示演示应用程序的说明。",
+                            name: "名称",
+                            time: "时间（分钟）",
+                            text: "描述"
+                        },
+                        ko: {
+                            title: "샘플 데모 앱 및 생성 시간",
+                            instruction1: "이름을 클릭하면 데모 앱이 표시됩니다.",
+                            instruction2: "※을 클릭하면 데모 앱의 설명이 표시됩니다.",
+                            name: "이름",
+                            time: "시간(분)",
+                            text: "설명"
+                        }
+                    },
                     sort_type: 'asc',
                     data: [
-                        { id: 0, url: "https://twilikedemo.created.app", time: 30, name: "twilikedemo", text: "Twilikeデモサイト。ログイン無し。データ入力有り削除無し更新無し。" },
+                        { id: 0, url: "https://createxyzdatabasesample.created.app", time: 30, name: "createxyzdatabasesample", text: "CreateXYZデモサイト。ログイン無し。DB有り。データ入力有り削除有り更新有り。" },
                         { id: 1, url: "https://twilikedemo.created.app", time: 30, name: "twilikedemo", text: "Twilikeデモサイト。ログイン無し。データ入力有り削除無し更新無し。" },
                         { id: 2, url: "https://orderfoordemo.created.app", time: 10, name: "orderfoordemo", text: "Orderfooデモサイト。ログイン無し。データ入力有り削除無し更新無し。料金計算有りオーダー実行無し。" },
                         { id: 3, url: "https://instagramdemo.created.app", time: 10, name: "instagramdemo", text: "Instagramデモサイト。ログイン無し。データ入力無し削除無し更新無し。" },
@@ -95,11 +128,11 @@
                         { id: 15, url: "https://rentaldemo.created.app", time: 30, name: "rentaldemo", text: "Rentalデモサイト。ログイン無し。データ入力無し削除無し更新無し。メニュー動作有り。ラジオボタン変更有り。" },
                         { id: 16, url: "https://netflixdemo.created.app", time: 30, name: "netflixdemo", text: "Netflixデモサイト。ログイン無し。データ入力無し削除無し更新無し。縦スクロール読み込み有り。カルーセル有り。" },
                         { id: 17, url: "https://costcodemo.created.app", time: 10, name: "costcodemo", text: "Costcoデモサイト。ログイン無し。データ入力無し削除無し更新無し。カルーセル有り。" },
-                        { id: 18, url: "https://metacriticdemo.created.app", time: 30, name: "metacriticdemo", text: "Metacriticデモサイト。" },
-                        { id: 19, url: "https://newspaperdemo.created.app", time: 30, name: "newspaperdemo", text: "Newspaperデモサイト" },
-                        { id: 20, url: "https://workflowdemo.created.app", time: 60, name: "workflowdemo", text: "Workflowデモサイト" },
-                        { id: 21, url: "https://admindashboarddemo.created.app", time: 30, name: "admindashboarddemo", text: "AdminDashboardデモサイト" },
-                        { id: 22, url: "https://ordertextdemo.created.app", time: 10, name: "ordertextdemo", text: "OrderTextデモサイト" },
+                        { id: 18, url: "https://metacriticdemo.created.app", time: 30, name: "metacriticdemo", text: "Metacriticデモサイト。ログイン無し。データ入力無し削除無し更新無し。タブ変更有り。動画表示ui有り。複合カラム有り。" },
+                        { id: 19, url: "https://newspaperdemo.created.app", time: 30, name: "newspaperdemo", text: "Newspaperデモサイト。ログイン無し。データ入力無し削除無し更新無し。中央揃え。メニューバー有り。カード表示有り。フォント変更有り。" },
+                        { id: 20, url: "https://workflowdemo.created.app", time: 60, name: "workflowdemo", text: "Workflowデモサイト。ログイン無し。データ入力有り削除有り更新有り。ワークフロー表示有り。セーブ有りロード有り。オーバービュー表示有り。拡大縮小有り。要素追加有り。セレクト有り。要素リレーション表示有り。高難度ui有り。" },
+                        { id: 21, url: "https://admindashboarddemo.created.app", time: 30, name: "admindashboarddemo", text: "AdminDashboardデモサイト。ログイン無し。データ入力無し削除無し更新無し。メニューバー有り。表示開閉有り。ロゴ表示有り。テーブル表示有り。円グラフ有り棒グラフ有り。" },
+                        { id: 22, url: "https://ordertextdemo.created.app", time: 10, name: "ordertextdemo", text: "OrderTextデモサイト。ログイン無し。データ入力有り削除無し更新有り。テキスト入力有りセレクト有り。自動連番有り。移動表示ui有り。入力内要増加有り。自動計算有り。高難度ui有り。" },
                         { id: 23, url: "https://orderselectdemo.created.app", time: 10, name: "orderselectdemo", text: "OrderSelectデモサイト" },
                         { id: 24, url: "https://votedemo.created.app", time: 60, name: "votedemo", text: "Voteデモサイト" },
                         { id: 25, url: "https://4chandemo.created.app", time: 30, name: "4chandemo", text: "4chanデモサイト" },
@@ -107,19 +140,16 @@
                         { id: 27, url: "https://roommanagementdemo.created.app", time: 30, name: "roommanagementdemo", text: "RoomManagementデモサイト" },
                         { id: 28, url: "https://linkedindemo.created.app", time: 10, name: "linkedindemo", text: "LinkedInデモサイト" },
                         { id: 29, url: "https://linkmanagementdemo.created.app", time: 30, name: "linkmanagementdemo", text: "LinkManagementデモサイト" },
-                        { id: 30, url: "https://betdemo.created.app", time: 90, name: "betdemo", text: "Betデモサイト" }
-                    ],                    
+                        { id: 30, url: "https://betdemo.created.app", time: 90, name: "betdemo", text: "Betデモサイト" },
+                        { id: 31, url: "https://clickcounterdemo.created.app", time: 10, name: "clickcounterdemo", text: "Clickcounterデモサイト。ログイン無し。DB有り。データ入力無し削除無し更新有り。" },
+
+                    ],
                 };
             },
-
-
-
-
             methods: {
                 selectItem(url) {
                     this.selectedUrl = url;
                 },
-                // sort by each data
                 sortData(key) {
                     this.sort_type = this.sort_type === 'asc' ? 'desc' : 'asc';
                     this.data.sort((a, b) => {
@@ -132,12 +162,9 @@
                         return 0;
                     });
                 },
-                // show_textはダイアログでtextを表示する
                 show_text(text) {
                     alert(text);
                 },
-
-
             },
         }).mount('#app');
     </script>
