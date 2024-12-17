@@ -56,6 +56,13 @@
         .tag_opner {
             display: var(--tag-opner-display);
         }
+        .tag {
+            /* 小さい0.4rem文字。ボタン表示ではなくリンク表示で */
+            font-size: 0.3rem;
+            padding: 0;
+            margin: 0;
+
+        }
 
     </style>
 </head>
@@ -83,8 +90,10 @@
                     <th @click="sortData('id')">ID</th>
                     <th @click="sortData('name')">{{ translations[language].name }}</th>
                     <th @click="sortData('time')">{{ translations[language].time }}</th>
-                    <th @click="sortData('url')">URL</th>
                     <th>{{ translations[language].text }}</th>
+                    <!-- tag -->
+                    <th>tag</th>
+                    <th @click="sortData('url')">URL</th>
                 </tr>
             </thead>
             <tbody>
@@ -93,6 +102,10 @@
                     <td><a :href="item.url" target="_blank">{{ item.name }}</a></td>
                     <td><a :href="item.url" target="_blank">{{ item.time }}</a></td>
                     <td @click="show_text(item.text)">※</td>
+                    <!-- tag一覧をリンクで表示 -->
+                    <td>
+                        <span v-for="tag in item.tag" :key="tag" class="tag" @click="filterByTag(tag)">{{ tag }}</span>
+                    </td>
                     <td>
                         <iframe :src="item.url"></iframe>
                     </td>
