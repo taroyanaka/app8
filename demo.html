@@ -63,7 +63,17 @@
             margin: 0;
 
         }
-
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .td5-container {
+            grid-column: span 4;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -77,6 +87,11 @@
             <option value="zh">中国語(簡体)</option>
             <option value="ko">韓国語</option>
         </select>
+
+        <div v-if="selectedTag">
+            <span>Selected Tag: {{ selectedTag }}</span>
+        </div>
+
          <button @click="tag_opner_fn">{{ translations[language].tag_open_word }}</button>
          <span class="clear-button" @click="clearFilter">タグクリア</span>
         <div class="tag_opner">
@@ -91,26 +106,22 @@
                     <th @click="sortData('name')">{{ translations[language].name }}</th>
                     <th @click="sortData('time')">{{ translations[language].time }}</th>
                     <th>{{ translations[language].text }}</th>
-                    <!-- tag -->
                     <th>tag</th>
                     <th @click="sortData('url')">URL</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr v-for="item in filteredData" :key="item.id">
-                    <td><a :href="item.url" target="_blank">{{ item.id }}</a></td>
-                    <td><a :href="item.url" target="_blank">{{ item.name }}</a></td>
-                    <td><a :href="item.url" target="_blank">{{ item.time }}</a></td>
-                    <td @click="show_text(item.text)">※</td>
-                    <!-- tag一覧をリンクで表示 -->
-                    <td>
-                        <span v-for="tag in item.tag" :key="tag" class="tag" @click="filterByTag(tag)">{{ tag }}</span>
-                    </td>
-                    <td>
-                        <iframe :src="item.url"></iframe>
-                    </td>
-                </tr>
-            </tbody>
+            <div v-for="item in filteredData" :key="item.id" class="grid-container">
+                <div class="td1"><a :href="item.url" target="_blank">{{ item.id }}</a></div>
+                <div class="td2"><a :href="item.url" target="_blank">{{ item.name }}</a></div>
+                <div class="td3"><a :href="item.url" target="_blank">{{ item.time }}</a></div>
+                <div class="td4" @click="show_text(item.text)">※</div>
+                <div class="td5-container">
+                    <div class="td5" v-for="tag in item.tag" :key="tag" class="tag" @click="filterByTag(tag)">{{ tag }}</div>
+                </div>
+                <div class="td6">
+                    <iframe :src="item.url"></iframe>
+                </div>
+            </div>
         </table>
     </div>
 
