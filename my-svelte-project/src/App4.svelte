@@ -1,10 +1,8 @@
 <script>
-// デザインをグリッドシステム準拠で変更(leftとrightをdisplay: gridに変更済み)
-	// gridのドット(線)を表示するのを別のファイルで作って試す
-// XYからAに始まってGで終わるまでを縦の1セットとしてモジュールをはめ込む。
-	// 横には100vwで12分割(横に関しては右端のIDとSETとDELTEしかレイアウト考慮ないっぽい)
-
-// create.xyz課金したし30個くらいサンプル作ってデモページに載せる(サーバー側実装は30個オラァって作って余力あったらやる)
+// デザインこれ以上変更するために時間突っ込んでも不毛な気配が俯瞰的に濃厚なので一旦完了。
+	// 各種サービスにフォークさせてガワ被せてセールスしてみる
+		// https://gist.github.com/taroyanaka/cd2c30cf57c3f5e9d5f5d8754e79292b
+			// このURLのapp8派生参照(空きのappNにフォークしたプロジェクトをアサインする)
 
 // 命名規則(prefix)
 // web => webデータの変数と関数
@@ -811,6 +809,7 @@ onMount(async () => {
         width: 100%;
         display: flex;
 		background-color: rgba(255, 255, 255, 0.8);
+		height: 5rem;
     }
 
     .tabs button {
@@ -894,6 +893,7 @@ onMount(async () => {
     }
 
     .description {
+		font-size: 1rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -910,31 +910,12 @@ onMount(async () => {
 		font-size: 0.8rem;
 	}
 
-.target {
-	position: relative;
-	left: 0rem;
-	top: 7.2rem;
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: repeat(12, 1fr);
-	opacity: 0.1;
-	height: 2rem;
 
-}
-.target_item {
-	font-size: 0.5rem;
-    border: 1px solid black;
-    /* background-color: lightgray; */
-    /* display: flex; */
-    /* justify-content: center; */
-    /* align-items: center; */
-    aspect-ratio: 1 / 1;
-}
 .container{
 	/* background-color: black; */
 }
 .all_descs{
-	background-color: gray;
+
 }
 
 </style>
@@ -944,13 +925,13 @@ onMount(async () => {
 <div class="container">
 	
 
-<div class="target">
+<!-- <div class="target">
 	{#each Array(12).fill().map((_, i) => i) as row}
 		{#each Array(12).fill().map((_, j) => j) as col}
 			<div class="target_item">{row},{col}</div>
 		{/each}
 	{/each}
-</div>
+</div> -->
 
 
 
@@ -1103,18 +1084,21 @@ onMount(async () => {
 						{/each}
 					{/if}
 						{#each value as desc}
-							<div>X
+							<div>
 
 
-Y<p class="title break_word_title">{desc.title}</p>A
-								<p class="break_word">B
-									<button class="button_reset break_word" on:click={design_toggle_description}>C
+<p class="title break_word_title">{desc.title}</p>
+
+
+
+								<p class="break_word">
+									<button class="button_reset break_word" on:click={design_toggle_description}>
 <!-- {desc.description.length > get_chars_per_100vw(70) && !design_show_full_description ? desc.description.slice(0, get_chars_per_100vw(70)) + '...▼' : desc.description} -->
 {desc.description.length > 200 && !design_show_full_description ? desc.description.slice(0, 200) + '...▼' : desc.description}
 									</button>
 								</p>
 								{#if desc.tags}
-								<div class="desc_tags">D
+								<div class="desc_tags">
 								{#each desc.tags as tag}
 									<!-- <button class="tag" on:click={() => filtering_by_tag(tag.id)}>{tag.name}</button> -->
 									<button class="tag" on:click={() => filtering_by_tag(tag.name)}>{tag.name}</button>
@@ -1122,7 +1106,7 @@ Y<p class="title break_word_title">{desc.title}</p>A
 								</div>
 								{/if}
 
-							</div>E
+							</div>
 							<!-- <p id={desc.id} class="id_and_set_delete">
 								<button class="id button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
 								{#if key === "any_user_new_all_descs_with_tags" && auth_uid}
@@ -1131,7 +1115,7 @@ Y<p class="title break_word_title">{desc.title}</p>A
 								{/if}
 							</p>
 							<div class="each_desc_border"></div> -->
-							<div class="each_desc_border">F
+							<div class="each_desc_border">
 								<p id={desc.id} class="id_and_set_delete">
 									<button class="id button_reset" on:click={() => copy_link(desc.id)}>id: {desc.id}</button>
 									{#if key === "any_user_new_all_descs_with_tags" && auth_uid}
@@ -1139,9 +1123,9 @@ Y<p class="title break_word_title">{desc.title}</p>A
 										<button class="fetch_delete_desc" on:click={() => fetch_delete_desc(desc.id)}>{design_words["delete_desc"][design_lang]}</button>
 									{/if}
 								</p>
-							</div>G
+							</div>
 						{/each}
-				</div>H
+				</div>
 			{/if}
 			{/if}
 				{#if design_active_tab ===  "all_tags" && key === "all_tags"}

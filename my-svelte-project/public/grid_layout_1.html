@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12x12 Grid Layout</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        .grid-container0 {
+            display: grid;
+            grid-template-areas: 
+                "title_upper"
+                "title"
+                "content"
+                "grid-container"
+                "border_line_upper"
+                "border_line"
+                "border_line_under"
+                "one"
+                "two"
+                "three"
+                "four"
+                "five";
+            grid-template-rows: repeat(12, 3rem);
+            width: 100%;
+        }
+        .each_items {
+            background-color: #f0f0f0;
+        }
+        .title_upper {
+            grid-area: title_upper;
+        }
+        .title {
+            grid-area: title;
+            text-align: left;
+            font-size: 1.5em;
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+        .content {
+            grid-area: content;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+        .grid-container {
+            grid-area: grid-container;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr); /* 12列 */
+            gap: 0px; /* カラム間の隙間 */
+            width: 100%; /* グリッド全体の幅を指定 */
+        }
+        .grid-item {
+            background-color: lightblue;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        .item-a {
+            grid-column: 10 / 11;
+        }
+        .item-b {
+            grid-column: 11 / 12;
+        }
+        .item-c {
+            grid-column: 12 / 13;
+        }
+        .grid-item {
+            background-color: #fff;
+            border: 1px solid #000;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .border_line_upper {
+            grid-area: border_line_upper;
+            background-color: greenyellow;
+        }
+        .border_line {
+            grid-area: border_line;
+            border-bottom: 1px solid #000;
+            height: 1.5px;
+            background-color: red;
+        }
+        .border_line_under {
+            grid-area: border_line_under;
+            background-color: greenyellow;
+        }
+        .one {
+            grid-area: one;
+            background-color: #f0f0f0;
+        }
+        .two {
+            grid-area: two;
+            background-color: #f0f0f0;
+        }
+        .three {
+            grid-area: three;
+            background-color: #f0f0f0;
+        }
+        .four {
+            grid-area: four;
+            background-color: palevioletred;
+        }
+        .five {
+            grid-area: five;
+            background-color: #f0f0f0;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="grid-container0">
+        <div class="each_items title_upper"></div>
+        <div class="each_items title">タイトル</div>
+        <div class="each_items content">内容内容内容内容内容内容内容内容</div>
+        <div class="each_items grid-container">
+            <div class="item-a grid-item">a</div>
+            <div class="item-b grid-item">b</div>
+            <div class="item-c grid-item">c</div>
+        </div>    
+        <div class="each_items border_line_upper"></div>
+        <div class="each_items border_line"></div>
+        <div class="each_items border_line_under"></div>
+        <div class="each_items one"></div>
+        <div class="each_items two"></div>
+        <div class="each_items three"></div>
+        <div class="each_items four"></div>
+        <div class="each_items five"></div>
+    </div>      
+</body>
+</html>

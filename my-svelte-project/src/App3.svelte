@@ -1,6 +1,6 @@
 <script>
-// const web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
-const web_endpoint = 'http://localhost:8000/app8';
+const web_endpoint = 'https://cotton-concrete-catsup.glitch.me/app8';
+// const web_endpoint = 'http://localhost:8000/app8';
 
 let new_tag = "";
 let all_tags = [];
