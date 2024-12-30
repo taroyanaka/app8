@@ -21,12 +21,14 @@
     align-items: center;
     aspect-ratio: 1 / 1;
 }
-</style>
 
-<div class="target">
+/* <div class="target">
     {#each Array(12).fill().map((_, i) => i) as row}
         {#each Array(12).fill().map((_, j) => j) as col}
             <div class="target_item">{row},{col}</div>
         {/each}
     {/each}
-</div>
+</div> */
+
+</style>
+
