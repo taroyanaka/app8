@@ -1,269 +1,954 @@
+<!DOCTYPE html>
 <html lang="ja">
-    <!-- yanaka.dev/demo の作成完了。プレゼン(アプリ紹介と売り方とセールス)の話の組み立て考える。 -->
-      <!-- sortボタンをわかりやすい部分(上部にも別途追加) -->
-       <!-- 優先順位かなり低めで各言語タグ追加(難しくはないが日本語が出揃ってからの気が向いた時でOK) -->
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>デモページ</title>
-    <style>
-        :root {
-            --tag-opner-display: none;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-            margin: 0;
-            padding: 0;
-            font-size: 0.5rem;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        iframe {
-            width: 20rem;
-            height: 15rem;
-            border: none;
-        }
-        .tags {
-            margin-bottom: 20px;
-        }
-        .tag {
-            display: inline-block;
-            padding: 5px 10px;
-            margin: 5px;
-            background-color: #f2f2f2;
-            border: 1px solid #ddd;
-            cursor: pointer;
-        }
-        .clear-button {
-            display: inline-block;
-            padding: 5px 10px;
-            margin: 5px;
-            background-color: #ffcccc;
-            border: 1px solid #ddd;
-            cursor: pointer;
-        }
-        .tag_opner {
-            display: var(--tag-opner-display);
-        }
-        .tag {
-            /* 小さい0.4rem文字。ボタン表示ではなくリンク表示で */
-            font-size: 0.3rem;
-            padding: 0;
-            margin: 0;
+  <meta charset="UTF-8" />
+  <title>デモページ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Google Fonts (Roboto) -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Material Icons -->
+  <link
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    rel="stylesheet"
+  />
 
-        }
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-        .td5-container {
-            grid-column: span 4;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-    </style>
+  <style>
+    :root {
+      --tag-opner-display: none;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Roboto", sans-serif;
+      background-color: #fafafa;
+      color: #333;
+      margin: 0 auto;
+      padding: 16px;
+      max-width: 1200px; /* レイアウトの最大横幅 */
+    }
+
+    h1 {
+      margin-bottom: 16px;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    /* トップの操作群をまとめるコンテナ */
+    .top-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .top-controls select {
+      padding: 4px 8px;
+      font-size: 0.9rem;
+    }
+    .top-controls .tag-button,
+    .top-controls .clear-button {
+      display: flex;
+      align-items: center;
+      background-color: #ffffff;
+      color: #6200ee;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .top-controls .tag-button:hover,
+    .top-controls .clear-button:hover {
+      background-color: #eee;
+    }
+    .top-controls .tag-button span.material-icons,
+    .top-controls .clear-button span.material-icons {
+      font-size: 1rem;
+      margin-right: 4px;
+    }
+
+    /* ソートボタン群を並べる */
+    .sort-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .sort-bar button {
+      display: flex;
+      align-items: center;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .sort-bar button:hover {
+      background-color: #eee;
+    }
+    .sort-bar button .material-icons {
+      font-size: 1rem;
+      margin-left: 4px;
+    }
+
+    /* タグの表示領域 */
+    .tag_opner {
+      display: var(--tag-opner-display);
+      margin-bottom: 16px;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tag {
+      font-size: 0.8rem;
+      background-color: #e2e2e2;
+      border-radius: 16px;
+      padding: 4px 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .tag:hover {
+      background-color: #ccc;
+    }
+
+    /* カードを使ったグリッドレイアウト */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    /* カード */
+    .card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+    }
+
+    .card-header {
+      margin-bottom: 8px;
+    }
+    .card-header h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .card-header .id-time {
+      font-size: 0.8rem;
+      color: #666;
+      display: flex;
+      gap: 12px;
+    }
+
+    .info-button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: #6200ee;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      transition: color 0.2s ease;
+    }
+    .info-button:hover {
+      color: #3700b3;
+    }
+
+    /* iframe */
+    .card iframe {
+      width: 100%;
+      height: 180px;
+      border: none;
+      margin-bottom: 8px;
+    }
+
+    /* カード下部のタグ一覧 */
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .card-tags .tag {
+      background-color: #f0f0f0;
+      font-size: 0.7rem;
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+  </style>
 </head>
 <body>
-    <div id="app">
-        <h1>{{ translations[language].title }}</h1>
-        <p>{{ translations[language].instruction1 }}</p>
-        <p>{{ translations[language].instruction2 }}</p>
-        <select v-model="language">
-            <option value="ja">日本語</option>
-            <option value="en">英語</option>
-            <option value="zh">中国語(簡体)</option>
-            <option value="ko">韓国語</option>
-        </select>
+  <div id="app">
+    <!-- 説明文(instruction1, instruction2)を削除し、タイトルのみ表示 -->
+    <h1>{{ translations[language].title }}</h1>
 
-        <div v-if="selectedTag">
-            <span>Selected Tag: {{ selectedTag }}</span>
-        </div>
+    <!-- Top Controls (言語切り替え, タグ表示, タグクリア) -->
+    <div class="top-controls">
+      <select v-model="language">
+        <option value="ja">日本語</option>
+        <option value="en">英語</option>
+        <option value="zh">中国語(簡体)</option>
+        <option value="ko">韓国語</option>
+      </select>
 
-         <button @click="tag_opner_fn">{{ translations[language].tag_open_word }}</button>
-         <span class="clear-button" @click="clearFilter">タグクリア</span>
-        <div class="tag_opner">
-        <div class="tags">
-            <span v-for="tag in uniqueTags" :key="tag" class="tag" @click="filterByTag(tag)">{{ tag }}</span>
-        </div>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th @click="sortData('id')">ID</th>
-                    <th @click="sortData('name')">{{ translations[language].name }}</th>
-                    <th @click="sortData('time')">{{ translations[language].time }}</th>
-                    <th>{{ translations[language].text }}</th>
-                    <th>tag</th>
-                    <th @click="sortData('url')">URL</th>
-                </tr>
-            </thead>
-            <div v-for="item in filteredData" :key="item.id" class="grid-container">
-                <div class="td1"><a :href="item.url" target="_blank">{{ item.id }}</a></div>
-                <div class="td2"><a :href="item.url" target="_blank">{{ item.name }}</a></div>
-                <div class="td3"><a :href="item.url" target="_blank">{{ item.time }}</a></div>
-                <div class="td4" @click="show_text(item.text)">※</div>
-                <div class="td5-container">
-                    <div class="td5" v-for="tag in item.tag" :key="tag" class="tag" @click="filterByTag(tag)">{{ tag }}</div>
-                </div>
-                <div class="td6">
-                    <iframe :src="item.url"></iframe>
-                </div>
-            </div>
-        </table>
+      <button class="tag-button" @click="tag_opner_fn">
+        <span class="material-icons">label</span>
+        {{ translations[language].tag_open_word }}
+      </button>
+
+      <button class="clear-button" @click="clearFilter">
+        <span class="material-icons">clear</span>
+        タグクリア
+      </button>
+
+      <div v-if="selectedTag" style="margin-left:auto; font-size:0.8rem;">
+        選択中のタグ: <strong>{{ selectedTag }}</strong>
+      </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
-    <script>
-        const { createApp } = Vue;
+    <!-- タグ一覧エリア -->
+    <div class="tag_opner">
+      <div class="tags">
+        <span
+          v-for="tag in uniqueTags"
+          :key="tag"
+          class="tag"
+          @click="filterByTag(tag)"
+        >
+          {{ tag }}
+        </span>
+      </div>
+    </div>
 
-        createApp({
-            data() {
-                return {
-                    tag_opner: false,
-                    language: 'ja',
-                    translations: {
-                        ja: {
-                            title: "デモアプリのサンプルと作成時間",
-                            instruction1: "nameをクリックすると、そのデモアプリが表示されます。",
-                            instruction2: "※をクリックすると、そのデモアプリの説明が表示されます。",
-                            name: "名前",
-                            time: "時間(分)",
-                            text: "説明",
-                            tag_open_word: "タグを開く"
-                        },
-                        en: {
-                            title: "Sample Demo Apps and Creation Time",
-                            instruction1: "Click on the name to display the demo app.",
-                            instruction2: "Click on ※ to display the description of the demo app.",
-                            name: "Name",
-                            time: "Time (minutes)",
-                            text: "Description",
-                            tag_open_word: "Open Tags"
-                        },
-                        zh: {
-                            title: "示例演示应用程序和创建时间",
-                            instruction1: "点击名称以显示演示应用程序。",
-                            instruction2: "点击※以显示演示应用程序的说明。",
-                            name: "名称",
-                            time: "时间（分钟）",
-                            text: "描述",
-                            tag_open_word: "打开标签"
-                        },
-                        ko: {
-                            title: "샘플 데모 앱 및 생성 시간",
-                            instruction1: "이름을 클릭하면 데모 앱이 표시됩니다.",
-                            instruction2: "※을 클릭하면 데모 앱의 설명이 표시됩니다.",
-                            name: "이름",
-                            time: "시간(분)",
-                            text: "설명",
-                            tag_open_word: "태그 열기"
-                        }
-                    },                    sort_type: 'asc',
-                    data: [
-{ id: 0, url: "https://createxyzdatabasesample.created.app", time: 30, name: "createxyzdatabasesample", text: "CreateXYZデモサイト。ログイン無し。データ入力有り削除有り更新有り。", tag: ["ログイン無し", "DB有り", "データ入力有り", "データ削除有り", "データ更新有り"] },
-{ id: 1, url: "https://twilikedemo.created.app", time: 30, name: "twilikedemo", text: "Twilikeデモサイト。ログイン無し。データ入力有り削除無し更新無し。", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し"] },
-{ id: 2, url: "https://orderfoordemo.created.app", time: 10, name: "orderfoordemo", text: "Orderfooデモサイト。ログイン無し。データ入力有り削除無し更新無し。料金計算有りオーダー実行無し。", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し"] },
-{ id: 3, url: "https://instagramdemo.created.app", time: 10, name: "instagramdemo", text: "Instagramデモサイト。ログイン無し。データ入力無し削除無し更新無し。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し"] },
-{ id: 4, url: "https://tiktoklikedemo.created.app", time: 30, name: "tiktoklikedemo", text: "TikTokLikeデモサイト。ログイン無し。データ入力無し削除無し更新無し。お気に入り変化有りフォロー変化有り。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し"] },
-{ id: 5, url: "https://companydemo.created.app", time: 30, name: "companydemo", text: "Companyデモサイト。ログイン無し。データ入力無し削除無し更新無し。言語変更有りメニューバー変化有り。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し"] },
-{ id: 6, url: "https://discorddemo.created.app", time: 1, name: "discorddemo", text: "Discordデモサイト。ログイン無し。データ入力有り削除無し更新無し。", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し"] },
-{ id: 7, url: "https://threaddemo.created.app", time: 10, name: "threaddemo", text: "Threadデモサイト。ログイン無し。データ入力有り(投稿,返信)削除無し更新無し。コメント投稿のみ、スレッド作成無しコミュニティ作成無し。2段階の画面遷移有り", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し", "コメント投稿のみ", "スレッド作成無し", "コミュニティ作成無し", "2段階の画面遷移有り"] },
-{ id: 8, url: "https://landingpagedemo.created.app", time: 10, name: "landingpagedemo", text: "LandingPageデモサイト。ログイン無し。データ入力無し削除無し更新無し。言語変更有り。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し", "言語変更有り"] },
-{ id: 9, url: "https://kanbanboarddemo.created.app", time: 30, name: "kanbanboarddemo", text: "KanbanBoardデモサイト。ログイン無し。データ入力有り削除無し更新無し。ドラッグ&ドロップ有り。3カラム。", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し", "ドラッグ&ドロップ有り", "3カラム"] },
-{ id: 10, url: "https://tinderdemo.created.app", time: 10, name: "tinderdemo", text: "Tinderデモサイト。ログイン無し。データ入力有り(マルバツ選択)削除無し更新無し。モバイル環境で左右スワイプ有り。", tag: ["ログイン無し", "データ入力有り(マルバツ選択)", "データ削除無し", "データ更新無し", "モバイル環境で左右スワイプ有り"] },
-{ id: 11, url: "https://chatbotdemo.created.app", time: 60, name: "chatbotdemo", text: "Chatbotデモサイト。ログイン無し。データ入力有り(ユーザーデータ,UI動作入力)削除無し更新無し。チャット表示有り。", tag: ["ログイン無し", "データ入力有り(ユーザーデータ,UI動作入力)", "データ削除無し", "データ更新無し", "チャット表示有り"] },
-{ id: 12, url: "https://craigslistdemo.created.app", time: 30, name: "craigslistdemo", text: "Craigslistデモサイト。ログイン無し。データ入力有り(表示のみ実動作無し)削除無し更新無し。画面遷移しないリスト詳細表示有り。", tag: ["ログイン無し", "データ入力有り(表示のみ実動作無し)", "データ削除無し", "データ更新無し", "画面遷移しないリスト詳細表示有り"] },
-{ id: 13, url: "https://jumpplusdemo.created.app", time: 30, name: "jumpplusdemo", text: "JumpPlusデモサイト。ログイン無し。データ入力無し削除無し更新無し。メニュー動作有り。ページ変更動作(ページ指示器)有りチャプター変更一部有り(コメント表示のみ変化)コメント投稿動作無し。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し", "メニュー動作有り", "ページ変更動作(ページ指示器)有り", "チャプター変更一部有り(コメント表示のみ変化)", "コメント投稿動作無し"] },
-{ id: 14, url: "https://skyscannerdemo.created.app", time: 30, name: "skyscannerdemo", text: "Skyscannerデモサイト。ログイン無し。データ入力有り削除無し更新無し。テキスト入力選択候補表示有り。検索結果表示変更有り。カレンダー動作有り。数字1以上増減有り。", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し", "テキスト入力選択候補表示有り", "検索結果表示変更有り", "カレンダー動作有り", "数字1以上増減有り"] },
-{ id: 15, url: "https://rentaldemo.created.app", time: 30, name: "rentaldemo", text: "Rentalデモサイト。ログイン無し。データ入力無し削除無し更新無し。メニュー動作有り。ラジオボタン変更有り。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し", "メニュー動作有り", "ラジオボタン変更有り"] },
-{ id: 16, url: "https://netflixdemo.created.app", time: 30, name: "netflixdemo", text: "Netflixデモサイト。ログイン無し。データ入力無し削除無し更新無し。縦スクロール読み込み有り。カルーセル有り。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し", "縦スクロール読み込み有り", "カルーセル有り"] },
-{ id: 17, url: "https://costcodemo.created.app", time: 10, name: "costcodemo", text: "Costcoデモサイト。ログイン無し。データ入力無し削除無し更新無し。カルーセル有り。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し", "カルーセル有り"] },
-{ id: 18, url: "https://metacriticdemo.created.app", time: 30, name: "metacriticdemo", text: "Metacriticデモサイト。ログイン無し。データ入力無し削除無し更新無し。タブ変更有り。動画表示ui有り。複合カラム有り。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し", "タブ変更有り", "動画表示ui有り", "複合カラム有り"] },
-{ id: 19, url: "https://newspaperdemo.created.app", time: 30, name: "newspaperdemo", text: "Newspaperデモサイト。ログイン無し。データ入力無し削除無し更新無し。中央揃え。メニューバー有り。カード表示有り。フォント変更有り。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し", "中央揃え", "メニューバー有り", "カード表示有り", "フォント変更有り"] },
-{ id: 20, url: "https://workflowdemo.created.app", time: 60, name: "workflowdemo", text: "Workflowデモサイト。ログイン無し。データ入力有り削除有り更新有り。ワークフロー表示有り。セーブ有りロード有り。オーバービュー表示有り。拡大縮小有り。要素追加有り。セレクト有り。要素リレーション表示有り。高難度ui有り。", tag: ["ログイン無し", "データ入力有り", "データ削除有り", "データ更新有り", "ワークフロー表示有り", "セーブ有り", "ロード有り", "オーバービュー表示有り", "拡大縮小有り", "要素追加有り", "セレクト有り", "要素リレーション表示有り", "高難度ui有り"] },
-{ id: 21, url: "https://admindashboarddemo.created.app", time: 30, name: "admindashboarddemo", text: "AdminDashboardデモサイト。ログイン無し。データ入力無し削除無し更新無し。メニューバー有り。表示開閉有り。ロゴ表示有り。テーブル表示有り。円グラフ有り棒グラフ有り。", tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し", "メニューバー有り", "表示開閉有り", "ロゴ表示有り", "テーブル表示有り", "円グラフ有り", "棒グラフ有り"] },
-{ id: 22, url: "https://ordertextdemo.created.app", time: 10, name: "ordertextdemo", text: "OrderTextデモサイト。ログイン無し。データ入力有り削除無し更新有り。テキスト入力有りセレクト有り。自動連番有り。移動表示ui有り。入力内要増加有り。自動計算有り。高難度ui有り。", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新有り", "テキスト入力有り", "セレクト有り", "自動連番有り", "移動表示ui有り", "入力内要増加有り", "自動計算有り", "高難度ui有り"] },
-{ id: 23, url: "https://orderselectdemo.created.app", time: 10, name: "orderselectdemo", text: "OrderSelectデモサイト。ログイン無し。データ入力有り削除有り更新有り。テキスト入力有りセレクト有り。文字列フィルタ有り。セレクトフィルタ有り。ソート有り。リスト追加有り。ステータス変更有り。自動計算有り。", tag: ["ログイン無し", "データ入力有り", "データ削除有り", "データ更新有り", "テキスト入力有り", "セレクト有り", "文字列フィルタ有り", "セレクトフィルタ有り", "ソート有り", "リスト追加有り", "ステータス変更有り", "自動計算有り", "高難度ui有り"] },
-{ id: 24, url: "https://votedemo.created.app", time: 60, name: "votedemo", text: "Voteデモサイト。ログイン無し。データ入力有り削除無し更新有り。サムズアップ有りサムズダウン有り。コメント有り。自動集計有り。idスクロール有り。高難度ui。", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新有り", "サムズアップ有り", "サムズダウン有り", "コメント有り", "自動集計有り", "idスクロール有り", "高難度ui"] },
-{ id: 25, url: "https://4chandemo.created.app", time: 30, name: "4chandemo", text: "4chanデモサイト。ログイン無し。データ入力有り削除無し更新無し。カテゴリ有り。スレッド有り。コメント有り。2階層データ構造有り。", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し", "カテゴリ有り", "スレッド有り", "コメント有り", "2階層データ構造有り"] },
-{ id: 26, url: "https://propertymanagementdemo.created.app", time: 30, name: "propertymanagementdemo", text: "PropertyManagementデモサイト。ログイン無し。データ入力有り削除有り更新無し。画像有り。テーブル2枚データ構造有り。1:1データロックイン有り。ポインタ変更有り。アフォーダンスui", tag: ["ログイン無し", "データ入力有り", "データ削除有り", "データ更新無し", "画像有り", "テーブル2枚データ構造有り", "1:1データロックイン有り", "ポインタ変更有り", "アフォーダンスui"] },
-{ id: 27, url: "https://roommanagementdemo.created.app", time: 30, name: "roommanagementdemo", text: "RoomManagementデモサイト。ログイン無し。データ入力有り削除有り更新無し。テーブル構造有り。テーブル2枚データ構造有り。タイマー機能有り。履歴自動生成有り。ステータス変更有り。セレクト有り。リスト構造有り。高難度ui有り。", tag: ["ログイン無し", "データ入力有り", "データ削除有り", "データ更新無し", "テーブル構造有り", "テーブル2枚データ構造有り", "タイマー機能有り", "履歴自動生成有り", "ステータス変更有り", "セレクト有り", "リスト構造有り", "高難度ui有り"] },
-{ id: 28, url: "https://linkedindemo.created.app", time: 10, name: "linkedindemo", text: "LinkedInデモサイト。ログイン無し。データ入力有り削除無し更新無し。自動集計有り。投稿有り。コメント有り。複合カラム有り。サムズアップ有り。", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し", "自動集計有り", "投稿有り", "コメント有り", "複合カラム有り", "サムズアップ有り"] },
-{ id: 29, url: "https://linkmanagementdemo.created.app", time: 30, name: "linkmanagementdemo", text: "LinkManagementデモサイト。ログイン無し。データ入力有り削除無し更新無し。ソート有り。2種ソート有り。テキストフィルタ有り。", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し", "ソート有り", "2種ソート有り", "テキストフィルタ有り"] },
-{ id: 30, url: "https://betdemo.created.app", time: 90, name: "betdemo", text: "Betデモサイト。ログイン無し。データ入力有り削除無し更新無し。日付入力有り。複数カラム有り。自動計算有り。動的サイト。高難度ui", tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し", "日付入力有り", "複数カラム有り", "自動計算有り", "動的サイト", "高難度ui"] },
-{ id: 31, url: "https://clickcounterdemo.created.app", time: 10, name: "clickcounterdemo", text: "Clickcounterデモサイト。ログイン無し。DB有り。データ入力無しデータ削除無しデータ更新有り。", tag: ["ログイン無し", "DB有り", "データ入力無し", "データ削除無し", "データ更新有り"] },
-{ id: 32, url: "https://survey3options1.created.app", time: 120, name: "survey3options1", text: "アンケートサイト。ログイン無し。DB有り。データ入力有り削除無し更新無し。アンケート有り。他ユーザー利用可能。パスワード有り。タブ有り。", tag: ["ログイン無し", "DB有り", "データ入力有り", "データ削除無し", "データ更新無し", "アンケート有り", "他ユーザー利用可能", "パスワード有り", "タブ有り"] },
-{ id: 33, url: "https://givewant1.created.app", time: 180, name: "givewant1", text: "ニーズマッチングサイト。ログイン有り。DB有り。データ入力有り削除有り更新有り。タグ有り。マッチング有り。集計有り。テキストフィルタ有り。タグフィルタ有り。", tag: ["ログイン有り", "DB有り", "データ入力有り", "データ削除有り", "データ更新有り", "タグ有り", "マッチング有り", "集計有り", "テキストフィルタ有り", "タグフィルタ有り"] },
-{ id: 34, url: "https://webpagelist.created.app", time: 60, name: "webpagelist", text: "WebPageListデモサイト。ログイン有り。DB有り。データ入力有り削除有り更新有り。リスト表示有り。リスト追加有り。リスト削除有り。リスト更新有り。タグ有り。", tag: ["ログイン有り", "DB有り", "データ入力有り", "データ削除有り", "データ更新有り", "リスト表示有り", "リスト追加有り", "リスト削除有り", "リスト更新有り", "タグ有り"] },
+    <!-- ソートボタン群 -->
+    <div class="sort-bar">
+      <button @click="sortData('id')">
+        ID <span class="material-icons">sort</span>
+      </button>
+      <button @click="sortData('name')">
+        {{ translations[language].name }}
+        <span class="material-icons">sort</span>
+      </button>
+      <button @click="sortData('time')">
+        {{ translations[language].time }}
+        <span class="material-icons">sort</span>
+      </button>
+      <button @click="sortData('url')">
+        URL <span class="material-icons">sort</span>
+      </button>
+    </div>
 
+    <!-- カードのグリッドレイアウト -->
+    <div class="card-grid">
+      <div
+        class="card"
+        v-for="item in filteredData"
+        :key="item.id"
+      >
+        <!-- カードヘッダー -->
+        <div class="card-header">
+          <!-- 名前をリンクにしてクリック時に新規タブで開く -->
+          <h2>
+            <a :href="item.url" target="_blank" rel="noopener noreferrer">
+              {{ item.name }}
+            </a>
+          </h2>
 
-                    ],
-                selectedTag: null,
-                };
+          <!-- IDと時間 -->
+          <div class="id-time">
+            <div>ID: {{ item.id }}</div>
+            <div>{{ item.time }} {{ translations[language].time }}</div>
+          </div>
+          <!-- 説明アイコンボタン -->
+          <button class="info-button" @click="show_text(item.text)">
+            <span class="material-icons">info</span>
+          </button>
+        </div>
+
+        <!-- iframe表示 -->
+        <iframe :src="item.url"></iframe>
+
+        <!-- タグ一覧 -->
+        <div class="card-tags">
+          <span
+            class="tag"
+            v-for="tag in item.tag"
+            :key="tag"
+            @click="filterByTag(tag)"
+          >
+            {{ tag }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vue本体 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          tag_opner: false,
+          language: "ja",
+          translations: {
+            ja: {
+              title: "デモアプリと作成時間",
+              name: "名前",
+              time: "作成時間(分単位)",
+              text: "説明",
+              tag_open_word: "タグを開く",
             },
-            computed: {
-                uniqueTags() {
-                    const tags = new Set();
-                    this.data.forEach(item => {
-                        item.tag.forEach(tag => tags.add(tag));
-                    });
-                    return Array.from(tags);
-                },
-                filteredData() {
-                    if (this.selectedTag) {
-                        return this.data.filter(item => item.tag.includes(this.selectedTag));
-                    }
-                    // tag_opnerを閉じる
-                    this.tag_opner = false;
-                    return this.data;
-                }
+            en: {
+              title: "Sample Demo Apps and Creation Time",
+              name: "Name",
+              time: "Time (minutes)",
+              text: "Description",
+              tag_open_word: "Open Tags",
             },
-            methods: {
-                tag_opner_fn() {
-                    this.tag_opner = !this.tag_opner;
-                    document.documentElement.style.setProperty('--tag-opner-display', this.tag_opner ? 'block' : 'none');
-                },
-                selectItem(url) {
-                    this.selectedUrl = url;
-                },
-                sortData(key) {
-                    this.sort_type = this.sort_type === 'asc' ? 'desc' : 'asc';
-                    this.data.sort((a, b) => {
-                        if (a[key] < b[key]) {
-                            return this.sort_type === 'asc' ? -1 : 1;
-                        }
-                        if (a[key] > b[key]) {
-                            return this.sort_type === 'asc' ? 1 : -1;
-                        }
-                        return 0;
-                    });
-                },
-                show_text(text) {
-                    alert(text);
-                },
-                filterByTag(tag) {
-                    this.selectedTag = tag;
-                },
-                clearFilter() {
-                    this.selectedTag = null;
-                }
-            }
-        }).mount('#app');
-
-        window.app = app;
-    </script>
+            zh: {
+              title: "示例演示应用程序和创建时间",
+              name: "名称",
+              time: "时间（分钟）",
+              text: "描述",
+              tag_open_word: "打开标签",
+            },
+            ko: {
+              title: "샘플 데모 앱 및 생성 시간",
+              name: "이름",
+              time: "시간(분)",
+              text: "설명",
+              tag_open_word: "태그 열기",
+            },
+          },
+          sort_type: "asc",
+          data: [
+            {
+              id: 0,
+              url: "https://createxyzdatabasesample.created.app",
+              time: 30,
+              name: "createxyzdatabasesample",
+              text: "CreateXYZデモサイト。ログイン無し。データ入力有り削除有り更新有り。",
+              tag: ["ログイン無し", "DB有り", "データ入力有り", "データ削除有り", "データ更新有り"],
+            },
+            {
+              id: 1,
+              url: "https://twilikedemo.created.app",
+              time: 30,
+              name: "twilikedemo",
+              text: "Twilikeデモサイト。ログイン無し。データ入力有り削除無し更新無し。",
+              tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し"],
+            },
+            {
+              id: 2,
+              url: "https://orderfoordemo.created.app",
+              time: 10,
+              name: "orderfoordemo",
+              text: "Orderfooデモサイト。ログイン無し。データ入力有り削除無し更新無し。料金計算有りオーダー実行無し。",
+              tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し"],
+            },
+            {
+              id: 3,
+              url: "https://instagramdemo.created.app",
+              time: 10,
+              name: "instagramdemo",
+              text: "Instagramデモサイト。ログイン無し。データ入力無し削除無し更新無し。",
+              tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し"],
+            },
+            {
+              id: 4,
+              url: "https://tiktoklikedemo.created.app",
+              time: 30,
+              name: "tiktoklikedemo",
+              text: "TikTokLikeデモサイト。ログイン無し。データ入力無し削除無し更新無し。お気に入り変化有りフォロー変化有り。",
+              tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し"],
+            },
+            {
+              id: 5,
+              url: "https://companydemo.created.app",
+              time: 30,
+              name: "companydemo",
+              text: "Companyデモサイト。ログイン無し。データ入力無し削除無し更新無し。言語変更有りメニューバー変化有り。",
+              tag: ["ログイン無し", "データ入力無し", "データ削除無し", "データ更新無し"],
+            },
+            {
+              id: 6,
+              url: "https://discorddemo.created.app",
+              time: 1,
+              name: "discorddemo",
+              text: "Discordデモサイト。ログイン無し。データ入力有り削除無し更新無し。",
+              tag: ["ログイン無し", "データ入力有り", "データ削除無し", "データ更新無し"],
+            },
+            {
+              id: 7,
+              url: "https://threaddemo.created.app",
+              time: 10,
+              name: "threaddemo",
+              text: "Threadデモサイト。ログイン無し。データ入力有り(投稿,返信)削除無し更新無し。コメント投稿のみ、スレッド作成無しコミュニティ作成無し。2段階の画面遷移有り",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除無し",
+                "データ更新無し",
+                "コメント投稿のみ",
+                "スレッド作成無し",
+                "コミュニティ作成無し",
+                "2段階の画面遷移有り",
+              ],
+            },
+            {
+              id: 8,
+              url: "https://landingpagedemo.created.app",
+              time: 10,
+              name: "landingpagedemo",
+              text: "LandingPageデモサイト。ログイン無し。データ入力無し削除無し更新無し。言語変更有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力無し",
+                "データ削除無し",
+                "データ更新無し",
+                "言語変更有り",
+              ],
+            },
+            {
+              id: 9,
+              url: "https://kanbanboarddemo.created.app",
+              time: 30,
+              name: "kanbanboarddemo",
+              text: "KanbanBoardデモサイト。ログイン無し。データ入力有り削除無し更新無し。ドラッグ&ドロップ有り。3カラム。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除無し",
+                "データ更新無し",
+                "ドラッグ&ドロップ有り",
+                "3カラム",
+              ],
+            },
+            {
+              id: 10,
+              url: "https://tinderdemo.created.app",
+              time: 10,
+              name: "tinderdemo",
+              text: "Tinderデモサイト。ログイン無し。データ入力有り(マルバツ選択)削除無し更新無し。モバイル環境で左右スワイプ有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り(マルバツ選択)",
+                "データ削除無し",
+                "データ更新無し",
+                "モバイル環境で左右スワイプ有り",
+              ],
+            },
+            {
+              id: 11,
+              url: "https://chatbotdemo.created.app",
+              time: 60,
+              name: "chatbotdemo",
+              text: "Chatbotデモサイト。ログイン無し。データ入力有り(ユーザーデータ,UI動作入力)削除無し更新無し。チャット表示有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り(ユーザーデータ,UI動作入力)",
+                "データ削除無し",
+                "データ更新無し",
+                "チャット表示有り",
+              ],
+            },
+            {
+              id: 12,
+              url: "https://craigslistdemo.created.app",
+              time: 30,
+              name: "craigslistdemo",
+              text: "Craigslistデモサイト。ログイン無し。データ入力有り(表示のみ実動作無し)削除無し更新無し。画面遷移しないリスト詳細表示有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り(表示のみ実動作無し)",
+                "データ削除無し",
+                "データ更新無し",
+                "画面遷移しないリスト詳細表示有り",
+              ],
+            },
+            {
+              id: 13,
+              url: "https://jumpplusdemo.created.app",
+              time: 30,
+              name: "jumpplusdemo",
+              text: "JumpPlusデモサイト。ログイン無し。データ入力無し削除無し更新無し。メニュー動作有り。ページ変更動作(ページ指示器)有りチャプター変更一部有り(コメント表示のみ変化)コメント投稿動作無し。",
+              tag: [
+                "ログイン無し",
+                "データ入力無し",
+                "データ削除無し",
+                "データ更新無し",
+                "メニュー動作有り",
+                "ページ変更動作(ページ指示器)有り",
+                "チャプター変更一部有り(コメント表示のみ変化)",
+                "コメント投稿動作無し",
+              ],
+            },
+            {
+              id: 14,
+              url: "https://skyscannerdemo.created.app",
+              time: 30,
+              name: "skyscannerdemo",
+              text: "Skyscannerデモサイト。ログイン無し。データ入力有り削除無し更新無し。テキスト入力選択候補表示有り。検索結果表示変更有り。カレンダー動作有り。数字1以上増減有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除無し",
+                "データ更新無し",
+                "テキスト入力選択候補表示有り",
+                "検索結果表示変更有り",
+                "カレンダー動作有り",
+                "数字1以上増減有り",
+              ],
+            },
+            {
+              id: 15,
+              url: "https://rentaldemo.created.app",
+              time: 30,
+              name: "rentaldemo",
+              text: "Rentalデモサイト。ログイン無し。データ入力無し削除無し更新無し。メニュー動作有り。ラジオボタン変更有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力無し",
+                "データ削除無し",
+                "データ更新無し",
+                "メニュー動作有り",
+                "ラジオボタン変更有り",
+              ],
+            },
+            {
+              id: 16,
+              url: "https://netflixdemo.created.app",
+              time: 30,
+              name: "netflixdemo",
+              text: "Netflixデモサイト。ログイン無し。データ入力無し削除無し更新無し。縦スクロール読み込み有り。カルーセル有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力無し",
+                "データ削除無し",
+                "データ更新無し",
+                "縦スクロール読み込み有り",
+                "カルーセル有り",
+              ],
+            },
+            {
+              id: 17,
+              url: "https://costcodemo.created.app",
+              time: 10,
+              name: "costcodemo",
+              text: "Costcoデモサイト。ログイン無し。データ入力無し削除無し更新無し。カルーセル有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力無し",
+                "データ削除無し",
+                "データ更新無し",
+                "カルーセル有り",
+              ],
+            },
+            {
+              id: 18,
+              url: "https://metacriticdemo.created.app",
+              time: 30,
+              name: "metacriticdemo",
+              text: "Metacriticデモサイト。ログイン無し。データ入力無し削除無し更新無し。タブ変更有り。動画表示ui有り。複合カラム有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力無し",
+                "データ削除無し",
+                "データ更新無し",
+                "タブ変更有り",
+                "動画表示ui有り",
+                "複合カラム有り",
+              ],
+            },
+            {
+              id: 19,
+              url: "https://newspaperdemo.created.app",
+              time: 30,
+              name: "newspaperdemo",
+              text: "Newspaperデモサイト。ログイン無し。データ入力無し削除無し更新無し。中央揃え。メニューバー有り。カード表示有り。フォント変更有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力無し",
+                "データ削除無し",
+                "データ更新無し",
+                "中央揃え",
+                "メニューバー有り",
+                "カード表示有り",
+                "フォント変更有り",
+              ],
+            },
+            {
+              id: 20,
+              url: "https://workflowdemo.created.app",
+              time: 60,
+              name: "workflowdemo",
+              text: "Workflowデモサイト。ログイン無し。データ入力有り削除有り更新有り。ワークフロー表示有り。セーブ有りロード有り。オーバービュー表示有り。拡大縮小有り。要素追加有り。セレクト有り。要素リレーション表示有り。高難度ui有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除有り",
+                "データ更新有り",
+                "ワークフロー表示有り",
+                "セーブ有り",
+                "ロード有り",
+                "オーバービュー表示有り",
+                "拡大縮小有り",
+                "要素追加有り",
+                "セレクト有り",
+                "要素リレーション表示有り",
+                "高難度ui有り",
+              ],
+            },
+            {
+              id: 21,
+              url: "https://admindashboarddemo.created.app",
+              time: 30,
+              name: "admindashboarddemo",
+              text: "AdminDashboardデモサイト。ログイン無し。データ入力無し削除無し更新無し。メニューバー有り。表示開閉有り。ロゴ表示有り。テーブル表示有り。円グラフ有り棒グラフ有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力無し",
+                "データ削除無し",
+                "データ更新無し",
+                "メニューバー有り",
+                "表示開閉有り",
+                "ロゴ表示有り",
+                "テーブル表示有り",
+                "円グラフ有り",
+                "棒グラフ有り",
+              ],
+            },
+            {
+              id: 22,
+              url: "https://ordertextdemo.created.app",
+              time: 10,
+              name: "ordertextdemo",
+              text: "OrderTextデモサイト。ログイン無し。データ入力有り削除無し更新有り。テキスト入力有りセレクト有り。自動連番有り。移動表示ui有り。入力内要増加有り。自動計算有り。高難度ui有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除無し",
+                "データ更新有り",
+                "テキスト入力有り",
+                "セレクト有り",
+                "自動連番有り",
+                "移動表示ui有り",
+                "入力内要増加有り",
+                "自動計算有り",
+                "高難度ui有り",
+              ],
+            },
+            {
+              id: 23,
+              url: "https://orderselectdemo.created.app",
+              time: 10,
+              name: "orderselectdemo",
+              text: "OrderSelectデモサイト。ログイン無し。データ入力有り削除有り更新有り。テキスト入力有りセレクト有り。文字列フィルタ有り。セレクトフィルタ有り。ソート有り。リスト追加有り。ステータス変更有り。自動計算有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除有り",
+                "データ更新有り",
+                "テキスト入力有り",
+                "セレクト有り",
+                "文字列フィルタ有り",
+                "セレクトフィルタ有り",
+                "ソート有り",
+                "リスト追加有り",
+                "ステータス変更有り",
+                "自動計算有り",
+                "高難度ui有り",
+              ],
+            },
+            {
+              id: 24,
+              url: "https://votedemo.created.app",
+              time: 60,
+              name: "votedemo",
+              text: "Voteデモサイト。ログイン無し。データ入力有り削除無し更新有り。サムズアップ有りサムズダウン有り。コメント有り。自動集計有り。idスクロール有り。高難度ui。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除無し",
+                "データ更新有り",
+                "サムズアップ有り",
+                "サムズダウン有り",
+                "コメント有り",
+                "自動集計有り",
+                "idスクロール有り",
+                "高難度ui",
+              ],
+            },
+            {
+              id: 25,
+              url: "https://4chandemo.created.app",
+              time: 30,
+              name: "4chandemo",
+              text: "4chanデモサイト。ログイン無し。データ入力有り削除無し更新無し。カテゴリ有り。スレッド有り。コメント有り。2階層データ構造有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除無し",
+                "データ更新無し",
+                "カテゴリ有り",
+                "スレッド有り",
+                "コメント有り",
+                "2階層データ構造有り",
+              ],
+            },
+            {
+              id: 26,
+              url: "https://propertymanagementdemo.created.app",
+              time: 30,
+              name: "propertymanagementdemo",
+              text: "PropertyManagementデモサイト。ログイン無し。データ入力有り削除有り更新無し。画像有り。テーブル2枚データ構造有り。1:1データロックイン有り。ポインタ変更有り。アフォーダンスui",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除有り",
+                "データ更新無し",
+                "画像有り",
+                "テーブル2枚データ構造有り",
+                "1:1データロックイン有り",
+                "ポインタ変更有り",
+                "アフォーダンスui",
+              ],
+            },
+            {
+              id: 27,
+              url: "https://roommanagementdemo.created.app",
+              time: 30,
+              name: "roommanagementdemo",
+              text: "RoomManagementデモサイト。ログイン無し。データ入力有り削除有り更新無し。テーブル構造有り。テーブル2枚データ構造有り。タイマー機能有り。履歴自動生成有り。ステータス変更有り。セレクト有り。リスト構造有り。高難度ui有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除有り",
+                "データ更新無し",
+                "テーブル構造有り",
+                "テーブル2枚データ構造有り",
+                "タイマー機能有り",
+                "履歴自動生成有り",
+                "ステータス変更有り",
+                "セレクト有り",
+                "リスト構造有り",
+                "高難度ui有り",
+              ],
+            },
+            {
+              id: 28,
+              url: "https://linkedindemo.created.app",
+              time: 10,
+              name: "linkedindemo",
+              text: "LinkedInデモサイト。ログイン無し。データ入力有り削除無し更新無し。自動集計有り。投稿有り。コメント有り。複合カラム有り。サムズアップ有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除無し",
+                "データ更新無し",
+                "自動集計有り",
+                "投稿有り",
+                "コメント有り",
+                "複合カラム有り",
+                "サムズアップ有り",
+              ],
+            },
+            {
+              id: 29,
+              url: "https://linkmanagementdemo.created.app",
+              time: 30,
+              name: "linkmanagementdemo",
+              text: "LinkManagementデモサイト。ログイン無し。データ入力有り削除無し更新無し。ソート有り。2種ソート有り。テキストフィルタ有り。",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除無し",
+                "データ更新無し",
+                "ソート有り",
+                "2種ソート有り",
+                "テキストフィルタ有り",
+              ],
+            },
+            {
+              id: 30,
+              url: "https://betdemo.created.app",
+              time: 90,
+              name: "betdemo",
+              text: "Betデモサイト。ログイン無し。データ入力有り削除無し更新無し。日付入力有り。複数カラム有り。自動計算有り。動的サイト。高難度ui",
+              tag: [
+                "ログイン無し",
+                "データ入力有り",
+                "データ削除無し",
+                "データ更新無し",
+                "日付入力有り",
+                "複数カラム有り",
+                "自動計算有り",
+                "動的サイト",
+                "高難度ui",
+              ],
+            },
+            {
+              id: 31,
+              url: "https://clickcounterdemo.created.app",
+              time: 10,
+              name: "clickcounterdemo",
+              text: "Clickcounterデモサイト。ログイン無し。DB有り。データ入力無しデータ削除無しデータ更新有り。",
+              tag: [
+                "ログイン無し",
+                "DB有り",
+                "データ入力無し",
+                "データ削除無し",
+                "データ更新有り",
+              ],
+            },
+            {
+              id: 32,
+              url: "https://survey3options1.created.app",
+              time: 120,
+              name: "survey3options1",
+              text: "アンケートサイト。ログイン無し。DB有り。データ入力有り削除無し更新無し。アンケート有り。他ユーザー利用可能。パスワード有り。タブ有り。",
+              tag: [
+                "ログイン無し",
+                "DB有り",
+                "データ入力有り",
+                "データ削除無し",
+                "データ更新無し",
+                "アンケート有り",
+                "他ユーザー利用可能",
+                "パスワード有り",
+                "タブ有り",
+              ],
+            },
+            {
+              id: 33,
+              url: "https://givewant1.created.app",
+              time: 180,
+              name: "givewant1",
+              text: "ニーズマッチングサイト。ログイン有り。DB有り。データ入力有り削除有り更新有り。タグ有り。マッチング有り。集計有り。テキストフィルタ有り。タグフィルタ有り。",
+              tag: [
+                "ログイン有り",
+                "DB有り",
+                "データ入力有り",
+                "データ削除有り",
+                "データ更新有り",
+                "タグ有り",
+                "マッチング有り",
+                "集計有り",
+                "テキストフィルタ有り",
+                "タグフィルタ有り",
+              ],
+            },
+            {
+              id: 34,
+              url: "https://webpagelist.created.app",
+              time: 60,
+              name: "webpagelist",
+              text: "WebPageListデモサイト。ログイン有り。DB有り。データ入力有り削除有り更新有り。リスト表示有り。リスト追加有り。リスト削除有り。リスト更新有り。タグ有り。",
+              tag: [
+                "ログイン有り",
+                "DB有り",
+                "データ入力有り",
+                "データ削除有り",
+                "データ更新有り",
+                "リスト表示有り",
+                "リスト追加有り",
+                "リスト削除有り",
+                "リスト更新有り",
+                "タグ有り",
+              ],
+            },
+            {
+              id: 35,
+              url: "https://accesscontrolsystem1.created.app",
+              time: 120,
+              name: "accesscontrolsystem1",
+              text: "AccessControlSystemデモサイト。ログイン有り。DB有り。データ入力有り削除有り更新有り。アクセスログ有り。複数ユーザー有り。店舗側ユーザー作成有り。",
+              tag: [
+                "ログイン有り",
+                "DB有り",
+                "データ入力有り",
+                "データ削除有り",
+                "データ更新有り",
+                "アクセス制御有り",
+                "アクセスログ有り",
+                "複数ユーザー有り",
+                "店舗側ユーザー作成有り",
+              ],
+            },
+          ],
+          selectedTag: null,
+        };
+      },
+      computed: {
+        uniqueTags() {
+          const tags = new Set();
+          this.data.forEach((item) => {
+            item.tag.forEach((t) => tags.add(t));
+          });
+          return Array.from(tags);
+        },
+        filteredData() {
+          if (this.selectedTag) {
+            return this.data.filter((item) => item.tag.includes(this.selectedTag));
+          }
+          // tag_opnerを閉じる
+          this.tag_opner = false;
+          return this.data;
+        },
+      },
+      mounted() {
+        // アプリ起動時に ID を降順でソートして表示
+        this.sort_type = "desc";
+        this.data.sort((a, b) => b.id - a.id);
+      },
+      methods: {
+        tag_opner_fn() {
+          this.tag_opner = !this.tag_opner;
+          document.documentElement.style.setProperty(
+            "--tag-opner-display",
+            this.tag_opner ? "block" : "none"
+          );
+        },
+        selectItem(url) {
+          this.selectedUrl = url;
+        },
+        sortData(key) {
+          this.sort_type = this.sort_type === "asc" ? "desc" : "asc";
+          this.data.sort((a, b) => {
+            if (a[key] < b[key]) return this.sort_type === "asc" ? -1 : 1;
+            if (a[key] > b[key]) return this.sort_type === "asc" ? 1 : -1;
+            return 0;
+          });
+        },
+        show_text(text) {
+          alert(text);
+        },
+        filterByTag(tag) {
+          this.selectedTag = tag;
+        },
+        clearFilter() {
+          this.selectedTag = null;
+        },
+      },
+    }).mount("#app");
+  </script>
 </body>
 </html>
